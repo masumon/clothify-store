@@ -47,8 +47,7 @@ export default function CheckoutForm() {
       });
 
       clearCart();
-      alert("Order placed successfully");
-      window.location.href = "/";
+      window.location.href = "/order-success";
     } catch (error: any) {
       alert(error.message || "Failed to place order");
     } finally {
