@@ -18,7 +18,10 @@ export default function ProductUploadForm() {
 
     try {
       setUploading(true);
-      const filePath = `products/${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
+      setImageUrl("");
+
+      const cleanName = file.name.replace(/\s+/g, "-");
+      const filePath = `products/${Date.now()}-${cleanName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("product-images")
@@ -26,9 +29,12 @@ export default function ProductUploadForm() {
 
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from("product-images").getPublicUrl(filePath);
+      const { data } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
       setImageUrl(data.publicUrl);
-      alert("Product image uploaded");
+      alert("Product image uploaded successfully");
     } catch (error: any) {
       alert(error.message || "Image upload failed");
     } finally {
@@ -39,8 +45,28 @@ export default function ProductUploadForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!name || !price || !category || !imageUrl) {
-      alert("Please fill all required fields");
+    if (!name.trim()) {
+      alert("Product name is required");
+      return;
+    }
+
+    if (!price.trim()) {
+      alert("Price is required");
+      return;
+    }
+
+    if (!category.trim()) {
+      alert("Category is required");
+      return;
+    }
+
+    if (uploading) {
+      alert("Please wait until image upload is complete");
+      return;
+    }
+
+    if (!imageUrl.trim()) {
+      alert("Please upload a product image first");
       return;
     }
 
@@ -54,9 +80,9 @@ export default function ProductUploadForm() {
 
       const { error } = await supabase.from("products").insert([
         {
-          name,
+          name: name.trim(),
           price: Number(price),
-          category,
+          category: category.trim(),
           sizes: sizesArray,
           image_url: imageUrl,
         },
@@ -74,7 +100,10 @@ export default function ProductUploadForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+    >
       <h2 className="text-xl font-bold text-slate-900">Add New Product</h2>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -112,7 +141,9 @@ export default function ProductUploadForm() {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">Product Image</label>
+        <label className="mb-2 block text-sm font-semibold text-slate-700">
+          Product Image
+        </label>
         <input
           type="file"
           accept="image/*"
@@ -120,20 +151,32 @@ export default function ProductUploadForm() {
           className="w-full text-sm"
         />
         <p className="mt-2 text-xs text-slate-500">
-          {uploading ? "Uploading image..." : "Upload product image"}
+          {uploading
+            ? "Uploading image... please wait"
+            : imageUrl
+            ? "Image uploaded successfully"
+            : "Choose image and wait for upload success message"}
         </p>
       </div>
 
       {imageUrl ? (
-        <img src={imageUrl} alt="Preview" className="h-32 w-32 rounded-xl border object-cover" />
+        <img
+          src={imageUrl}
+          alt="Preview"
+          className="h-32 w-32 rounded-xl border object-cover"
+        />
       ) : null}
 
       <button
         type="submit"
-        disabled={saving}
+        disabled={saving || uploading}
         className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white disabled:opacity-60"
       >
-        {saving ? "Saving..." : "Add Product"}
+        {uploading
+          ? "Uploading image..."
+          : saving
+          ? "Saving..."
+          : "Add Product"}
       </button>
     </form>
   );
