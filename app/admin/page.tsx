@@ -1,13 +1,35 @@
 import Link from "next/link";
 import AdminTopbar from "@/components/AdminTopbar";
+import AdminStats from "@/components/AdminStats";
+import { supabase } from "@/lib/supabase";
 
-export default function AdminHomePage() {
+async function getDashboardData() {
+  const { data: products } = await supabase.from("products").select("id");
+  const { data: orders } = await supabase.from("orders").select("id,status");
+
+  const totalProducts = products?.length || 0;
+  const totalOrders = orders?.length || 0;
+  const totalPending =
+    orders?.filter((order: any) => order.status === "Pending").length || 0;
+
+  return { totalProducts, totalOrders, totalPending };
+}
+
+export default async function AdminHomePage() {
+  const { totalProducts, totalOrders, totalPending } = await getDashboardData();
+
   return (
     <section>
       <AdminTopbar />
 
       <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
       <p className="mt-2 text-slate-600">Manage your Clothify store from here.</p>
+
+      <AdminStats
+        totalProducts={totalProducts}
+        totalOrders={totalOrders}
+        totalPending={totalPending}
+      />
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         <Link
@@ -31,7 +53,7 @@ export default function AdminHomePage() {
           className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
         >
           <h2 className="text-xl font-bold">Settings</h2>
-          <p className="mt-2 text-sm text-slate-600">Review store information</p>
+          <p className="mt-2 text-sm text-slate-600">Update store information</p>
         </Link>
       </div>
     </section>
