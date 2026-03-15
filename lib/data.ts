@@ -15,11 +15,24 @@ export async function getStoreSettings() {
   return data;
 }
 
-export async function getProducts() {
-  const { data, error } = await supabase
+export async function getProducts(filters?: {
+  search?: string;
+  category?: string;
+}) {
+  let query = supabase
     .from("products")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (filters?.search) {
+    query = query.ilike("name", `%${filters.search}%`);
+  }
+
+  if (filters?.category && filters.category !== "All") {
+    query = query.eq("category", filters.category);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Products fetch error:", error.message);
@@ -27,6 +40,21 @@ export async function getProducts() {
   }
 
   return data || [];
+}
+
+export async function getCategories() {
+  const { data, error } = await supabase.from("products").select("category");
+
+  if (error) {
+    console.error("Category fetch error:", error.message);
+    return [];
+  }
+
+  const uniqueCategories = Array.from(
+    new Set((data || []).map((item: any) => item.category).filter(Boolean))
+  );
+
+  return uniqueCategories;
 }
 
 export async function getProductById(id: string) {
