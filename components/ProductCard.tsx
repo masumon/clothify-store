@@ -12,7 +12,7 @@ type ProductCardProps = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow border border-slate-200">
+    <div className="overflow-hidden rounded-2xl bg-white shadow border border-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/product/${product.id}`}>
         <img
           src={product.image_url}
@@ -26,7 +26,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.category}
         </p>
 
-        <h3 className="text-lg font-bold text-slate-900">{product.name}</h3>
+        <h3 className="line-clamp-2 text-lg font-bold text-slate-900">
+          {product.name}
+        </h3>
 
         <p className="mt-2 text-base font-semibold text-pink-600">
           ৳{product.price}
