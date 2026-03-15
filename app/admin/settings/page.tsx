@@ -8,7 +8,14 @@ export default async function AdminSettingsPage() {
   return (
     <section>
       <AdminTopbar />
-      <h1 className="mb-6 text-3xl font-bold text-slate-900">Store Settings</h1>
+
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-900">Store Settings</h1>
+        <p className="mt-2 text-slate-600">
+          Update your brand identity, contact numbers, logo, and bKash QR.
+        </p>
+      </div>
+
       <StoreSettingsForm initialData={settings} />
     </section>
   );
