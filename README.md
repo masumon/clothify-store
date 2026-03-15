@@ -1,2 +1,10 @@
-# clothify-store
-Clothify e-commerce CMS with Next.js, Tailwind, and Supabase
+# Clothify CMS
+
+Next.js + Supabase powered ecommerce CMS.
+
+Features
+
+- Dynamic products
+- Checkout with bKash
+- Admin dashboard
+- Supabase database
