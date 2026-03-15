@@ -2,6 +2,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import AddToCartButton from "@/components/AddToCartButton";
 import BottomNav from "@/components/BottomNav";
+import WhatsAppOrderButton from "@/components/WhatsAppOrderButton";
+import Footer from "@/components/Footer";
 import { getProductById, getStoreSettings } from "@/lib/data";
 
 export default async function ProductDetailsPage({
@@ -69,16 +71,20 @@ export default async function ProductDetailsPage({
           <AddToCartButton product={product} />
 
           <div className="mt-4">
-            <a
-              href={`https://wa.me/${settings?.whatsapp_number || "8801805996960"}`}
-              target="_blank"
-              className="inline-block rounded-lg bg-green-600 px-5 py-3 text-sm font-medium text-white"
-            >
-              Order via WhatsApp
-            </a>
+            <WhatsAppOrderButton
+              phone={settings?.whatsapp_number || "8801805996960"}
+              productName={product.name}
+              price={product.price}
+            />
           </div>
         </div>
       </section>
+
+      <Footer
+        storeName={settings?.store_name || "Clothify"}
+        address={settings?.address || ""}
+        phone={settings?.contact_phone || ""}
+      />
 
       <BottomNav />
     </main>
