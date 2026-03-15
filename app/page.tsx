@@ -4,6 +4,8 @@ import Footer from "@/components/Footer";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home({
   searchParams,
 }: {
@@ -45,7 +47,7 @@ export default async function Home({
         </div>
 
         {products.length === 0 ? (
-          <div className="rounded-2xl bg-white p-8 text-center shadow border border-slate-200">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow">
             <p className="text-slate-600">No products found for your search.</p>
           </div>
         ) : (
