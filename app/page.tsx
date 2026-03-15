@@ -1,11 +1,20 @@
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import Footer from "@/components/Footer";
-import { getProducts, getStoreSettings } from "@/lib/data";
+import SearchAndFilter from "@/components/SearchAndFilter";
+import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { search?: string; category?: string };
+}) {
   const settings = await getStoreSettings();
-  const products = await getProducts();
+  const products = await getProducts({
+    search: searchParams?.search || "",
+    category: searchParams?.category || "",
+  });
+  const categories = await getCategories();
 
   return (
     <main>
@@ -23,15 +32,21 @@ export default async function Home() {
           <p className="mt-2 text-base text-slate-300">
             {settings?.slogan || "Find Your Fit"}
           </p>
+          <p className="mt-4 text-sm text-slate-400">
+            Style starts here. Discover the perfect outfit for every day.
+          </p>
         </div>
 
-        <div className="mb-6">
+        <SearchAndFilter categories={categories} />
+
+        <div className="mb-6 flex items-center justify-between gap-4">
           <h3 className="text-2xl font-bold text-slate-900">Latest Products</h3>
+          <p className="text-sm text-slate-500">{products.length} item(s) found</p>
         </div>
 
         {products.length === 0 ? (
           <div className="rounded-2xl bg-white p-8 text-center shadow border border-slate-200">
-            <p className="text-slate-600">No products found.</p>
+            <p className="text-slate-600">No products found for your search.</p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
