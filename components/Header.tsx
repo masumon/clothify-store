@@ -21,7 +21,7 @@ export default function Header({
             <img
               src={logoUrl}
               alt={storeName}
-              className="h-12 w-12 rounded-full object-cover border border-slate-200"
+              className="h-12 w-12 rounded-full border border-slate-200 object-cover"
             />
           ) : (
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white font-bold">
@@ -35,10 +35,11 @@ export default function Header({
           </div>
         </Link>
 
-        <nav className="flex items-center gap-4 text-sm font-medium text-slate-700">
+        <nav className="hidden items-center gap-4 text-sm font-medium text-slate-700 md:flex">
           <Link href="/">Shop</Link>
           <Link href="/cart">Cart</Link>
           <Link href="/checkout">Checkout</Link>
+          <Link href="/admin">Admin</Link>
         </nav>
       </div>
     </header>
