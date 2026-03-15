@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
+import Footer from "@/components/Footer";
 import { getProducts, getStoreSettings } from "@/lib/data";
 
 export default async function Home() {
@@ -40,6 +41,12 @@ export default async function Home() {
           </div>
         )}
       </section>
+
+      <Footer
+        storeName={settings?.store_name || "Clothify"}
+        address={settings?.address || ""}
+        phone={settings?.contact_phone || ""}
+      />
     </main>
   );
 }
