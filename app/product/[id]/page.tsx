@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
+import AddToCartButton from "@/components/AddToCartButton";
+import BottomNav from "@/components/BottomNav";
 import { getProductById, getStoreSettings } from "@/lib/data";
 
 export default async function ProductDetailsPage({
@@ -12,7 +14,7 @@ export default async function ProductDetailsPage({
 
   if (!product) {
     return (
-      <main>
+      <main className="pb-20">
         <Header
           storeName={settings?.store_name || "Clothify"}
           slogan={settings?.slogan || "Find Your Fit"}
@@ -28,12 +30,14 @@ export default async function ProductDetailsPage({
             Back to Shop
           </Link>
         </section>
+
+        <BottomNav />
       </main>
     );
   }
 
   return (
-    <main>
+    <main className="pb-20">
       <Header
         storeName={settings?.store_name || "Clothify"}
         slogan={settings?.slogan || "Find Your Fit"}
@@ -62,38 +66,21 @@ export default async function ProductDetailsPage({
             ৳{product.price}
           </p>
 
-          <div className="mt-6">
-            <h3 className="text-sm font-semibold text-slate-700">Available Sizes</h3>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {product.sizes?.map((size: string) => (
-                <span
-                  key={size}
-                  className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700"
-                >
-                  {size}
-                </span>
-              ))}
-            </div>
-          </div>
+          <AddToCartButton product={product} />
 
-          <div className="mt-8 flex gap-3">
-            <Link
-              href="/cart"
-              className="rounded-lg bg-black px-5 py-3 text-sm font-medium text-white"
-            >
-              Add to Cart
-            </Link>
-
+          <div className="mt-4">
             <a
               href={`https://wa.me/${settings?.whatsapp_number || "8801805996960"}`}
               target="_blank"
-              className="rounded-lg bg-green-600 px-5 py-3 text-sm font-medium text-white"
+              className="inline-block rounded-lg bg-green-600 px-5 py-3 text-sm font-medium text-white"
             >
               Order via WhatsApp
             </a>
           </div>
         </div>
       </section>
+
+      <BottomNav />
     </main>
   );
 }
