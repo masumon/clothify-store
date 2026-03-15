@@ -1,5 +1,7 @@
 import AdminTopbar from "@/components/AdminTopbar";
 import ProductUploadForm from "@/components/ProductUploadForm";
+import DeleteProductButton from "@/components/DeleteProductButton";
+import EditProductForm from "@/components/EditProductForm";
 import { supabase } from "@/lib/supabase";
 
 async function getProducts() {
@@ -40,6 +42,9 @@ export default async function AdminProductsPage() {
               <p className="mt-1 text-sm text-slate-600">
                 Sizes: {product.sizes?.length ? product.sizes.join(", ") : "N/A"}
               </p>
+
+              <EditProductForm product={product} />
+              <DeleteProductButton productId={product.id} />
             </div>
           ))
         )}
