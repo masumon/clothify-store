@@ -1,6 +1,9 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { supabase } from "./supabase";
 
 export async function getStoreSettings() {
+  noStore();
+
   const { data, error } = await supabase
     .from("store_settings")
     .select("*")
@@ -19,6 +22,8 @@ export async function getProducts(filters?: {
   search?: string;
   category?: string;
 }) {
+  noStore();
+
   let query = supabase
     .from("products")
     .select("*")
@@ -43,6 +48,8 @@ export async function getProducts(filters?: {
 }
 
 export async function getCategories() {
+  noStore();
+
   const { data, error } = await supabase.from("products").select("category");
 
   if (error) {
@@ -58,6 +65,8 @@ export async function getCategories() {
 }
 
 export async function getProductById(id: string) {
+  noStore();
+
   const { data, error } = await supabase
     .from("products")
     .select("*")
