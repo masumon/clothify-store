@@ -36,9 +36,21 @@ export default function WhatsAppOrderButton({
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="inline-block rounded-lg bg-green-600 px-5 py-3 text-sm font-medium text-white"
+      aria-label="Open WhatsApp chat to order this product"
+      className="group inline-flex w-full items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-600 to-green-600 px-4 py-3 text-white shadow-lg shadow-emerald-900/20 transition hover:-translate-y-0.5 hover:shadow-xl sm:w-auto sm:min-w-[280px]"
     >
-      Order via WhatsApp
+      <span className="flex min-w-0 items-center gap-3">
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-xl leading-none">
+          💬
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-extrabold tracking-wide">WhatsApp Chat</span>
+          <span className="block truncate text-xs text-emerald-100/95">Fast order confirmation</span>
+        </span>
+      </span>
+      <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold transition group-hover:bg-white/30">
+        Open
+      </span>
     </a>
   );
 }
