@@ -8,6 +8,9 @@ import HomeHighlights from "@/components/HomeHighlights";
 import SectionHeader from "@/components/SectionHeader";
 import HomeQuickActions from "@/components/HomeQuickActions";
 import MobileStickyBar from "@/components/MobileStickyBar";
+import HomePromoStrip from "@/components/HomePromoStrip";
+import FeaturedCollection from "@/components/FeaturedCollection";
+import HomeSectionDivider from "@/components/HomeSectionDivider";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +45,12 @@ export default async function Home({
         />
 
         <HomeQuickActions />
+
+        <HomePromoStrip />
+
+        <FeaturedCollection />
+
+        <HomeSectionDivider />
 
         <HomeHighlights />
 
