@@ -60,6 +60,33 @@ html.dark-theme .border-slate-300 {
   border-color: rgba(71, 85, 105, 0.9) !important;
 }
 
+.admin-shell {
+  background:
+    radial-gradient(900px 460px at 0% -10%, rgba(16, 185, 129, 0.14), transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, rgba(251, 146, 60, 0.12), transparent 50%),
+    linear-gradient(180deg, #111214 0%, #121212 45%, #0b0d10 100%);
+}
+
+.admin-shell .bg-white,
+.admin-shell .bg-white\/90,
+.admin-shell .bg-white\/95,
+.admin-shell .bg-slate-50 {
+  background-color: rgba(17, 24, 39, 0.88) !important;
+}
+
+.admin-shell .text-slate-900,
+.admin-shell .text-slate-800,
+.admin-shell .text-slate-700,
+.admin-shell .text-slate-600,
+.admin-shell .text-slate-500 {
+  color: #e5e7eb !important;
+}
+
+.admin-shell .border-slate-200,
+.admin-shell .border-slate-300 {
+  border-color: rgba(71, 85, 105, 0.8) !important;
+}
+
 ::selection {
   background: #99f6e4;
   color: #042f2e;

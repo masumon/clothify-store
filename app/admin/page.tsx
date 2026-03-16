@@ -422,6 +422,39 @@ export default async function AdminHomePage({
       </div>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
+        <div id="pos" className="rounded-2xl border border-slate-700 bg-slate-900/80 p-5 shadow-[0_14px_30px_-24px_rgba(0,0,0,0.9)]">
+          <h3 className="text-lg font-bold text-white">POS Quick Checkout</h3>
+          <p className="mt-2 text-sm text-slate-300">Barcode scan করে দ্রুত product search ও checkout শুরু করুন।</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <input
+              type="text"
+              placeholder="Scan barcode or type SKU"
+              className="rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-sm text-slate-100 outline-none focus:border-emerald-400"
+              readOnly
+            />
+            <button
+              type="button"
+              className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white"
+            >
+              Start POS
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
+              <p className="text-xs font-semibold text-slate-400">Cart Items</p>
+              <p className="mt-1 text-xl font-extrabold text-white">0</p>
+            </div>
+            <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
+              <p className="text-xs font-semibold text-slate-400">Subtotal</p>
+              <p className="mt-1 text-xl font-extrabold text-white">৳0</p>
+            </div>
+            <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
+              <p className="text-xs font-semibold text-slate-400">Payment</p>
+              <p className="mt-1 text-xl font-extrabold text-orange-300">bKash/COD</p>
+            </div>
+          </div>
+        </div>
+
         <div className="rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
           <h3 className="text-lg font-bold text-slate-900">Recommended Feature Placement</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
@@ -441,6 +474,13 @@ export default async function AdminHomePage({
             <li>4) Start promotion from landing page and WhatsApp support.</li>
           </ul>
         </div>
+      </div>
+
+      <div id="ai" className="mt-6 rounded-2xl border border-slate-700 bg-slate-900/80 p-5">
+        <h3 className="text-lg font-bold text-white">AI Assistant Zone</h3>
+        <p className="mt-2 text-sm text-slate-300">
+          SUMONIX AI থেকে orders, stock, sales, draft/publish actions এবং insights নিয়ে natural language-এ কাজ করতে পারবেন।
+        </p>
       </div>
     </section>
   );
