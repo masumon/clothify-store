@@ -114,75 +114,75 @@ export default function StoreSettingsForm({ initialData }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">Store Name</label>
+        <label className="mb-2 block text-sm font-semibold text-slate-700">🏪 Store Name</label>
         <input
           type="text"
           title="Store Name"
           value={storeName}
           onChange={(e) => setStoreName(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
         />
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">Slogan</label>
+        <label className="mb-2 block text-sm font-semibold text-slate-700">✨ Slogan</label>
         <input
           type="text"
           title="Slogan"
           value={slogan}
           onChange={(e) => setSlogan(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
         />
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">Address</label>
+        <label className="mb-2 block text-sm font-semibold text-slate-700">📍 Address</label>
         <textarea
           title="Address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          className="min-h-[100px] w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+          className="min-h-[100px] w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">Contact Phone</label>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">☎️ Contact Phone</label>
           <input
             type="text"
             title="Contact Phone"
             value={contactPhone}
             onChange={(e) => setContactPhone(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">WhatsApp Number</label>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">💬 WhatsApp Number</label>
           <input
             type="text"
             title="WhatsApp Number"
             value={whatsappNumber}
             onChange={(e) => setWhatsappNumber(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">bKash Number</label>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">💳 bKash Number</label>
           <input
             type="text"
             title="bKash Number"
             value={bkashNumber}
             onChange={(e) => setBkashNumber(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
           />
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 p-4">
-          <label className="mb-2 block text-sm font-semibold text-slate-700">Logo Upload</label>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">🖼️ Logo Upload</label>
           <input
             type="file"
             title="Logo Upload"
@@ -203,7 +203,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
         </div>
 
         <div className="rounded-xl border border-slate-200 p-4">
-          <label className="mb-2 block text-sm font-semibold text-slate-700">bKash QR Upload</label>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">📲 bKash QR Upload</label>
           <input
             type="file"
             title="bKash QR Upload"
@@ -227,9 +227,9 @@ export default function StoreSettingsForm({ initialData }: Props) {
       <button
         type="submit"
         disabled={saving}
-        className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white disabled:opacity-60"
+        className="w-full rounded-lg bg-emerald-700 px-5 py-3 font-medium text-white transition hover:bg-emerald-800 disabled:opacity-60"
       >
-        {saving ? "Saving..." : "Save Settings"}
+        {saving ? "Saving..." : "✅ Save Settings"}
       </button>
     </form>
   );
