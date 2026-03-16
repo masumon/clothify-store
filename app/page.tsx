@@ -66,7 +66,7 @@ export default async function Home({
 
         <HomeHighlights />
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="surface-card p-4 sm:p-5">
           <SearchAndFilter categories={categories} />
           <HomeCategoryBar
             categories={categories}
@@ -83,7 +83,7 @@ export default async function Home({
           />
 
           {products.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+            <div className="surface-card p-10 text-center">
               <h4 className="text-lg font-bold text-slate-900">
                 No products found
               </h4>

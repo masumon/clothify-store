@@ -13,7 +13,7 @@ export default function Footer({
 }: Props) {
 
   return (
-    <footer className="mt-16 bg-black text-white">
+    <footer className="mt-16 border-t border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 text-white">
 
       <div className="mx-auto max-w-6xl px-4 py-12">
 
@@ -24,7 +24,7 @@ export default function Footer({
               {storeName}
             </h3>
 
-            <p className="mt-3 text-sm text-slate-400">
+            <p className="mt-3 text-sm leading-6 text-slate-300">
               Premium clothing collection with trusted checkout and fast service.
             </p>
           </div>
@@ -34,7 +34,7 @@ export default function Footer({
               Store Information
             </h4>
 
-            <p className="mt-3 text-sm text-slate-400">
+            <p className="mt-3 text-sm leading-6 text-slate-300">
               {address || "Address not added yet"}
             </p>
           </div>
@@ -44,7 +44,7 @@ export default function Footer({
               Contact
             </h4>
 
-            <p className="mt-3 text-sm text-slate-400">
+            <p className="mt-3 text-sm leading-6 text-slate-300">
               {phone || "Phone not added yet"}
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function Footer({
 
         <DeveloperCredit storeAddress={address || ""} />
 
-        <div className="mt-8 text-center text-xs text-slate-500">
+        <div className="mt-8 text-center text-xs text-slate-400">
           © {new Date().getFullYear()} Clothify. All rights reserved.
         </div>
 
