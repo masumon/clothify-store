@@ -40,15 +40,23 @@ export default function ProductCard({ product }: ProductCardProps) {
         </h3>
 
         <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="text-lg font-extrabold text-pink-600 sm:text-xl">
+          <p className="text-xl font-extrabold text-green-700 sm:text-2xl">
             ৳{product.price}
           </p>
+        </div>
 
+        <div className="mt-3 flex gap-2">
           <Link
             href={`/product/${product.id}`}
-            className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+            className="flex-1 rounded-full border-2 border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
           >
-            View
+            👁️ বিস্তারিত
+          </Link>
+          <Link
+            href={`/checkout`}
+            className="flex-1 rounded-full bg-green-600 px-3 py-2.5 text-center text-sm font-bold text-white transition hover:bg-green-700"
+          >
+            ✅ অর্ডার
           </Link>
         </div>
       </div>
