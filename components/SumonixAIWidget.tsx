@@ -28,6 +28,67 @@ type Props = {
   mode?: "public" | "admin";
 };
 
+function renderRichText(text: string) {
+  const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  const rawUrlRegex = /(https?:\/\/[^\s]+)/g;
+
+  const withMarkdownLinks: Array<{ type: "text" | "link"; text: string; href?: string }> = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = markdownLinkRegex.exec(text)) !== null) {
+    const [fullMatch, label, href] = match;
+    if (match.index > lastIndex) {
+      withMarkdownLinks.push({ type: "text", text: text.slice(lastIndex, match.index) });
+    }
+    withMarkdownLinks.push({ type: "link", text: label, href });
+    lastIndex = match.index + fullMatch.length;
+  }
+
+  if (lastIndex < text.length) {
+    withMarkdownLinks.push({ type: "text", text: text.slice(lastIndex) });
+  }
+
+  const nodes: Array<{ type: "text" | "link"; text: string; href?: string }> = [];
+  withMarkdownLinks.forEach((part) => {
+    if (part.type === "link") {
+      nodes.push(part);
+      return;
+    }
+
+    let urlLastIndex = 0;
+    let urlMatch: RegExpExecArray | null;
+    while ((urlMatch = rawUrlRegex.exec(part.text)) !== null) {
+      const [url] = urlMatch;
+      if (urlMatch.index > urlLastIndex) {
+        nodes.push({ type: "text", text: part.text.slice(urlLastIndex, urlMatch.index) });
+      }
+      nodes.push({ type: "link", text: url, href: url });
+      urlLastIndex = urlMatch.index + url.length;
+    }
+
+    if (urlLastIndex < part.text.length) {
+      nodes.push({ type: "text", text: part.text.slice(urlLastIndex) });
+    }
+  });
+
+  return nodes.map((node, index) =>
+    node.type === "link" && node.href ? (
+      <a
+        key={`node-${index}`}
+        href={node.href}
+        target="_blank"
+        rel="noreferrer"
+        className="font-semibold text-cyan-700 underline underline-offset-2"
+      >
+        {node.text}
+      </a>
+    ) : (
+      <span key={`node-${index}`}>{node.text}</span>
+    )
+  );
+}
+
 export default function SumonixAIWidget({ mode = "public" }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -152,7 +213,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                       : "ml-10 bg-teal-700 text-white"
                   }`}
                 >
-                  {message.text}
+                  {renderRichText(message.text)}
                 </div>
 
                 {message.products?.length ? (
