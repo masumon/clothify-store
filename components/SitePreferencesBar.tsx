@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "system";
 type Language = "en" | "bn";
 type TextSize = "normal" | "large";
 type Contrast = "normal" | "high";
@@ -17,10 +17,14 @@ const MOTION_KEY = "clothify-motion";
 function applyTheme(theme: Theme) {
   const body = document.body;
   const root = document.documentElement;
+  const prefersDark =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const resolvedTheme = theme === "system" ? (prefersDark ? "dark" : "light") : theme;
 
   root.setAttribute("data-theme", theme);
 
-  if (theme === "dark") {
+  if (resolvedTheme === "dark") {
     body.classList.remove("bg-gray-100", "text-slate-900");
     body.classList.add("bg-slate-950", "text-slate-100");
   } else {
@@ -49,11 +53,12 @@ function applyMotion(motion: Motion) {
 }
 
 export default function SitePreferencesBar() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("system");
   const [language, setLanguage] = useState<Language>("en");
   const [textSize, setTextSize] = useState<TextSize>("normal");
   const [contrast, setContrast] = useState<Contrast>("normal");
   const [motion, setMotion] = useState<Motion>("normal");
+  const [toast, setToast] = useState("");
 
   useEffect(() => {
     const savedTheme = localStorage.getItem(THEME_KEY);
@@ -63,7 +68,9 @@ export default function SitePreferencesBar() {
     const savedMotion = localStorage.getItem(MOTION_KEY);
 
     const resolvedTheme: Theme =
-      savedTheme === "dark" || savedTheme === "light" ? savedTheme : "light";
+      savedTheme === "dark" || savedTheme === "light" || savedTheme === "system"
+        ? savedTheme
+        : "system";
     const resolvedLanguage: Language =
       savedLanguage === "bn" || savedLanguage === "en" ? savedLanguage : "en";
     const resolvedTextSize: TextSize =
@@ -91,8 +98,25 @@ export default function SitePreferencesBar() {
     applyMotion(resolvedMotion);
   }, []);
 
+  useEffect(() => {
+    if (theme !== "system") return;
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemThemeChange = () => applyTheme("system");
+
+    media.addEventListener("change", onSystemThemeChange);
+    return () => media.removeEventListener("change", onSystemThemeChange);
+  }, [theme]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(""), 2200);
+    return () => window.clearTimeout(id);
+  }, [toast]);
+
   const toggleTheme = () => {
-    const nextTheme: Theme = theme === "light" ? "dark" : "light";
+    const nextTheme: Theme =
+      theme === "system" ? "light" : theme === "light" ? "dark" : "system";
     setTheme(nextTheme);
     localStorage.setItem(THEME_KEY, nextTheme);
     applyTheme(nextTheme);
@@ -127,7 +151,7 @@ export default function SitePreferencesBar() {
   };
 
   const resetAllPreferences = () => {
-    const defaultTheme: Theme = "light";
+    const defaultTheme: Theme = "system";
     const defaultLanguage: Language = "en";
     const defaultTextSize: TextSize = "normal";
     const defaultContrast: Contrast = "normal";
@@ -150,6 +174,8 @@ export default function SitePreferencesBar() {
     applyTextSize(defaultTextSize);
     applyContrast(defaultContrast);
     applyMotion(defaultMotion);
+
+    setToast(language === "bn" ? "সব সেটিংস রিসেট হয়েছে" : "All preferences reset");
   };
 
   const isBn = language === "bn";
@@ -159,7 +185,18 @@ export default function SitePreferencesBar() {
     : "Choose your theme and language. Your preferences are saved.";
   const themeLabel = isBn ? "থিম" : "Theme";
   const languageLabel = isBn ? "ভাষা" : "Language";
-  const themeValue = theme === "light" ? (isBn ? "লাইট" : "Light") : isBn ? "ডার্ক" : "Dark";
+  const themeValue =
+    theme === "system"
+      ? isBn
+        ? "অটো"
+        : "Auto"
+      : theme === "light"
+        ? isBn
+          ? "লাইট"
+          : "Light"
+        : isBn
+          ? "ডার্ক"
+          : "Dark";
   const languageValue = language === "en" ? "English" : "বাংলা";
   const textSizeLabel = isBn ? "লেখার আকার" : "Text Size";
   const textSizeValue =
@@ -248,6 +285,12 @@ export default function SitePreferencesBar() {
           </button>
         </div>
       </div>
+
+      {toast ? (
+        <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+          {toast}
+        </div>
+      ) : null}
     </section>
   );
 }
