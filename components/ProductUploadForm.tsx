@@ -345,6 +345,9 @@ export default function ProductUploadForm() {
             <input
               type="number"
               min="0"
+              title="Stock Quantity"
+              aria-label="Stock Quantity"
+              placeholder="20"
               value={stockQuantity}
               onChange={(e) => setStockQuantity(e.target.value)}
               className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
