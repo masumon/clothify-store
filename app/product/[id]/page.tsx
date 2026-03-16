@@ -58,6 +58,15 @@ export default async function ProductDetailsPage({
         </div>
 
         <div>
+          <div className="mb-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              🏠 Back to Home
+            </Link>
+          </div>
+
           <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             {product.category}
           </p>
