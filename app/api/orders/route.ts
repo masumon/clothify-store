@@ -6,6 +6,8 @@ const BD_PHONE_RE = /^(?:\+?880|0)?1[3-9]\d{8}$/;
 const TRX_RE = /^[A-Z0-9]{6,20}$/i;
 const RATE_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT = 8;
+const MIN_FORM_FILL_MS = 2500;
+const MAX_FORM_FILL_MS = 24 * 60 * 60 * 1000;
 
 type RateBucket = {
   count: number;
@@ -62,6 +64,8 @@ const OrderSchema = z.object({
   bkash_trx_id: z
     .string()
     .regex(TRX_RE, "Transaction ID must be 6-20 alphanumeric characters"),
+  website: z.string().optional().default(""),
+  client_started_at: z.number().int().optional(),
 });
 
 export async function POST(req: Request) {
@@ -81,8 +85,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: firstError }, { status: 400 });
     }
 
-    const { customer_name, phone, address, delivery_method, total_amount, bkash_trx_id } =
-      parsed.data;
+    const {
+      customer_name,
+      phone,
+      address,
+      delivery_method,
+      total_amount,
+      bkash_trx_id,
+      website,
+      client_started_at,
+    } = parsed.data;
+
+    if (website.trim().length > 0) {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+
+    if (typeof client_started_at === "number") {
+      const elapsed = Date.now() - client_started_at;
+      if (elapsed < MIN_FORM_FILL_MS || elapsed > MAX_FORM_FILL_MS) {
+        return NextResponse.json({ error: "Invalid form timing." }, { status: 400 });
+      }
+    }
 
     const supabase = getSupabaseAdminClient();
 
