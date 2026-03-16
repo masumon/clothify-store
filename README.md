@@ -150,4 +150,3 @@ Production behavior:
 - Service worker is generated on `next build`
 - Users get an install banner when browser `beforeinstallprompt` is available
 - App can be installed to device home screen as `CLOTHFY`
-
