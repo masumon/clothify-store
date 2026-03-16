@@ -20,6 +20,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "visitorId is required" }, { status: 400 });
     }
 
+    if (visitorId.length > 100 || path.length > 200 || source.length > 100) {
+      return NextResponse.json({ error: "Invalid analytics payload" }, { status: 400 });
+    }
+
+    if (!path.startsWith("/")) {
+      return NextResponse.json({ error: "Invalid path" }, { status: 400 });
+    }
+
     const country = req.headers.get("x-vercel-ip-country") || "Unknown";
 
     trackVisit({
