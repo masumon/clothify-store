@@ -13,6 +13,7 @@ type TrafficState = {
 
 const MAX_EVENTS = 5000;
 const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const globalTrafficState = globalThis as unknown as {
   __clothifyTrafficState?: TrafficState;
@@ -55,18 +56,43 @@ export function trackVisit(payload: {
   }
 }
 
-export function getTrafficSnapshot() {
+function getDayKeyFromTime(ms: number) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+function buildDayWindow(trendDays: number) {
+  const days = Math.max(1, trendDays);
+  const keys: string[] = [];
   const now = Date.now();
-  const recent = state.events.filter((item) => now - item.at <= 24 * 60 * 60 * 1000);
+
+  for (let i = days - 1; i >= 0; i -= 1) {
+    keys.push(getDayKeyFromTime(now - i * DAY_MS));
+  }
+
+  return keys;
+}
+
+export function getTrafficSnapshot(rangeDays = 1, trendDays = 7) {
+  const now = Date.now();
+  const rangeCutoff = now - Math.max(1, rangeDays) * DAY_MS;
+  const recent = state.events.filter((item) => item.at >= rangeCutoff);
+  const last24h = state.events.filter((item) => now - item.at <= DAY_MS);
 
   const sourceCounts = new Map<string, number>();
   const countryCounts = new Map<string, number>();
   const pageCounts = new Map<string, number>();
+  const dayWindow = buildDayWindow(trendDays);
+  const dayCountMap = new Map<string, number>(dayWindow.map((day) => [day, 0]));
 
   for (const item of recent) {
     sourceCounts.set(item.source, (sourceCounts.get(item.source) || 0) + 1);
     countryCounts.set(item.country, (countryCounts.get(item.country) || 0) + 1);
     pageCounts.set(item.path, (pageCounts.get(item.path) || 0) + 1);
+
+    const key = getDayKeyFromTime(item.at);
+    if (dayCountMap.has(key)) {
+      dayCountMap.set(key, (dayCountMap.get(key) || 0) + 1);
+    }
   }
 
   const liveUsers = Array.from(state.lastSeenByVisitor.values()).filter(
@@ -88,26 +114,56 @@ export function getTrafficSnapshot() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
+  const dailyVisits = dayWindow.map((date) => ({
+    date,
+    count: dayCountMap.get(date) || 0,
+  }));
+
   return {
     liveUsers,
-    visits24h: recent.length,
+    visitsInRange: recent.length,
+    visits24h: last24h.length,
     topSources,
     topCountries,
     topPages,
+    dailyVisits,
   };
 }
 
-function aggregateVisits(visits: Array<{ visitor_id: string; path: string; source: string; country: string; created_at: string }>) {
+function aggregateVisits(
+  visits: Array<{
+    visitor_id: string;
+    path: string;
+    source: string;
+    country: string;
+    created_at: string;
+  }>,
+  rangeDays: number,
+  trendDays: number
+) {
   const now = Date.now();
+  const rangeCutoff = now - Math.max(1, rangeDays) * DAY_MS;
+  const last24hCutoff = now - DAY_MS;
   const sourceCounts = new Map<string, number>();
   const countryCounts = new Map<string, number>();
   const pageCounts = new Map<string, number>();
   const latestVisitorEvent = new Map<string, number>();
-  const dailyCounts = new Map<string, number>();
+  const dayWindow = buildDayWindow(trendDays);
+  const dailyCounts = new Map<string, number>(dayWindow.map((day) => [day, 0]));
+  let visitsInRange = 0;
+  let visits24h = 0;
 
   for (const item of visits) {
     const at = new Date(item.created_at).getTime();
     if (!Number.isFinite(at)) continue;
+
+    if (at >= rangeCutoff) {
+      visitsInRange += 1;
+    }
+
+    if (at >= last24hCutoff) {
+      visits24h += 1;
+    }
 
     sourceCounts.set(item.source || "Direct", (sourceCounts.get(item.source || "Direct") || 0) + 1);
     countryCounts.set(item.country || "Unknown", (countryCounts.get(item.country || "Unknown") || 0) + 1);
@@ -118,8 +174,10 @@ function aggregateVisits(visits: Array<{ visitor_id: string; path: string; sourc
       latestVisitorEvent.set(item.visitor_id, at);
     }
 
-    const dayKey = new Date(at).toISOString().slice(0, 10);
-    dailyCounts.set(dayKey, (dailyCounts.get(dayKey) || 0) + 1);
+    const dayKey = getDayKeyFromTime(at);
+    if (dailyCounts.has(dayKey)) {
+      dailyCounts.set(dayKey, (dailyCounts.get(dayKey) || 0) + 1);
+    }
   }
 
   const liveUsers = Array.from(latestVisitorEvent.values()).filter(
@@ -141,14 +199,15 @@ function aggregateVisits(visits: Array<{ visitor_id: string; path: string; sourc
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  const dailyVisits = Array.from(dailyCounts.entries())
-    .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(-7);
+  const dailyVisits = dayWindow.map((date) => ({
+    date,
+    count: dailyCounts.get(date) || 0,
+  }));
 
   return {
     liveUsers,
-    visits24h: visits.length,
+    visitsInRange,
+    visits24h,
     topSources,
     topCountries,
     topPages,
@@ -156,11 +215,12 @@ function aggregateVisits(visits: Array<{ visitor_id: string; path: string; sourc
   };
 }
 
-export async function getTrafficSnapshotFromDb() {
+export async function getTrafficSnapshotFromDb(rangeDays = 1, trendDays = 7) {
   try {
     const { getSupabaseAdminClient } = await import("@/lib/supabase-admin");
     const supabase = getSupabaseAdminClient();
-    const sinceIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const fetchDays = Math.max(1, rangeDays, trendDays);
+    const sinceIso = new Date(Date.now() - fetchDays * DAY_MS).toISOString();
 
     const { data, error } = await supabase
       .from("page_visits")
@@ -171,8 +231,7 @@ export async function getTrafficSnapshotFromDb() {
 
     if (error) {
       return {
-        ...getTrafficSnapshot(),
-        dailyVisits: [],
+        ...getTrafficSnapshot(rangeDays, trendDays),
       };
     }
 
@@ -184,11 +243,10 @@ export async function getTrafficSnapshotFromDb() {
       created_at: string;
     }>;
 
-    return aggregateVisits(visits);
+    return aggregateVisits(visits, rangeDays, trendDays);
   } catch {
     return {
-      ...getTrafficSnapshot(),
-      dailyVisits: [],
+      ...getTrafficSnapshot(rangeDays, trendDays),
     };
   }
 }
