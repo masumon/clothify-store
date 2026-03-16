@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 
 type Props = {
   name?: string;
@@ -51,6 +54,7 @@ export default function DeveloperCredit({
   developerFacebook = "https://www.facebook.com/sumon.mumain",
   storeFacebook = "https://www.facebook.com/share/18u2zHzb6N/",
 }: Props) {
+  const [showMap, setShowMap] = useState(false);
   const locationText = (storeAddress || address).trim();
   const mapsQuery = encodeURIComponent(locationText);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
@@ -128,17 +132,27 @@ export default function DeveloperCredit({
             </a>
           </div>
 
-          <div className="mt-3 overflow-hidden rounded-xl border border-white/10">
-            <iframe
-              title="Store live location map"
-              src={mapsEmbedUrl}
-              width="100%"
-              height="170"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="block"
-            />
-          </div>
+          {showMap ? (
+            <div className="mt-3 overflow-hidden rounded-xl border border-white/10">
+              <iframe
+                title="Store live location map"
+                src={mapsEmbedUrl}
+                width="100%"
+                height="170"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="block"
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowMap(true)}
+              className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+            >
+              🗺️ Load Mini Map
+            </button>
+          )}
         </div>
       </div>
     </div>
