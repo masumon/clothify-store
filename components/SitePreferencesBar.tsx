@@ -23,6 +23,7 @@ function applyTheme(theme: Theme) {
   const resolvedTheme = theme === "system" ? (prefersDark ? "dark" : "light") : theme;
 
   root.setAttribute("data-theme", theme);
+  root.classList.toggle("dark-theme", resolvedTheme === "dark");
 
   if (resolvedTheme === "dark") {
     body.classList.remove("bg-gray-100", "text-slate-900");
@@ -31,6 +32,10 @@ function applyTheme(theme: Theme) {
     body.classList.remove("bg-slate-950", "text-slate-100");
     body.classList.add("bg-gray-100", "text-slate-900");
   }
+}
+
+function emitPreferenceChange() {
+  window.dispatchEvent(new Event("clothfy-preferences-change"));
 }
 
 function applyLanguage(language: Language) {
@@ -96,6 +101,28 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     applyTextSize(resolvedTextSize);
     applyContrast(resolvedContrast);
     applyMotion(resolvedMotion);
+
+    emitPreferenceChange();
+  }, []);
+
+  useEffect(() => {
+    const syncFromStorage = () => {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
+
+      if (savedTheme === "dark" || savedTheme === "light" || savedTheme === "system") {
+        setTheme(savedTheme);
+        applyTheme(savedTheme);
+      }
+
+      if (savedLanguage === "en" || savedLanguage === "bn") {
+        setLanguage(savedLanguage);
+        applyLanguage(savedLanguage);
+      }
+    };
+
+    window.addEventListener("clothfy-preferences-change", syncFromStorage);
+    return () => window.removeEventListener("clothfy-preferences-change", syncFromStorage);
   }, []);
 
   useEffect(() => {
@@ -120,6 +147,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     setTheme(nextTheme);
     localStorage.setItem(THEME_KEY, nextTheme);
     applyTheme(nextTheme);
+    emitPreferenceChange();
   };
 
   const toggleLanguage = () => {
@@ -127,6 +155,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     setLanguage(nextLanguage);
     localStorage.setItem(LANGUAGE_KEY, nextLanguage);
     applyLanguage(nextLanguage);
+    emitPreferenceChange();
   };
 
   const toggleTextSize = () => {
@@ -134,6 +163,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     setTextSize(nextSize);
     localStorage.setItem(TEXT_SIZE_KEY, nextSize);
     applyTextSize(nextSize);
+    emitPreferenceChange();
   };
 
   const toggleContrast = () => {
@@ -141,6 +171,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     setContrast(nextContrast);
     localStorage.setItem(CONTRAST_KEY, nextContrast);
     applyContrast(nextContrast);
+    emitPreferenceChange();
   };
 
   const toggleMotion = () => {
@@ -148,6 +179,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     setMotion(nextMotion);
     localStorage.setItem(MOTION_KEY, nextMotion);
     applyMotion(nextMotion);
+    emitPreferenceChange();
   };
 
   const resetAllPreferences = () => {
@@ -174,6 +206,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     applyTextSize(defaultTextSize);
     applyContrast(defaultContrast);
     applyMotion(defaultMotion);
+    emitPreferenceChange();
 
     setToast(language === "bn" ? "সব সেটিংস রিসেট হয়েছে" : "All preferences reset");
   };
@@ -234,6 +267,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
       applyTextSize(defaultTextSize);
       applyContrast(defaultContrast);
       applyMotion(defaultMotion);
+      emitPreferenceChange();
       setToast(isBn ? "ডিফল্ট প্রিসেট চালু হয়েছে" : "Default preset activated");
       return;
     }
@@ -262,6 +296,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
       applyTextSize(nextTextSize);
       applyContrast(nextContrast);
       applyMotion(nextMotion);
+      emitPreferenceChange();
       setToast(isBn ? "ফোকাস মোড চালু হয়েছে" : "Focus mode activated");
       return;
     }
@@ -289,6 +324,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     applyTextSize(nextTextSize);
     applyContrast(nextContrast);
     applyMotion(nextMotion);
+    emitPreferenceChange();
     setToast(isBn ? "রিডেবল মোড চালু হয়েছে" : "Readable mode activated");
   };
 
