@@ -76,46 +76,48 @@ export default function Header({
 
   const whatsappLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}`;
 
+  const isBn = uiLang === "bn";
+
   const navItems = [
     {
       href: "/",
-      label: "Shop",
+      label: isBn ? "শপ" : "Shop",
       icon: "🛍️",
       color: "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100",
     },
     {
       href: "/cart",
-      label: "Cart",
+      label: isBn ? "কার্ট" : "Cart",
       icon: "🛒",
       color: "border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100",
     },
     {
       href: "/checkout",
-      label: "Checkout",
+      label: isBn ? "চেকআউট" : "Checkout",
       icon: "✅",
       color: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
     },
     {
       href: "/payment",
-      label: "Payment",
+      label: isBn ? "পেমেন্ট" : "Payment",
       icon: "💳",
       color: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
     },
     {
       href: "/fb",
-      label: "Landing",
+      label: isBn ? "ল্যান্ডিং" : "Landing",
       icon: "📣",
       color: "border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
     },
     {
       href: "/admin",
-      label: "Admin",
+      label: isBn ? "অ্যাডমিন" : "Admin",
       icon: "🔒",
       color: "border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200",
     },
     {
       href: "/settings",
-      label: "Settings",
+      label: isBn ? "সেটিংস" : "Settings",
       icon: "⚙️",
       color: "border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100",
     },
@@ -187,7 +189,7 @@ export default function Header({
             className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"
           >
             <span className="text-sm leading-none">💬</span>
-            WhatsApp
+            {isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp"}
           </a>
         </div>
 
@@ -247,7 +249,7 @@ export default function Header({
               className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white"
             >
               <span className="text-sm leading-none">💬</span>
-              WhatsApp
+              {isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp"}
             </a>
           </div>
           <nav className="grid grid-cols-2 gap-2">
