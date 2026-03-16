@@ -14,7 +14,7 @@ export default async function PaymentPage() {
       </h1>
 
       <p className="mt-2 text-slate-500">
-        Please complete your payment using bKash and submit the transaction ID during checkout.
+        Complete your order payment using bKash.
       </p>
 
       <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -28,7 +28,7 @@ export default async function PaymentPage() {
         </p>
 
         <div className="mt-4 rounded-xl bg-slate-100 p-4 text-center text-lg font-bold">
-          {settings?.bkash_number || "Number not set"}
+          {settings?.bkash_number || "bKash number not set"}
         </div>
 
         {settings?.bkash_qr_url && (
@@ -43,11 +43,11 @@ export default async function PaymentPage() {
 
         <div className="mt-6 space-y-2 text-sm text-slate-600">
           <p>1. Open your bKash app</p>
-          <p>2. Choose Send Money</p>
-          <p>3. Enter the number above</p>
+          <p>2. Tap Send Money</p>
+          <p>3. Enter the bKash number</p>
           <p>4. Send the exact order amount</p>
-          <p>5. Copy your Transaction ID</p>
-          <p>6. Submit the order from checkout</p>
+          <p>5. Copy the transaction ID</p>
+          <p>6. Enter the transaction ID in checkout</p>
         </div>
 
       </div>
