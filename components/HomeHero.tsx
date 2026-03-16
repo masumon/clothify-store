@@ -8,22 +8,24 @@ export default function HomeHero({
   slogan = "Find Your Fit",
 }: Props) {
   return (
-    <section className="relative mb-8 overflow-hidden rounded-[30px] shadow-2xl">
+    <section className="relative mb-8 overflow-hidden rounded-[30px] border border-white/20 shadow-2xl shadow-slate-900/20">
       <div className="absolute inset-0 bg-[url('/store-banner.jpg')] bg-cover bg-center" />
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/25" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/50 to-teal-950/45" />
+      <div className="absolute -left-16 -top-20 h-52 w-52 rounded-full bg-emerald-400/20 blur-3xl" />
+      <div className="absolute -bottom-20 right-8 h-56 w-56 rounded-full bg-cyan-300/20 blur-3xl" />
 
       <div className="relative px-5 py-12 sm:px-8 sm:py-16 md:px-12 md:py-20">
         <div className="max-w-3xl">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-white backdrop-blur">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-white backdrop-blur">
             🌙 ঈদ কালেকশন ২০২৬
           </p>
 
-          <h2 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
+          <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
             {storeName}
           </h2>
 
-          <p className="mt-2 text-xl font-bold text-yellow-300">
+          <p className="mt-2 text-xl font-bold text-teal-200">
             {slogan}
           </p>
 
@@ -35,14 +37,14 @@ export default function HomeHero({
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <a
               href="#products"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3.5 text-base font-bold text-black transition hover:bg-yellow-300"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-teal-500 px-7 py-3.5 text-base font-bold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-teal-400"
             >
               🛍️ কেনাকাটা করুন
             </a>
 
             <a
               href="/checkout"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/60 bg-white/10 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition hover:bg-white/25"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/60 bg-white/10 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/20"
             >
               ✅ এখনই অর্ডার করুন
             </a>

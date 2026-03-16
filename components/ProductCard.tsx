@@ -13,7 +13,7 @@ type ProductCardProps = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <div className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <div className="group overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 shadow-[0_12px_32px_-24px_rgba(2,6,23,0.6)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgba(2,6,23,0.45)]">
       <div className="relative overflow-hidden">
         <Link href={`/product/${product.id}`}>
           <Image
@@ -25,11 +25,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </Link>
 
-        <div className="absolute left-3 top-3 rounded-full bg-black/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+        <div className="absolute left-3 top-3 rounded-full bg-slate-900/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
           Featured
         </div>
 
-        <div className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
+        <div className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur">
           {product.category}
         </div>
       </div>
@@ -40,7 +40,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </h3>
 
         <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="text-xl font-extrabold text-green-700 sm:text-2xl">
+          <p className="text-xl font-extrabold text-teal-700 sm:text-2xl">
             ৳{product.price}
           </p>
         </div>
@@ -48,13 +48,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="mt-3 flex gap-2">
           <Link
             href={`/product/${product.id}`}
-            className="flex-1 rounded-full border-2 border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
           >
             👁️ বিস্তারিত
           </Link>
           <Link
             href={`/checkout`}
-            className="flex-1 rounded-full bg-green-600 px-3 py-2.5 text-center text-sm font-bold text-white transition hover:bg-green-700"
+            className="flex-1 rounded-full bg-teal-700 px-3 py-2.5 text-center text-sm font-bold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-teal-800"
           >
             ✅ অর্ডার
           </Link>
