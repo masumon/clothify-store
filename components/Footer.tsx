@@ -51,7 +51,7 @@ export default function Footer({
 
         </div>
 
-        <DeveloperCredit />
+        <DeveloperCredit storeAddress={address || ""} />
 
         <div className="mt-8 text-center text-xs text-slate-500">
           © {new Date().getFullYear()} Clothify. All rights reserved.
