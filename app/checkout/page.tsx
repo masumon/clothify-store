@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Image from "next/image";
+import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import CheckoutForm from "@/components/CheckoutForm";
 import { getStoreSettings } from "@/lib/data";
