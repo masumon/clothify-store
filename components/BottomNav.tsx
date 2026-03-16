@@ -7,7 +7,7 @@ const items = [
   { href: "/", label: "Shop" },
   { href: "/cart", label: "Cart" },
   { href: "/checkout", label: "Checkout" },
-  { href: "/admin/orders", label: "Admin" },
+  { href: "/profile", label: "Profile" },
 ];
 
 export default function BottomNav() {

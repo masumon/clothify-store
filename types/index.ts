@@ -39,3 +39,9 @@ export type CartItem = {
   selectedSize: string;
   quantity: number;
 };
+
+export type UserProfile = {
+  name: string;
+  phone: string;
+  address: string;
+};

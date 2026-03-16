@@ -39,6 +39,7 @@ export default function Header({
           <Link href="/">Shop</Link>
           <Link href="/cart">Cart</Link>
           <Link href="/checkout">Checkout</Link>
+          <Link href="/profile">Profile</Link>
           <Link href="/admin">Admin</Link>
         </nav>
       </div>

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { clearCart, getCart } from "@/lib/cart";
 import { createOrder } from "@/lib/data";
+import { getProfile } from "@/lib/profile";
 
 export default function CheckoutForm() {
   const [customerName, setCustomerName] = useState("");
@@ -15,6 +16,12 @@ export default function CheckoutForm() {
 
   useEffect(() => {
     setCart(getCart());
+    const profile = getProfile();
+    if (profile) {
+      setCustomerName(profile.name);
+      setPhone(profile.phone);
+      setAddress(profile.address);
+    }
   }, []);
 
   const total = useMemo(() => {

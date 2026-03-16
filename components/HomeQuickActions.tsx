@@ -5,7 +5,7 @@ export default function HomeQuickActions() {
     { href: "/", label: "Shop" },
     { href: "/cart", label: "Cart" },
     { href: "/checkout", label: "Checkout" },
-    { href: "/admin", label: "Admin" },
+    { href: "/profile", label: "Profile" },
   ];
 
   return (

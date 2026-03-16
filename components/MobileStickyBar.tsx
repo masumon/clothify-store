@@ -10,8 +10,8 @@ export default function MobileStickyBar() {
     { href: "/", label: "Shop" },
     { href: "/cart", label: "Cart" },
     { href: "/checkout", label: "Checkout" },
+    { href: "/profile", label: "Profile" },
     { href: "/payment", label: "Payment" },
-    { href: "/settings", label: "Settings" },
   ];
 
   return (
