@@ -7,8 +7,21 @@ type Payload = {
 
 export async function POST(req: Request) {
   try {
+    const contentType = req.headers.get("content-type") || "";
+    if (!contentType.toLowerCase().includes("application/json")) {
+      return NextResponse.json({ error: "Invalid content type" }, { status: 415 });
+    }
+
     const body = (await req.json()) as Payload;
-    const question = typeof body.question === "string" ? body.question : "";
+    const question = typeof body.question === "string" ? body.question.trim() : "";
+
+    if (question.length > 600) {
+      return NextResponse.json(
+        { error: "Question is too long. Please keep it within 600 characters." },
+        { status: 400 }
+      );
+    }
+
     const reply = await getPublicSumonixReply(question);
     return NextResponse.json(reply);
   } catch (error) {

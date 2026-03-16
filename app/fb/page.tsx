@@ -31,183 +31,159 @@ export default async function FacebookLandingPage() {
   const featuredProducts = products.slice(0, 6);
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      {/* ── TOP BANNER ────────────────────────────── */}
-      <div className="bg-emerald-700 px-4 py-2 text-center text-sm font-semibold text-white">
-        📢 ফেইসবুক বুস্ট অফার — সীমিত সময়ের জন্য বিশেষ ছাড়! 🌙
+    <main className="min-h-screen bg-slate-100">
+      <div className="bg-[#0F172A] px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">
+        Flash Campaign | Premium Eid Styles | Limited Stock
       </div>
 
-      {/* ── HERO ──────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-emerald-900 via-green-800 to-emerald-600 px-5 py-14 text-center text-white sm:py-20">
-        <div className="mx-auto mb-4 flex max-w-sm justify-center">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur hover:bg-white/20"
-          >
-            🏠 Back to Home
-          </Link>
-        </div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-slate-900 to-slate-700 px-5 pb-14 pt-10 text-white sm:pt-14">
+        <div className="absolute -left-16 top-0 h-56 w-56 rounded-full bg-amber-400/20 blur-3xl" />
+        <div className="absolute right-0 top-10 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" />
 
-        <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur">
-          🌙 ঈদ কালেকশন ২০২৬
-        </p>
-
-        <h1 className="mt-3 text-4xl font-extrabold leading-tight sm:text-5xl">
-          {storeName}
-        </h1>
-
-        <p className="mx-auto mt-4 max-w-lg text-lg font-semibold text-yellow-300 sm:text-xl">
-          ঈদে সেরা পোশাক এখনই অর্ডার করুন!
-        </p>
-
-        <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-white/85 sm:text-base">
-          প্রিমিয়াম ফ্যাব্রিক · ঘরে বসে অর্ডার · দ্রুত ডেলিভারি · সহজ bKash
-          পেমেন্ট
-        </p>
-
-        {/* BIG CTAs */}
-        <div className="mx-auto mt-8 flex max-w-sm flex-col gap-4">
-          <Link
-            href="/checkout"
-            className="flex items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-lg font-extrabold text-green-800 shadow-lg transition hover:bg-yellow-300"
-          >
-            ✅ এখনই অর্ডার করুন
-          </Link>
-
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center justify-center gap-3 rounded-2xl border-2 border-white/50 bg-white/10 px-6 py-4 text-lg font-extrabold text-white backdrop-blur transition hover:bg-white/20"
-          >
-            💬 WhatsApp এ অর্ডার করুন
-          </a>
-        </div>
-
-        {/* scroll hint */}
-        <p className="mt-8 text-xs text-white/60">
-          👇 নিচে পণ্য দেখুন ও পছন্দের পোশাক বেছে নিন
-        </p>
-      </section>
-
-      {/* ── WHY SHOP HERE ─────────────────────────── */}
-      <section className="mx-auto max-w-2xl px-5 py-10">
-        <h2 className="mb-6 text-center text-2xl font-extrabold text-slate-900">
-          কেন Clothify থেকে কিনবেন?
-        </h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {[
-            { icon: "🌙", text: "ঈদ স্পেশাল অফার" },
-            { icon: "✅", text: "সহজ অর্ডার প্রক্রিয়া" },
-            { icon: "🚀", text: "দ্রুত ডেলিভারি" },
-            { icon: "💳", text: "bKash পেমেন্ট" },
-          ].map((b) => (
-            <div
-              key={b.text}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm"
-            >
-              <span className="text-3xl">{b.icon}</span>
-              <span className="text-sm font-bold text-slate-800">{b.text}</span>
+        <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div>
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
+              <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1">🛍️ Clothfy Landing</span>
+              <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1">🌙 Eid Special</span>
             </div>
-          ))}
+
+            <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
+              Premium Menswear
+              <span className="block text-amber-200">Find Your Fit</span>
+            </h1>
+
+            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-100 sm:text-base">
+              Social ad visitors এর জন্য optimized checkout journey: trusted products, fast order,
+              WhatsApp support, এবং simple payment guide.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold">
+              <span className="rounded-full bg-white/10 px-3 py-1">⭐ 4.8 Rating</span>
+              <span className="rounded-full bg-white/10 px-3 py-1">🚚 Fast Delivery</span>
+              <span className="rounded-full bg-white/10 px-3 py-1">💳 bKash + COD</span>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/checkout"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-extrabold text-slate-900 transition hover:bg-amber-300"
+              >
+                ✅ Order Now
+              </Link>
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-white/20"
+              >
+                💬 WhatsApp Chat
+              </a>
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-400 bg-slate-800/50 px-6 py-3 text-sm font-bold text-slate-100 transition hover:bg-slate-700"
+              >
+                🧥 Browse All Products
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+            <h2 className="text-lg font-bold">Quick Trust Snapshot</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {[
+                { icon: "🛡️", label: "Trusted Checkout" },
+                { icon: "⚡", label: "Instant Support" },
+                { icon: "📦", label: "Order Tracking" },
+                { icon: "🎯", label: "Fit-Focused Styles" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/15 bg-black/20 p-3 text-sm">
+                  <p className="text-xl">{item.icon}</p>
+                  <p className="mt-1 font-semibold text-white/90">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── PRODUCTS ──────────────────────────────── */}
-      <section className="mx-auto max-w-2xl px-5 pb-10">
-        <h2 className="mb-2 text-center text-2xl font-extrabold text-slate-900">
-          🛍️ আমাদের পণ্য সমূহ
-        </h2>
-        <p className="mb-6 text-center text-sm text-slate-500">
-          পছন্দের পণ্যটি বেছে নিন, বিস্তারিত দেখুন ও অর্ডার করুন
-        </p>
+      <section className="mx-auto max-w-6xl px-5 py-10">
+        <div className="mb-6 flex items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">🔥 Trending Picks</h2>
+            <p className="mt-1 text-sm text-slate-600">Top-selling products curated for social visitors.</p>
+          </div>
+          <Link href="/" className="text-sm font-semibold text-slate-700 underline underline-offset-2">
+            View full catalog
+          </Link>
+        </div>
 
         {featuredProducts.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center">
-            <p className="font-bold text-slate-700">পণ্য লোড হচ্ছে...</p>
+            <p className="font-bold text-slate-700">Products are loading...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featuredProducts.map((product: any) => (
-              <div
+              <article
                 key={product.id}
-                className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+                className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
               >
-                {product.image_url && (
+                {product.image_url ? (
                   <Link href={`/product/${product.id}`}>
                     <Image
                       src={product.image_url}
                       alt={product.name}
-                      width={300}
-                      height={220}
-                      className="h-44 w-full object-cover"
+                      width={500}
+                      height={380}
+                      className="h-56 w-full object-cover"
                     />
                   </Link>
-                )}
-                <div className="p-3">
-                  <p className="line-clamp-2 text-sm font-bold leading-snug text-slate-900">
-                    {product.name}
-                  </p>
-                  <p className="mt-1 text-lg font-extrabold text-green-700">
-                    ৳{product.price}
-                  </p>
-                  <Link
-                    href="/checkout"
-                    className="mt-2 block rounded-xl bg-green-600 py-2 text-center text-sm font-bold text-white transition hover:bg-green-700"
-                  >
-                    ✅ অর্ডার করুন
-                  </Link>
+                ) : null}
+                <div className="p-4">
+                  <p className="line-clamp-2 text-base font-bold text-slate-900">{product.name}</p>
+                  <p className="mt-1 text-xl font-extrabold text-emerald-700">৳{product.price}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <Link
+                      href={`/product/${product.id}`}
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-sm font-semibold text-slate-700"
+                    >
+                      👁️ Details
+                    </Link>
+                    <Link
+                      href="/checkout"
+                      className="rounded-xl bg-emerald-600 px-3 py-2 text-center text-sm font-bold text-white"
+                    >
+                      ✅ Order
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              </article>
             ))}
-          </div>
-        )}
-
-        {products.length > 6 && (
-          <div className="mt-6 text-center">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-8 py-3 text-sm font-bold text-white transition hover:bg-slate-700"
-            >
-              🛒 সব পণ্য দেখুন ({products.length}টি)
-            </Link>
           </div>
         )}
       </section>
 
-      {/* ── BOTTOM CTA ────────────────────────────── */}
-      <section className="bg-emerald-800 px-5 py-10 text-center text-white">
-        <h2 className="text-2xl font-extrabold">এখনই অর্ডার করুন!</h2>
-        <p className="mt-2 text-sm text-white/80">
-          সীমিত স্টক — তাড়াতাড়ি অর্ডার করুন
-        </p>
-        <div className="mx-auto mt-6 flex max-w-xs flex-col gap-4">
-          <Link
-            href="/checkout"
-            className="rounded-2xl bg-white px-6 py-4 text-lg font-extrabold text-green-800 transition hover:bg-yellow-300"
-          >
-            ✅ checkout করুন
-          </Link>
+      <section className="bg-[#0F172A] px-5 py-10 text-center text-white">
+        <h2 className="text-2xl font-extrabold">Need Help Choosing The Right Fit?</h2>
+        <p className="mt-2 text-sm text-slate-300">Chat with our team on WhatsApp or continue through secure checkout.</p>
+        <div className="mx-auto mt-6 flex max-w-xl flex-col gap-3 sm:flex-row">
           <a
             href={waLink}
             target="_blank"
             rel="noreferrer"
-            className="rounded-2xl border-2 border-white/50 bg-white/10 px-6 py-4 text-lg font-extrabold text-white transition hover:bg-white/20"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-emerald-400"
           >
-            💬 WhatsApp করুন
+            💬 WhatsApp Support
           </a>
+          <Link
+            href="/checkout"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-extrabold text-slate-900 transition hover:bg-slate-100"
+          >
+            ⚡ Quick Checkout
+          </Link>
         </div>
-        {settings?.address && (
-          <p className="mt-8 text-xs text-white/60">
-            📍 {settings.address}
-          </p>
-        )}
-        {settings?.contact_phone && (
-          <p className="mt-1 text-xs text-white/60">
-            📞 {settings.contact_phone}
-          </p>
-        )}
-        <p className="mt-6 text-xs text-white/40">© {storeName}</p>
+        {settings?.address ? <p className="mt-6 text-xs text-slate-400">📍 {settings.address}</p> : null}
+        {settings?.contact_phone ? <p className="mt-1 text-xs text-slate-400">☎️ {settings.contact_phone}</p> : null}
       </section>
     </main>
   );
