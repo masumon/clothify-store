@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: "Clothify | ঈদ কালেকশন ২০২৬ – Premium Fashion Store",
@@ -31,6 +31,9 @@ export const metadata: Metadata = {
       "Shop exclusive Eid fashion at Clothify – Premium fabrics, fast delivery, bKash payment.",
   },
   robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
