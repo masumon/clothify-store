@@ -17,7 +17,7 @@ import EidCampaignSection from "@/components/EidCampaignSection";
 import SitePreferencesBar from "@/components/SitePreferencesBar";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function Home({
   searchParams,

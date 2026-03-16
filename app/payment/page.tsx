@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getStoreSettings } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 export default async function PaymentPage() {
   const settings = await getStoreSettings();
