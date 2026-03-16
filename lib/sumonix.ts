@@ -22,6 +22,12 @@ type AssistantReply = {
 
 type AssistantMode = "public" | "admin";
 
+const SUMONIX_FB_URL = "https://www.facebook.com/sumon.mumain";
+
+function getOutOfScopeMessage() {
+  return `দুঃখিত, আমি এই ওয়েবসাইটের বাহিরে উত্তর দিতে পারবো না। আপনার কিছু জানার থাকলে [SUMONIX AI](${SUMONIX_FB_URL}) কে জিজ্ঞেস করুন।`;
+}
+
 function normalize(text: string) {
   return text.toLowerCase().trim();
 }
@@ -352,7 +358,7 @@ export async function getPublicSumonixReply(question: string): Promise<Assistant
   }
 
   return respond(
-    "আমি SUMONIX AI। আমি প্রডাক্ট, দাম, পেমেন্ট, courier, ঠিকানা, এবং available কাপড় সম্পর্কে সাহায্য করতে পারি। চাইলে নাম বা category লিখে কোনো কাপড় দেখাতে বলুন।",
+    getOutOfScopeMessage(),
     {
       products: products.slice(0, 3).map(productToSuggestion),
     }
@@ -429,10 +435,7 @@ export async function getAdminSumonixReply(question: string): Promise<AssistantR
     );
   }
 
-  return respond(
-    "আমি SUMONIX AI admin assistant। আমি products, orders, stock, sales, draft, featured items, এবং store information সম্পর্কে grounded summary দিতে পারি।",
-    {
+  return respond(getOutOfScopeMessage(), {
     products: productRows.slice(0, 4).map(productToSuggestion),
-    }
-  );
+  });
 }
