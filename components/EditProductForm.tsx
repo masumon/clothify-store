@@ -69,7 +69,7 @@ export default function EditProductForm({ product }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-3 w-full rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white"
+        className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
       >
         Edit Product
       </button>
@@ -77,14 +77,17 @@ export default function EditProductForm({ product }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+    >
       <input
         type="text"
         title="Product Name"
         aria-label="Product Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"
+        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
       />
 
       <input
@@ -93,7 +96,7 @@ export default function EditProductForm({ product }: Props) {
         aria-label="Product Price"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"
+        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
       />
 
       <input
@@ -102,7 +105,7 @@ export default function EditProductForm({ product }: Props) {
         aria-label="Product Category"
         value={category}
         onChange={(e) => setCategory(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"
+        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
       />
 
       <input
@@ -111,14 +114,14 @@ export default function EditProductForm({ product }: Props) {
         aria-label="Product Sizes"
         value={sizes}
         onChange={(e) => setSizes(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"
+        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
       />
 
       <div className="grid grid-cols-2 gap-2">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:opacity-60"
         >
           {saving ? "Saving..." : "Save"}
         </button>
@@ -126,7 +129,7 @@ export default function EditProductForm({ product }: Props) {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-lg bg-slate-300 px-4 py-2 text-sm font-medium text-slate-800"
+          className="rounded-lg bg-slate-300 px-4 py-2 text-sm font-semibold text-slate-800"
         >
           Cancel
         </button>
