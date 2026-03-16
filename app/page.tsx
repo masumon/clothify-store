@@ -6,6 +6,8 @@ import HomeHero from "@/components/HomeHero";
 import HomeCategoryBar from "@/components/HomeCategoryBar";
 import HomeHighlights from "@/components/HomeHighlights";
 import SectionHeader from "@/components/SectionHeader";
+import HomeQuickActions from "@/components/HomeQuickActions";
+import MobileStickyBar from "@/components/MobileStickyBar";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -26,18 +28,20 @@ export default async function Home({
   const categories = await getCategories();
 
   return (
-    <main>
+    <main className="pb-20 md:pb-0">
       <Header
         storeName={settings?.store_name || "Clothify"}
         slogan={settings?.slogan || "Find Your Fit"}
         logoUrl={settings?.logo_url || ""}
       />
 
-      <section className="mx-auto max-w-6xl px-4 py-8">
+      <section className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
         <HomeHero
           storeName={settings?.store_name || "Clothify"}
           slogan={settings?.slogan || "Find Your Fit"}
         />
+
+        <HomeQuickActions />
 
         <HomeHighlights />
 
@@ -67,7 +71,7 @@ export default async function Home({
               </p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -81,6 +85,8 @@ export default async function Home({
         address={settings?.address || ""}
         phone={settings?.contact_phone || ""}
       />
+
+      <MobileStickyBar />
     </main>
   );
 }
