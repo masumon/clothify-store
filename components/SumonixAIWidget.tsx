@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 type SuggestedProduct = {
@@ -24,6 +25,7 @@ type Props = {
 };
 
 export default function SumonixAIWidget({ mode = "public" }: Props) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,6 +38,11 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
           : "আমি SUMONIX AI। কাপড়, দাম, payment, courier, address, offer বা যেকোনো product সম্পর্কে জিজ্ঞেস করুন।",
     },
   ]);
+
+  const isAdminRoute = pathname.startsWith("/admin");
+  if ((mode === "public" && isAdminRoute) || (mode === "admin" && !isAdminRoute)) {
+    return null;
+  }
 
   const sendQuestion = async (e?: FormEvent) => {
     e?.preventDefault();
