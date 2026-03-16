@@ -321,9 +321,9 @@ export async function getPublicSumonixReply(question: string): Promise<Assistant
   if (includesAny(query, ["featured", "ফিচার", "campaign", "badge", "offer", "অফার", "sale", "discount"])) {
     const featured = products.filter((product) => product.is_featured || product.campaign_badge).slice(0, 6);
     return respond(
-        recommended.length > 0
-          ? `এখন ${featured.length} টি featured বা campaign প্রডাক্ট পাওয়া গেছে। নিচে দেখুন।`
-          : "এই মুহূর্তে আলাদা featured/campaign প্রডাক্ট পাওয়া যায়নি।",
+      featured.length > 0
+        ? `এখন ${featured.length} টি featured বা campaign প্রডাক্ট পাওয়া গেছে। নিচে দেখুন।`
+        : "এই মুহূর্তে আলাদা featured/campaign প্রডাক্ট পাওয়া যায়নি।",
       {
         products: featured.map(productToSuggestion),
       }
