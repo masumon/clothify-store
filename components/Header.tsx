@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type HeaderProps = {
   storeName?: string;
@@ -14,12 +15,41 @@ export default function Header({
   slogan = "Find Your Fit",
   logoUrl,
 }: HeaderProps) {
+  const pathname = usePathname();
+
+  const navItems = [
+    {
+      href: "/",
+      label: "Shop",
+      icon: "🛍️",
+      color: "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100",
+    },
+    {
+      href: "/cart",
+      label: "Cart",
+      icon: "🛒",
+      color: "border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100",
+    },
+    {
+      href: "/checkout",
+      label: "Checkout",
+      icon: "✅",
+      color: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
+    },
+    {
+      href: "/admin",
+      label: "Admin",
+      icon: "🔒",
+      color: "border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200",
+    },
+  ];
+
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
           {logoUrl ? (
-          <Image
+            <Image
               src={logoUrl}
               alt={storeName}
               width={48}
@@ -38,11 +68,25 @@ export default function Header({
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-4 text-sm font-medium text-slate-700 md:flex">
-          <Link href="/">Shop</Link>
-          <Link href="/cart">Cart</Link>
-          <Link href="/checkout">Checkout</Link>
-          <Link href="/fb">Landing Page</Link>
+        <nav className="hidden items-center gap-2 md:flex">
+          {navItems.map((item) => {
+            const active =
+              pathname === item.href ||
+              (item.href !== "/" && pathname.startsWith(item.href));
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition ${item.color} ${
+                  active ? "ring-2 ring-slate-300" : ""
+                }`}
+              >
+                <span className="text-base leading-none">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </header>
