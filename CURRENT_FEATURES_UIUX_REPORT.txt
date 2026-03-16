@@ -1,0 +1,297 @@
+Clothify Store - Current Features and UI/UX Report
+Date: 2026-03-17
+Repository: clothify-store (main)
+
+============================================================
+1) Project Overview
+============================================================
+This is a Next.js + TypeScript + Tailwind + Supabase based ecommerce system.
+It includes:
+- Customer-facing storefront
+- Admin operations panel
+- Order and payment workflow (bKash + COD)
+- Traffic analytics tracking
+- SUMONIX AI assistant for public and admin
+- Installable PWA behavior
+
+
+============================================================
+2) Customer-Facing Features (Storefront)
+============================================================
+2.1 Homepage and Discovery
+- Hero section with campaign-oriented visual design and CTA buttons
+- Top-level Site Preferences bar (theme/language/accessibility) shown near top
+- Category shortcuts and quick actions
+- Search + category filter for products
+- Featured collection, best seller strip, campaign sections, trust badges
+- Product grid with dynamic data loading from Supabase
+
+2.2 Product Experience
+- Product cards show:
+  - Product image
+  - Name, category, price
+  - Featured badge
+  - Campaign badge
+  - Stock status (in stock / low stock / out of stock)
+- Product details page includes:
+  - Zoom-capable product viewer
+  - Add-to-cart
+  - WhatsApp order CTA
+  - Stock + featured + campaign indicators
+
+2.3 Cart and Checkout
+- Local cart management:
+  - Add item
+  - Quantity increment/decrement
+  - Remove item
+  - Total calculation
+- Checkout form includes:
+  - Customer info (name/phone/address)
+  - Delivery method selection
+  - Courier selection (for home delivery)
+  - Payment method selection (bKash or COD)
+  - bKash TRX ID capture when required
+- On successful order:
+  - Redirect to success page
+  - Invoice data stored for auto-PDF generation
+
+2.4 Payment and Order Confirmation
+- Dedicated payment guidance page
+- Merchant bKash number and optional QR display
+- Step-by-step payment instructions
+- Order success page with invoice auto-download (PDF)
+
+2.5 Settings and Preferences (User Side)
+- Dedicated settings page for user preferences
+- Site Preferences supports:
+  - Theme: light / dark / system
+  - Language: Bangla / English
+  - Text size: normal / large
+  - Contrast: normal / high
+  - Motion: normal / reduced
+- Preset modes and reset behavior
+- Preferences are persisted in localStorage
+- Event-based sync keeps Header, Hero, and Preferences aligned
+
+2.6 Mobile Experience
+- Mobile sticky navigation/actions for key routes
+- Bottom navigation on shopping flow pages
+- Responsive layout across home/cart/checkout/product pages
+
+2.7 WhatsApp Commerce
+- WhatsApp CTAs in header, hero, product cards, and key pages
+- Bangladesh number normalization logic for wa.me links
+
+2.8 Facebook Landing Route
+- Dedicated social-traffic route: /fb
+- Campaign-optimized landing with trust highlights and quick checkout paths
+
+
+============================================================
+3) Admin Features
+============================================================
+3.1 Admin Security
+- Middleware protection for:
+  - /admin/*
+  - /api/admin/*
+- Basic auth validation using environment credentials
+
+3.2 Admin Dashboard
+- KPI blocks and trend data windows (today, last 7 days, last 30 days)
+- Revenue/order metrics
+- Pending, delivered, returned, cancelled snapshots
+- Sales trend and traffic snapshot integration
+
+3.3 Orders Command Center
+- Central order management UI
+- Filters:
+  - Text search
+  - Status
+  - Courier
+  - Payment
+  - Date
+- Order status update workflow (Pending/Processing/Shipped/Delivered/Completed/Returned/Cancelled)
+- Courier-wise report and trend chart
+- Export filtered orders to professional PDF report
+
+3.4 Product and Inventory Management
+- Product upload with:
+  - Name, price, category, sizes, image
+  - Stock quantity
+  - Featured toggle
+  - Campaign badge
+- Product listing and management actions
+- Publish/draft handling through is_published
+- Bulk publish/unpublish via API support
+
+3.5 Store Settings Management
+- Update store identity and commerce details:
+  - Store name, slogan, logo
+  - Address, contact phone, WhatsApp number
+  - bKash number and QR
+
+3.6 Admin AI Assistant
+- SUMONIX AI widget in admin mode
+- Can guide on stock/sales/orders and trigger selected operational actions
+
+
+============================================================
+4) API and Data Layer Features
+============================================================
+4.1 Public APIs
+- POST /api/orders
+  - Validates payload with zod
+  - Bangladesh phone regex validation
+  - bKash TRX validation
+  - Anti-abuse protections:
+    - Rate limiting
+    - Honeypot field
+    - Form timing validation
+  - COD auto reference generation
+  - Duplicate TRX protection for bKash
+- POST /api/sumonix
+  - JSON content-type check
+  - Input length guard
+  - Public AI reply generation
+- POST /api/track-visit
+  - Visitor event capture (path/source/country)
+  - Writes memory + DB analytics if available
+
+4.2 Admin APIs
+- PATCH /api/admin/orders/[id]/status
+- POST/PATCH /api/admin/products
+- DELETE /api/admin/products/[id]
+- PUT /api/admin/settings
+- POST /api/admin/sumonix
+
+4.3 Data Fetching and Performance
+- TTL-based in-memory caching in lib/data
+- Pending-promise deduplication for repeated requests
+- Supabase fallback logic for legacy schema states
+- Product/category/settings fetch helpers
+
+4.4 Supabase Schema Capability (from migrations and code usage)
+- Products:
+  - is_published
+  - stock_quantity
+  - is_featured
+  - campaign_badge
+- Traffic analytics table:
+  - page_visits
+
+
+============================================================
+5) SUMONIX AI Capability Summary
+============================================================
+Public mode:
+- Product recommendation by keyword and budget
+- Store/payment/contact/courier Q&A
+- Featured/campaign product suggestions
+- Friendly Bangla-first conversational behavior
+- Out-of-scope safe response routing
+
+Admin mode:
+- Admin insights and guided operational responses
+- Supports selected action intents (status/publish/featured/stock related)
+
+
+============================================================
+6) PWA and Installability
+============================================================
+- next-pwa integration enabled
+- Manifest configured (public/manifest.webmanifest)
+- App icons configured (192, 512, apple touch icon)
+- Service worker generated on production build
+- Custom install prompt component shown when browser supports beforeinstallprompt
+
+
+============================================================
+7) Current UI/UX Style and Experience
+============================================================
+7.1 Visual Direction
+- Modern ecommerce style with campaign-focused sections
+- Gradient-rich hero and highlighted CTA hierarchy
+- Rounded cards, soft shadows, elevated surfaces
+- Bold headings with bilingual-friendly typography setup
+- Distinct dark admin shell visual language
+
+7.2 Theme and Readability System
+- Global dark mode via dark-theme class on html
+- Light/dark/system behavior supported
+- Additional dark-mode safety overrides for:
+  - white surfaces
+  - slate text classes
+  - input/select/textarea/placeholder/option
+- Prevents low-contrast or white-on-white scenarios
+
+7.3 Language and Localization UX
+- Bangla and English toggle
+- Preference synchronization between:
+  - Header
+  - Site Preferences Bar
+  - Hero section
+- Stored values normalized across legacy/new keys for consistency
+- Default language behavior set to Bangla in preference layer
+
+7.4 Accessibility UX
+- Larger text option
+- High-contrast mode
+- Reduced motion mode
+- Preset-based accessibility combinations
+
+7.5 Interaction Patterns
+- Quick CTAs for buy, checkout, WhatsApp chat
+- Sticky/floating helpers:
+  - Mobile sticky bar
+  - AI assistant floating launcher
+  - PWA install banner
+- Admin data interactions with filters and export
+
+
+============================================================
+8) Route-Level Functional Coverage (Major)
+============================================================
+Public pages:
+- /
+- /product/[id]
+- /cart
+- /checkout
+- /payment
+- /order-success
+- /settings
+- /fb
+
+Admin pages:
+- /admin
+- /admin/orders
+- /admin/products
+- /admin/settings
+
+API routes (major):
+- /api/orders
+- /api/sumonix
+- /api/track-visit
+- /api/admin/orders/[id]/status
+- /api/admin/products
+- /api/admin/products/[id]
+- /api/admin/settings
+- /api/admin/sumonix
+
+
+============================================================
+9) Operational Status Snapshot
+============================================================
+- Production build currently passes successfully.
+- Lint + type checks pass in build flow.
+- PWA artifacts generated during build.
+
+
+============================================================
+10) Short Conclusion
+============================================================
+Current system status is a full-featured modern ecommerce implementation with:
+- Strong customer journey (discover -> cart -> checkout -> payment -> invoice)
+- Practical admin operations (orders, inventory, settings, reporting)
+- AI-assisted public/admin support (SUMONIX)
+- Installable PWA experience
+- Cross-component synchronized theme/language/accessibility UX
