@@ -1,5 +1,19 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { Hind_Siliguri, Plus_Jakarta_Sans } from "next/font/google";
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-ui",
+  display: "swap",
+});
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-bn",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Clothify | ঈদ কালেকশন ২০২৬ – Premium Fashion Store",
@@ -44,7 +58,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="bn">
-      <body className="bg-gray-100 text-slate-900">{children}</body>
+      <body
+        className={`${plusJakarta.variable} ${hindSiliguri.variable} bg-gray-100 text-slate-900 antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
