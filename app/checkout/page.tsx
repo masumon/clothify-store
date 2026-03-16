@@ -29,7 +29,7 @@ export default async function CheckoutPage() {
               🏠 Back to Home
             </Link>
           </div>
-          <CheckoutForm />
+          <CheckoutForm storeName={settings?.store_name || "Clothify"} />
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

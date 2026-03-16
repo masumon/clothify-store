@@ -4,7 +4,13 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { clearCart, getCart } from "@/lib/cart";
 import { CartItem } from "@/types";
 
-export default function CheckoutForm() {
+const INVOICE_STORAGE_KEY = "clothify-latest-invoice";
+
+type CheckoutFormProps = {
+  storeName?: string;
+};
+
+export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormProps) {
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -69,6 +75,26 @@ export default function CheckoutForm() {
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.error || "Failed to place order");
+      }
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          INVOICE_STORAGE_KEY,
+          JSON.stringify({
+            orderId: result.id || `ORD-${Date.now()}`,
+            customerName,
+            phone,
+            address,
+            deliveryMethod,
+            courierName,
+            paymentMethod,
+            trxId,
+            total,
+            items: cart,
+            createdAt: new Date().toISOString(),
+            storeName,
+          })
+        );
       }
 
       clearCart();
