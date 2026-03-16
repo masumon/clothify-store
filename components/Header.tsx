@@ -42,7 +42,7 @@ export default function Header({
           <Link href="/">Shop</Link>
           <Link href="/cart">Cart</Link>
           <Link href="/checkout">Checkout</Link>
-          <Link href="/admin">Admin</Link>
+          <Link href="/fb">Landing Page</Link>
         </nav>
       </div>
     </header>
