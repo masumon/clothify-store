@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { addToCart } from "@/lib/cart";
 
 type ProductCardProps = {
   product: {
@@ -15,6 +18,11 @@ type ProductCardProps = {
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const waText = `Hello, I want to order this product:%0A%0AProduct: ${encodeURIComponent(
+    product.name
+  )}%0APrice: ৳${product.price}`;
+  const whatsappUrl = `https://wa.me/8801811314262?text=${waText}`;
+
   return (
     <div className="group overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 shadow-[0_12px_32px_-24px_rgba(2,6,23,0.6)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgba(2,6,23,0.45)]">
       <div className="relative overflow-hidden">
@@ -66,19 +74,38 @@ export default function ProductCard({ product }: ProductCardProps) {
         </p>
 
         <div className="mt-3 flex gap-2">
-          <Link
-            href={`/product/${product.id}`}
+          <button
+            type="button"
+            onClick={() =>
+              addToCart({
+                id: product.id,
+                name: product.name,
+                price: Number(product.price),
+                image_url: product.image_url,
+                selectedSize: "Standard",
+                quantity: 1,
+              })
+            }
             className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
           >
-            👁️ বিস্তারিত
-          </Link>
-          <Link
-            href={`/checkout`}
-            className="flex-1 rounded-full bg-teal-700 px-3 py-2.5 text-center text-sm font-bold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-teal-800"
+            Add to Cart
+          </button>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 rounded-full bg-emerald-600 px-3 py-2.5 text-center text-sm font-bold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700"
           >
-            ✅ অর্ডার
-          </Link>
+            WhatsApp Order
+          </a>
         </div>
+
+        <Link
+          href={`/product/${product.id}`}
+          className="mt-2 block text-center text-xs font-semibold text-slate-500 underline-offset-2 hover:underline"
+        >
+          View Details
+        </Link>
       </div>
     </div>
   );
