@@ -1,30 +1,67 @@
+import Link from "next/link";
+
 export default function PaymentPage() {
   return (
-    <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", padding: "24px" }}>
-      <div style={{ maxWidth: "600px", width: "100%", background: "white", border: "1px solid #e2e8f0", borderRadius: "24px", padding: "32px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-        <h1 style={{ fontSize: "32px", fontWeight: 700, color: "#0f172a", marginBottom: "12px" }}>
-          Payment Page
+    <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+
+      <div className="max-w-xl w-full rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+
+        <h1 className="text-3xl font-bold text-slate-900 text-center">
+          bKash Payment
         </h1>
 
-        <p style={{ fontSize: "16px", color: "#475569", marginBottom: "24px" }}>
-          This payment page route is now active.
+        <p className="mt-3 text-slate-600 text-center">
+          Complete your order payment using bKash.
         </p>
 
-        <a
-          href="/"
-          style={{
-            display: "inline-block",
-            background: "black",
-            color: "white",
-            textDecoration: "none",
-            padding: "12px 24px",
-            borderRadius: "9999px",
-            fontWeight: 600
-          }}
-        >
-          Back to Home
-        </a>
+        <div className="mt-6 text-center">
+
+          <p className="text-sm text-slate-500 mb-2">
+            Send Money To
+          </p>
+
+          <div className="text-xl font-bold text-black bg-slate-100 rounded-xl py-3">
+            01885411007
+          </div>
+
+        </div>
+
+        <div className="mt-6 text-sm text-slate-600 space-y-2">
+
+          <p>1️⃣ Open your bKash app</p>
+
+          <p>2️⃣ Tap Send Money</p>
+
+          <p>3️⃣ Enter the number above</p>
+
+          <p>4️⃣ Send the exact order amount</p>
+
+          <p>5️⃣ Copy your Transaction ID</p>
+
+          <p>6️⃣ Enter the Transaction ID during checkout</p>
+
+        </div>
+
+        <div className="mt-8 flex flex-col gap-3">
+
+          <Link
+            href="/checkout"
+            className="bg-black text-white text-center py-3 rounded-full font-semibold"
+          >
+            Go to Checkout
+          </Link>
+
+          <Link
+            href="/"
+            className="border border-slate-300 text-center py-3 rounded-full font-semibold"
+          >
+            Back to Home
+          </Link>
+
+        </div>
+
       </div>
+
     </main>
   );
 }
