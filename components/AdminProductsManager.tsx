@@ -143,7 +143,7 @@ export default function AdminProductsManager({ products }: Props) {
         <div className="grid gap-3 md:grid-cols-[1fr_240px]">
           <input
             type="text"
-            placeholder="Search product by name"
+            placeholder="🔍 Search product by name"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
@@ -170,7 +170,7 @@ export default function AdminProductsManager({ products }: Props) {
             onClick={toggleSelectAllVisible}
             className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
           >
-            {allVisibleSelected ? "Unselect Visible" : "Select Visible"}
+            {allVisibleSelected ? "❎ Unselect Visible" : "✅ Select Visible"}
           </button>
 
           <button
@@ -179,7 +179,7 @@ export default function AdminProductsManager({ products }: Props) {
             onClick={() => runBulkPublishState(true)}
             className="rounded-full bg-teal-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
           >
-            Bulk Publish
+            🚀 Bulk Publish
           </button>
 
           <button
@@ -188,7 +188,7 @@ export default function AdminProductsManager({ products }: Props) {
             onClick={() => runBulkPublishState(false)}
             className="rounded-full bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
           >
-            Bulk Draft
+            📝 Bulk Draft
           </button>
 
           <button
@@ -197,7 +197,7 @@ export default function AdminProductsManager({ products }: Props) {
             onClick={runBulkDelete}
             className="rounded-full bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
           >
-            Bulk Delete
+            🗑️ Bulk Delete
           </button>
 
           <p className="ml-auto text-xs font-semibold text-slate-500">
@@ -284,7 +284,7 @@ export default function AdminProductsManager({ products }: Props) {
                     isPublished ? "bg-amber-600 hover:bg-amber-700" : "bg-teal-700 hover:bg-teal-800"
                   }`}
                 >
-                  {isPublished ? "Move to Draft" : "Publish Product"}
+                  {isPublished ? "📝 Move to Draft" : "🚀 Publish Product"}
                 </button>
 
                 <EditProductForm product={product} />
