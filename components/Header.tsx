@@ -67,7 +67,7 @@ export default function Header({
   const mobileMenuItems = navItems;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
+    <header className="sticky top-0 z-50 border-b border-white/70 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
           {logoUrl ? (
@@ -76,17 +76,21 @@ export default function Header({
               alt={storeName}
               width={48}
               height={48}
-              className="h-12 w-12 rounded-full border border-slate-200 object-cover"
+              className="h-12 w-12 rounded-2xl border border-slate-200 object-cover"
             />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white font-bold">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-600 to-cyan-700 text-lg font-bold text-white shadow-lg shadow-teal-900/20">
               C
             </div>
           )}
 
           <div>
-            <h1 className="text-lg font-bold text-slate-900">{storeName}</h1>
-            <p className="text-sm text-slate-500">{slogan}</p>
+            <h1 className="text-lg font-extrabold tracking-tight text-slate-900">
+              {storeName}
+            </h1>
+            <p className="text-xs font-medium tracking-wide text-slate-500">
+              {slogan}
+            </p>
           </div>
         </Link>
 
@@ -101,7 +105,7 @@ export default function Header({
                 key={item.href}
                 href={item.href}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition ${item.color} ${
-                  active ? "ring-2 ring-slate-300" : ""
+                  active ? "ring-2 ring-teal-300/60" : ""
                 }`}
               >
                 <span className="text-base leading-none">{item.icon}</span>
@@ -114,7 +118,7 @@ export default function Header({
         <button
           type="button"
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 text-slate-700 transition hover:bg-slate-100 md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/70 text-slate-700 transition hover:bg-slate-100 md:hidden"
           aria-label="Open mobile menu"
         >
           <span className="text-lg leading-none">{menuOpen ? "✕" : "☰"}</span>
@@ -122,7 +126,7 @@ export default function Header({
       </div>
 
       {menuOpen && (
-        <div className="border-t border-slate-200 bg-white px-4 pb-4 pt-3 md:hidden">
+        <div className="border-t border-slate-200/80 bg-white/90 px-4 pb-4 pt-3 backdrop-blur md:hidden">
           <nav className="grid grid-cols-2 gap-2">
             {mobileMenuItems.map((item) => {
               const active =
@@ -135,7 +139,7 @@ export default function Header({
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                   className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${item.color} ${
-                    active ? "ring-2 ring-slate-300" : ""
+                    active ? "ring-2 ring-teal-300/60" : ""
                   }`}
                 >
                   <span className="text-base leading-none">{item.icon}</span>
