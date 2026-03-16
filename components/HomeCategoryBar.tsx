@@ -31,11 +31,11 @@ export default function HomeCategoryBar({
           href={createUrl("All")}
           className={`rounded-full px-4 py-2 text-sm font-medium transition ${
             !activeCategory || activeCategory === "All"
-              ? "bg-black text-white"
-              : "bg-white text-slate-700 border border-slate-200"
+              ? "bg-[#0F172A] text-white"
+              : "border border-slate-200 bg-white text-slate-700"
           }`}
         >
-          All
+          ✨ All
         </Link>
 
         {categories.map((category) => {
@@ -47,8 +47,8 @@ export default function HomeCategoryBar({
               href={createUrl(category)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                 isActive
-                  ? "bg-black text-white"
-                  : "bg-white text-slate-700 border border-slate-200"
+                  ? "bg-[#0F172A] text-white"
+                  : "border border-slate-200 bg-white text-slate-700"
               }`}
             >
               {category}

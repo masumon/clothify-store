@@ -43,7 +43,7 @@ export default function SearchAndFilter({ categories }: Props) {
       <div className="grid gap-4 md:grid-cols-[1fr_220px_140px]">
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="🔍 Search products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-xl border border-slate-300/90 bg-white px-4 py-3 text-slate-800 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
@@ -68,7 +68,7 @@ export default function SearchAndFilter({ categories }: Props) {
           type="submit"
           className="rounded-xl bg-teal-700 px-5 py-3 font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-teal-800"
         >
-          Apply
+          ✨ Apply
         </button>
       </div>
     </form>
