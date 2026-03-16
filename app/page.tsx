@@ -5,6 +5,7 @@ import SearchAndFilter from "@/components/SearchAndFilter";
 import HomeHero from "@/components/HomeHero";
 import HomeCategoryBar from "@/components/HomeCategoryBar";
 import HomeHighlights from "@/components/HomeHighlights";
+import SectionHeader from "@/components/SectionHeader";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -40,45 +41,39 @@ export default async function Home({
 
         <HomeHighlights />
 
-        <SearchAndFilter categories={categories} />
-
-        <HomeCategoryBar
-          categories={categories}
-          activeCategory={activeCategory}
-          activeSearch={activeSearch}
-        />
-
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-2xl font-bold text-slate-900">
-              Latest Products
-            </h3>
-            <p className="mt-1 text-sm text-slate-500">
-              Explore your store collection with dynamic filters and search.
-            </p>
-          </div>
-
-          <p className="text-sm font-medium text-slate-500">
-            {products.length} item(s) found
-          </p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <SearchAndFilter categories={categories} />
+          <HomeCategoryBar
+            categories={categories}
+            activeCategory={activeCategory}
+            activeSearch={activeSearch}
+          />
         </div>
 
-        {products.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-            <h4 className="text-lg font-bold text-slate-900">
-              No products found
-            </h4>
-            <p className="mt-2 text-sm text-slate-500">
-              Try another search term or category.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
+        <div id="products" className="mt-10">
+          <SectionHeader
+            title="Latest Products"
+            subtitle="Explore your collection with better browsing, category shortcuts, and a polished shopping experience."
+            rightText={`${products.length} item(s) found`}
+          />
+
+          {products.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+              <h4 className="text-lg font-bold text-slate-900">
+                No products found
+              </h4>
+              <p className="mt-2 text-sm text-slate-500">
+                Try another search term or category.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       <Footer
