@@ -135,7 +135,7 @@ export default function InvoiceAutoDownload({
           headStyles: { fillColor: [15, 118, 110] },
         });
 
-        const finalY = (doc as jsPDF & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 130;
+        const finalY = (doc as typeof doc & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 130;
         doc.setFontSize(13);
         doc.text(`Total Amount: ৳${invoice.total}`, 14, finalY + 12);
         doc.setFontSize(10);
