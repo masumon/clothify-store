@@ -16,7 +16,7 @@ const OrderSchema = z.object({
     { message: "Delivery method must be Home Delivery or Pickup" }
   ),
   total_amount: z
-    .number({ invalid_type_error: "Total must be a number" })
+    .number()
     .positive("Total amount must be positive")
     .max(500000, "Amount too large"),
   bkash_trx_id: z
