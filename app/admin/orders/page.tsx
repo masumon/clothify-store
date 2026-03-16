@@ -71,8 +71,8 @@ export default async function AdminOrdersPage({
       <AdminTopbar />
 
       <div className="mb-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Orders</h1>
-        <p className="mt-2 text-slate-600">Manage customer orders here.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">📦 Orders Command Center</h1>
+        <p className="mt-2 text-slate-600">Track, filter, and process customer orders with courier and payment visibility.</p>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -84,7 +84,7 @@ export default async function AdminOrdersPage({
               href={`/admin/orders?range=${item.key}`}
               className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                 isActive
-                  ? "border-teal-700 bg-teal-700 text-white"
+                  ? "border-emerald-600 bg-emerald-600 text-white"
                   : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
               }`}
             >
@@ -95,34 +95,34 @@ export default async function AdminOrdersPage({
       </div>
 
       <div className="mb-6 grid gap-4 md:grid-cols-5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
-            Sales ({activeRange.label})
+            💰 Sales ({activeRange.label})
           </p>
           <p className="mt-1 text-2xl font-extrabold text-teal-700">৳{totalSales}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Pending</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">⏳ Pending</p>
           <p className="mt-1 text-2xl font-extrabold text-amber-600">{pendingCount}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
-            Delivered ({activeRange.label})
+            ✅ Delivered ({activeRange.label})
           </p>
           <p className="mt-1 text-2xl font-extrabold text-emerald-700">{deliveredCount}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Returned</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">↩️ Returned</p>
           <p className="mt-1 text-2xl font-extrabold text-rose-600">{returnedCount}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Cancelled</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">🚫 Cancelled</p>
           <p className="mt-1 text-2xl font-extrabold text-slate-700">{cancelledCount}</p>
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4">
-        <h2 className="text-lg font-bold text-slate-900">Notifications</h2>
+      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-bold text-slate-900">🔔 Notifications</h2>
         <ul className="mt-2 space-y-1 text-sm text-slate-700">
           <li>{pendingCount > 0 ? `🔔 ${pendingCount} orders are waiting for action in ${activeRange.label.toLowerCase()}.` : "✅ No pending orders."}</li>
           <li>{cancelledCount > 0 ? `⚠️ ${cancelledCount} orders are cancelled in ${activeRange.label.toLowerCase()}.` : "✅ No cancelled orders."}</li>
