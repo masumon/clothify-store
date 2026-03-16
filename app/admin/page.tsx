@@ -43,6 +43,16 @@ function formatTrendLabel(value: number) {
   return "0%";
 }
 
+function getBarHeightClass(ratio: number) {
+  if (ratio >= 0.95) return "h-[110px]";
+  if (ratio >= 0.85) return "h-[96px]";
+  if (ratio >= 0.7) return "h-[80px]";
+  if (ratio >= 0.55) return "h-[64px]";
+  if (ratio >= 0.4) return "h-[48px]";
+  if (ratio >= 0.25) return "h-[32px]";
+  return "h-[16px]";
+}
+
 async function getDashboardData(rangeDays: number) {
   try {
     const supabase = getSupabaseAdminClient();
@@ -298,12 +308,11 @@ export default async function AdminHomePage({
           <h3 className="text-lg font-bold text-slate-900">Traffic Mini Chart (7D)</h3>
           <div className="mt-4 flex items-end gap-2">
             {traffic.dailyVisits.map((item) => {
-              const height = Math.max(12, Math.round((item.count / maxTraffic) * 110));
+              const ratio = item.count / maxTraffic;
               return (
                 <div key={item.date} className="flex-1">
                   <div
-                    className="w-full rounded-t-md bg-cyan-500/80"
-                    style={{ height }}
+                    className={`w-full rounded-t-md bg-cyan-500/80 ${getBarHeightClass(ratio)}`}
                     title={`${item.date}: ${item.count}`}
                   />
                   <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">
@@ -319,12 +328,11 @@ export default async function AdminHomePage({
           <h3 className="text-lg font-bold text-slate-900">Sales Mini Chart (7D)</h3>
           <div className="mt-4 flex items-end gap-2">
             {dailySales.map((item) => {
-              const height = Math.max(12, Math.round((item.amount / maxSales) * 110));
+              const ratio = item.amount / maxSales;
               return (
                 <div key={item.date} className="flex-1">
                   <div
-                    className="w-full rounded-t-md bg-emerald-500/80"
-                    style={{ height }}
+                    className={`w-full rounded-t-md bg-emerald-500/80 ${getBarHeightClass(ratio)}`}
                     title={`${item.date}: ${item.amount}`}
                   />
                   <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">

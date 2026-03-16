@@ -38,6 +38,16 @@ function formatOrderDate(dateValue?: string) {
   return value.toLocaleDateString();
 }
 
+function getCourierBarHeightClass(ratio: number) {
+  if (ratio >= 0.95) return "h-[140px]";
+  if (ratio >= 0.85) return "h-[124px]";
+  if (ratio >= 0.7) return "h-[108px]";
+  if (ratio >= 0.55) return "h-[92px]";
+  if (ratio >= 0.4) return "h-[76px]";
+  if (ratio >= 0.25) return "h-[60px]";
+  return "h-[32px]";
+}
+
 async function fetchImageAsDataUrl(url: string) {
   const response = await fetch(url);
   const blob = await response.blob();
@@ -288,6 +298,8 @@ export default function AdminOrdersManager({
 
           <input
             type="date"
+            title="Filter by order date"
+            aria-label="Filter by order date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
             className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
@@ -333,13 +345,12 @@ export default function AdminOrdersManager({
             <p className="text-sm text-slate-500">No courier chart data available.</p>
           ) : (
             courierReport.map((item) => {
-              const height = Math.max(20, Math.round((item.orders / maxCourierOrders) * 140));
+              const ratio = item.orders / maxCourierOrders;
               return (
                 <div key={item.courier} className="min-w-[90px] flex-1">
                   <div className="flex h-40 items-end">
                     <div
-                      className="w-full rounded-t-xl bg-gradient-to-t from-cyan-600 to-teal-400"
-                      style={{ height }}
+                      className={`w-full rounded-t-xl bg-gradient-to-t from-cyan-600 to-teal-400 ${getCourierBarHeightClass(ratio)}`}
                       title={`${item.courier}: ${item.orders} orders, ৳${item.amount}`}
                     />
                   </div>
