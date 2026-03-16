@@ -5,7 +5,15 @@ export const CART_KEY = "clothify-cart";
 export function getCart(): CartItem[] {
   if (typeof window === "undefined") return [];
   const data = localStorage.getItem(CART_KEY);
-  return data ? JSON.parse(data) : [];
+  if (!data) return [];
+
+  try {
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    localStorage.removeItem(CART_KEY);
+    return [];
+  }
 }
 
 export function saveCart(cart: CartItem[]) {

@@ -96,8 +96,8 @@ export default function CheckoutForm() {
         onChange={(e) => setDeliveryMethod(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
       >
-        <option>Home Delivery</option>
-        <option>Store Pickup</option>
+        <option value="Home Delivery">Home Delivery</option>
+        <option value="Pickup">Store Pickup</option>
       </select>
       <input
         type="text"
