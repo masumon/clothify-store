@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 type Props = {
@@ -139,12 +140,13 @@ export default function ProductZoomViewer({ imageUrl, productName }: Props) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="aspect-square w-full overflow-hidden bg-slate-100">
-          <img
+        <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
+          <Image
             src={imageUrl}
             alt={productName}
+            fill
             draggable={false}
-            className="h-full w-full select-none object-cover transition-transform duration-100"
+            className="select-none object-cover transition-transform duration-100"
             style={{
               transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               cursor: scale > 1 ? (dragging ? "grabbing" : "grab") : "default",
