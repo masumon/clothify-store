@@ -27,7 +27,8 @@ export default async function SettingsPage() {
             আপনার পছন্দমত সেটিংস
           </h1>
           <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-            থিম ও ভাষা পরিবর্তন করুন। আপনার পছন্দ browser-এ সেভ থাকবে।
+            থিম, ভাষা, লেখার আকার এবং হাই কনট্রাস্ট মোড পরিবর্তন করুন।
+            আপনার পছন্দ browser-এ সেভ থাকবে।
           </p>
         </div>
 

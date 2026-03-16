@@ -2,7 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
-  background:#f8fafc;
-  font-family:Arial, Helvetica, sans-serif;
+body {
+  background: #f8fafc;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Accessibility setting: larger text for easier reading */
+html.text-size-large {
+  font-size: 112.5%;
+}
+
+/* Accessibility setting: stronger contrast for low-vision users */
+html.high-contrast body {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+html.high-contrast .bg-white {
+  background: #111 !important;
+}
+
+html.high-contrast .text-slate-900,
+html.high-contrast .text-slate-800,
+html.high-contrast .text-slate-700,
+html.high-contrast .text-slate-600,
+html.high-contrast .text-slate-500,
+html.high-contrast .text-slate-400,
+html.high-contrast .text-black {
+  color: #fff !important;
+}
+
+html.high-contrast .border-slate-200,
+html.high-contrast .border-slate-300 {
+  border-color: #666 !important;
+}
+
+html.high-contrast a {
+  color: #fde047 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
