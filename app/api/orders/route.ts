@@ -1,43 +1,40 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 
-type CreateOrderPayload = {
-  customer_name: string;
-  phone: string;
-  address: string;
-  delivery_method: string;
-  total_amount: number;
-  bkash_trx_id: string;
-};
+const BD_PHONE_RE = /^(?:\+?880|0)?1[3-9]\d{8}$/;
+const TRX_RE = /^[A-Z0-9]{6,20}$/i;
 
-function asNonEmptyString(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
+const OrderSchema = z.object({
+  customer_name: z.string().min(2, "Name must be at least 2 characters").max(100),
+  phone: z
+    .string()
+    .regex(BD_PHONE_RE, "Invalid Bangladesh phone number (e.g. 01XXXXXXXXX)"),
+  address: z.string().min(5, "Address must be at least 5 characters").max(300),
+  delivery_method: z.enum(["Home Delivery", "Pickup"], {
+    errorMap: () => ({ message: "Delivery method must be Home Delivery or Pickup" }),
+  }),
+  total_amount: z
+    .number({ invalid_type_error: "Total must be a number" })
+    .positive("Total amount must be positive")
+    .max(500000, "Amount too large"),
+  bkash_trx_id: z
+    .string()
+    .regex(TRX_RE, "Transaction ID must be 6-20 alphanumeric characters"),
+});
 
 export async function POST(req: Request) {
   try {
-    const payload = (await req.json()) as Partial<CreateOrderPayload>;
+    const body: unknown = await req.json();
+    const parsed = OrderSchema.safeParse(body);
 
-    const customer_name = asNonEmptyString(payload.customer_name);
-    const phone = asNonEmptyString(payload.phone);
-    const address = asNonEmptyString(payload.address);
-    const delivery_method = asNonEmptyString(payload.delivery_method);
-    const bkash_trx_id = asNonEmptyString(payload.bkash_trx_id);
-    const total_amount = Number(payload.total_amount);
-
-    if (!customer_name || !phone || !address || !delivery_method || !bkash_trx_id) {
-      return NextResponse.json(
-        { error: "Please fill all required order fields." },
-        { status: 400 }
-      );
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0]?.message ?? "Invalid input";
+      return NextResponse.json({ error: firstError }, { status: 400 });
     }
 
-    if (!Number.isFinite(total_amount) || total_amount <= 0) {
-      return NextResponse.json(
-        { error: "Order total amount is invalid." },
-        { status: 400 }
-      );
-    }
+    const { customer_name, phone, address, delivery_method, total_amount, bkash_trx_id } =
+      parsed.data;
 
     const supabase = getSupabaseAdminClient();
 
