@@ -3,21 +3,65 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type HeaderProps = {
   storeName?: string;
   slogan?: string;
   logoUrl?: string;
+  whatsappNumber?: string;
 };
+
+function normalizeBangladeshWhatsAppNumber(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+
+  if (!digits) return "8801811314262";
+  if (digits.startsWith("880")) return digits;
+  if (digits.startsWith("0")) return `88${digits}`;
+  return digits;
+}
 
 export default function Header({
   storeName = "Clothify",
   slogan = "Find Your Fit",
   logoUrl,
+  whatsappNumber = "8801811314262",
 }: HeaderProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [uiLang, setUiLang] = useState<"EN" | "BN">("BN");
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem("clothfy-lang");
+    const savedTheme = localStorage.getItem("clothfy-theme");
+
+    if (savedLang === "EN" || savedLang === "BN") {
+      setUiLang(savedLang);
+      document.documentElement.lang = savedLang === "BN" ? "bn" : "en";
+    }
+
+    if (savedTheme === "dark") {
+      setIsDarkMode(true);
+      document.documentElement.classList.add("dark-theme");
+    }
+  }, []);
+
+  const toggleLanguage = () => {
+    const nextLang = uiLang === "BN" ? "EN" : "BN";
+    setUiLang(nextLang);
+    localStorage.setItem("clothfy-lang", nextLang);
+    document.documentElement.lang = nextLang === "BN" ? "bn" : "en";
+  };
+
+  const toggleTheme = () => {
+    const nextDark = !isDarkMode;
+    setIsDarkMode(nextDark);
+    localStorage.setItem("clothfy-theme", nextDark ? "dark" : "light");
+    document.documentElement.classList.toggle("dark-theme", nextDark);
+  };
+
+  const whatsappLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}`;
 
   const navItems = [
     {
@@ -94,7 +138,47 @@ export default function Header({
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100"
+            aria-label="Toggle language"
+          >
+            {uiLang}
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100"
+            aria-label="Toggle dark mode"
+            title="Toggle dark mode"
+          >
+            <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
+          </button>
+
+          <Link
+            href="/cart"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100"
+            aria-label="Go to cart"
+            title="Cart"
+          >
+            🛒
+          </Link>
+
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"
+          >
+            <span className="text-sm leading-none">💬</span>
+            WhatsApp
+          </a>
+        </div>
+
+        <nav className="hidden items-center gap-2 lg:flex">
           {navItems.map((item) => {
             const active =
               pathname === item.href ||
@@ -118,7 +202,7 @@ export default function Header({
         <button
           type="button"
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/70 text-slate-700 transition hover:bg-slate-100 md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/70 text-slate-700 transition hover:bg-slate-100 lg:hidden"
           aria-label="Open mobile menu"
         >
           <span className="text-lg leading-none">{menuOpen ? "✕" : "☰"}</span>
@@ -126,7 +210,33 @@ export default function Header({
       </div>
 
       {menuOpen && (
-        <div className="border-t border-slate-200/80 bg-white/90 px-4 pb-4 pt-3 backdrop-blur md:hidden">
+        <div className="border-t border-slate-200/80 bg-white/90 px-4 pb-4 pt-3 backdrop-blur lg:hidden">
+          <div className="mb-3 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700"
+            >
+              {uiLang}
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700"
+              aria-label="Toggle dark mode"
+            >
+              <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
+            </button>
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white"
+            >
+              <span className="text-sm leading-none">💬</span>
+              WhatsApp
+            </a>
+          </div>
           <nav className="grid grid-cols-2 gap-2">
             {mobileMenuItems.map((item) => {
               const active =

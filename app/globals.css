@@ -10,6 +10,14 @@
   --brand-strong: #115e59;
 }
 
+html.dark-theme {
+  --surface: #0b1220;
+  --surface-strong: #111827;
+  --text: #e5e7eb;
+  --brand: #14b8a6;
+  --brand-strong: #0d9488;
+}
+
 body {
   color: var(--text);
   font-family: var(--font-ui), var(--font-bn), "Segoe UI", sans-serif;
@@ -18,6 +26,38 @@ body {
     radial-gradient(850px 400px at 100% 0%, rgba(14, 165, 233, 0.18), transparent 50%),
     linear-gradient(180deg, #f8fbff 0%, #f7fafc 45%, #f4f8f6 100%);
   min-height: 100vh;
+}
+
+html.dark-theme body {
+  background:
+    radial-gradient(1000px 500px at 0% -10%, rgba(20, 184, 166, 0.2), transparent 55%),
+    radial-gradient(850px 400px at 100% 0%, rgba(30, 64, 175, 0.18), transparent 50%),
+    linear-gradient(180deg, #0b1220 0%, #0f172a 55%, #111827 100%);
+}
+
+html.dark-theme .surface-card {
+  border-color: rgba(51, 65, 85, 0.8);
+  background: rgba(15, 23, 42, 0.92);
+  color: #e5e7eb;
+}
+
+html.dark-theme .bg-white,
+html.dark-theme .bg-white\/90,
+html.dark-theme .bg-white\/80 {
+  background-color: rgba(15, 23, 42, 0.94) !important;
+}
+
+html.dark-theme .text-slate-900,
+html.dark-theme .text-slate-800,
+html.dark-theme .text-slate-700,
+html.dark-theme .text-slate-600,
+html.dark-theme .text-slate-500 {
+  color: #e5e7eb !important;
+}
+
+html.dark-theme .border-slate-200,
+html.dark-theme .border-slate-300 {
+  border-color: rgba(71, 85, 105, 0.9) !important;
 }
 
 ::selection {
