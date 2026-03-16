@@ -9,12 +9,7 @@ export default function HomeHero({
 }: Props) {
   return (
     <section className="relative mb-8 overflow-hidden rounded-[30px] shadow-2xl">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/store-banner.jpg')",
-        }}
-      />
+      <div className="absolute inset-0 bg-[url('/store-banner.jpg')] bg-cover bg-center" />
 
       <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/25" />
 
