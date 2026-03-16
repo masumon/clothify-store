@@ -11,9 +11,10 @@ const OrderSchema = z.object({
     .string()
     .regex(BD_PHONE_RE, "Invalid Bangladesh phone number (e.g. 01XXXXXXXXX)"),
   address: z.string().min(5, "Address must be at least 5 characters").max(300),
-  delivery_method: z.enum(["Home Delivery", "Pickup"], {
-    errorMap: () => ({ message: "Delivery method must be Home Delivery or Pickup" }),
-  }),
+  delivery_method: z.enum(["Home Delivery", "Pickup"] as const).refine(
+    (v) => v !== undefined,
+    { message: "Delivery method must be Home Delivery or Pickup" }
+  ),
   total_amount: z
     .number({ invalid_type_error: "Total must be a number" })
     .positive("Total amount must be positive")
