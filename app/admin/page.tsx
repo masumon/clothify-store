@@ -7,7 +7,43 @@ import { Order } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-async function getDashboardData() {
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const rangeOptions = [
+  { key: "today", label: "Today", days: 1 },
+  { key: "7d", label: "Last 7 Days", days: 7 },
+  { key: "30d", label: "Last 30 Days", days: 30 },
+] as const;
+
+type RangeKey = (typeof rangeOptions)[number]["key"];
+
+function resolveRange(range?: string) {
+  const selected = rangeOptions.find((item) => item.key === range);
+  return selected || rangeOptions[1];
+}
+
+function getPeriodKey(dateValue?: string) {
+  if (!dateValue) return "";
+  const value = new Date(dateValue);
+  if (Number.isNaN(value.getTime())) return "";
+  return value.toISOString().slice(0, 10);
+}
+
+function computePercentChange(current: number, previous: number) {
+  if (previous === 0) {
+    return current > 0 ? 100 : 0;
+  }
+  return ((current - previous) / previous) * 100;
+}
+
+function formatTrendLabel(value: number) {
+  const rounded = Math.round(value);
+  if (rounded > 0) return `+${rounded}%`;
+  if (rounded < 0) return `${rounded}%`;
+  return "0%";
+}
+
+async function getDashboardData(rangeDays: number) {
   try {
     const supabase = getSupabaseAdminClient();
 
@@ -15,6 +51,56 @@ async function getDashboardData() {
     const { data: orders } = await supabase
       .from("orders")
       .select("id,status,total_amount,created_at");
+
+    const allOrders = (orders || []) as Array<
+      Pick<Order, "status" | "total_amount" | "created_at">
+    >;
+
+    const now = Date.now();
+    const currentStart = now - rangeDays * DAY_MS;
+    const previousStart = now - rangeDays * 2 * DAY_MS;
+
+    const currentPeriodOrders = allOrders.filter((order) => {
+      if (!order.created_at) return false;
+      const ts = new Date(order.created_at).getTime();
+      return Number.isFinite(ts) && ts >= currentStart && ts <= now;
+    });
+
+    const previousPeriodOrders = allOrders.filter((order) => {
+      if (!order.created_at) return false;
+      const ts = new Date(order.created_at).getTime();
+      return Number.isFinite(ts) && ts >= previousStart && ts < currentStart;
+    });
+
+    const currentReturned = currentPeriodOrders.filter(
+      (order) => order.status === "Returned"
+    ).length;
+    const previousReturned = previousPeriodOrders.filter(
+      (order) => order.status === "Returned"
+    ).length;
+    const currentCancelled = currentPeriodOrders.filter(
+      (order) => order.status === "Cancelled"
+    ).length;
+    const previousCancelled = previousPeriodOrders.filter(
+      (order) => order.status === "Cancelled"
+    ).length;
+
+    const salesByDay = new Map<string, number>();
+    for (let i = 6; i >= 0; i -= 1) {
+      const key = new Date(now - i * DAY_MS).toISOString().slice(0, 10);
+      salesByDay.set(key, 0);
+    }
+
+    for (const order of allOrders) {
+      const key = getPeriodKey(order.created_at);
+      if (!key || !salesByDay.has(key)) continue;
+      salesByDay.set(key, (salesByDay.get(key) || 0) + Number(order.total_amount || 0));
+    }
+
+    const dailySales = Array.from(salesByDay.entries()).map(([date, amount]) => ({
+      date,
+      amount,
+    }));
 
     const totalProducts = products?.length || 0;
     const totalOrders = orders?.length || 0;
@@ -61,6 +147,15 @@ async function getDashboardData() {
       totalReturned,
       totalDeliveredToday,
       totalDraft,
+      currentReturned,
+      previousReturned,
+      currentCancelled,
+      previousCancelled,
+      periodSales:
+        currentPeriodOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0,
+      previousPeriodSales:
+        previousPeriodOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0,
+      dailySales,
     };
   } catch {
     return {
@@ -72,11 +167,23 @@ async function getDashboardData() {
       totalReturned: 0,
       totalDeliveredToday: 0,
       totalDraft: 0,
+      currentReturned: 0,
+      previousReturned: 0,
+      currentCancelled: 0,
+      previousCancelled: 0,
+      periodSales: 0,
+      previousPeriodSales: 0,
+      dailySales: [] as Array<{ date: string; amount: number }>,
     };
   }
 }
 
-export default async function AdminHomePage() {
+export default async function AdminHomePage({
+  searchParams,
+}: {
+  searchParams?: { range?: string };
+}) {
+  const activeRange = resolveRange(searchParams?.range);
   const {
     totalProducts,
     totalOrders,
@@ -86,8 +193,21 @@ export default async function AdminHomePage() {
     totalReturned,
     totalDeliveredToday,
     totalDraft,
-  } = await getDashboardData();
-  const traffic = await getTrafficSnapshotFromDb();
+    currentReturned,
+    previousReturned,
+    currentCancelled,
+    previousCancelled,
+    periodSales,
+    previousPeriodSales,
+    dailySales,
+  } = await getDashboardData(activeRange.days);
+  const traffic = await getTrafficSnapshotFromDb(activeRange.days, 7);
+
+  const returnedChange = computePercentChange(currentReturned, previousReturned);
+  const cancelledChange = computePercentChange(currentCancelled, previousCancelled);
+  const salesChange = computePercentChange(periodSales, previousPeriodSales);
+  const maxTraffic = Math.max(1, ...traffic.dailyVisits.map((item) => item.count));
+  const maxSales = Math.max(1, ...dailySales.map((item) => item.amount));
 
   return (
     <section>
@@ -99,6 +219,25 @@ export default async function AdminHomePage() {
       <p className="mt-2 text-slate-600">
         Manage your store operations with a cleaner workflow and faster setup.
       </p>
+
+      <div className="mb-6 mt-4 flex flex-wrap gap-2">
+        {rangeOptions.map((item) => {
+          const isActive = item.key === activeRange.key;
+          return (
+            <Link
+              key={item.key}
+              href={`/admin?range=${item.key}`}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                isActive
+                  ? "border-teal-700 bg-teal-700 text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
 
       <AdminStats
         totalProducts={totalProducts}
@@ -112,16 +251,89 @@ export default async function AdminHomePage() {
           <p className="mt-1 text-2xl font-extrabold text-cyan-700">{traffic.liveUsers}</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Visits (24h)</p>
-          <p className="mt-1 text-2xl font-extrabold text-slate-900">{traffic.visits24h}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Visits ({activeRange.label})
+          </p>
+          <p className="mt-1 text-2xl font-extrabold text-slate-900">{traffic.visitsInRange}</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Total Sales</p>
-          <p className="mt-1 text-2xl font-extrabold text-teal-700">৳{totalRevenue}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Sales ({activeRange.label})
+          </p>
+          <p className="mt-1 text-2xl font-extrabold text-teal-700">৳{periodSales}</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            Trend: {formatTrendLabel(salesChange)}
+          </p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Draft Products</p>
           <p className="mt-1 text-2xl font-extrabold text-amber-700">{totalDraft}</p>
+        </div>
+      </div>
+
+      <div className="mb-8 grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <h3 className="text-base font-bold text-slate-900">Return Trend</h3>
+          <p className="mt-2 text-2xl font-extrabold text-rose-700">{currentReturned}</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            {formatTrendLabel(returnedChange)} vs previous {activeRange.label.toLowerCase()}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <h3 className="text-base font-bold text-slate-900">Cancel Trend</h3>
+          <p className="mt-2 text-2xl font-extrabold text-slate-700">{currentCancelled}</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            {formatTrendLabel(cancelledChange)} vs previous {activeRange.label.toLowerCase()}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <h3 className="text-base font-bold text-slate-900">All Time Sales</h3>
+          <p className="mt-2 text-2xl font-extrabold text-emerald-700">৳{totalRevenue}</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">Lifetime revenue snapshot</p>
+        </div>
+      </div>
+
+      <div className="mb-8 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <h3 className="text-lg font-bold text-slate-900">Traffic Mini Chart (7D)</h3>
+          <div className="mt-4 flex items-end gap-2">
+            {traffic.dailyVisits.map((item) => {
+              const height = Math.max(12, Math.round((item.count / maxTraffic) * 110));
+              return (
+                <div key={item.date} className="flex-1">
+                  <div
+                    className="w-full rounded-t-md bg-cyan-500/80"
+                    style={{ height }}
+                    title={`${item.date}: ${item.count}`}
+                  />
+                  <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">
+                    {item.date.slice(5)}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <h3 className="text-lg font-bold text-slate-900">Sales Mini Chart (7D)</h3>
+          <div className="mt-4 flex items-end gap-2">
+            {dailySales.map((item) => {
+              const height = Math.max(12, Math.round((item.amount / maxSales) * 110));
+              return (
+                <div key={item.date} className="flex-1">
+                  <div
+                    className="w-full rounded-t-md bg-emerald-500/80"
+                    style={{ height }}
+                    title={`${item.date}: ${item.amount}`}
+                  />
+                  <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">
+                    {item.date.slice(5)}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
