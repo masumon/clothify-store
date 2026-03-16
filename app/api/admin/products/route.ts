@@ -45,6 +45,7 @@ export async function POST(req: Request) {
         category,
         sizes,
         image_url,
+        is_published: true,
       },
     ]);
 

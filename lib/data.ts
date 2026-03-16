@@ -109,10 +109,22 @@ export async function getProducts(filters?: {
     }
 
     return getOrSetPending("products-all", async () => {
-      const { data, error } = await client
+      let query = client
         .from("products")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .eq("is_published", true);
+
+      let { data, error } = await query;
+
+      if (error && error.message.toLowerCase().includes("is_published")) {
+        const fallback = await client
+          .from("products")
+          .select("*")
+          .order("created_at", { ascending: false });
+        data = fallback.data;
+        error = fallback.error;
+      }
 
       if (error) {
         console.error("Products fetch error:", error.message);
@@ -127,6 +139,8 @@ export async function getProducts(filters?: {
 
   let query = client.from("products").select("*").order("created_at", { ascending: false });
 
+  query = query.eq("is_published", true);
+
   if (filters?.search) {
     query = query.ilike("name", `%${filters.search}%`);
   }
@@ -135,7 +149,23 @@ export async function getProducts(filters?: {
     query = query.eq("category", filters.category);
   }
 
-  const { data, error } = await query;
+  let { data, error } = await query;
+
+  if (error && error.message.toLowerCase().includes("is_published")) {
+    let fallback = client.from("products").select("*").order("created_at", { ascending: false });
+
+    if (filters?.search) {
+      fallback = fallback.ilike("name", `%${filters.search}%`);
+    }
+
+    if (filters?.category && filters.category !== "All") {
+      fallback = fallback.eq("category", filters.category);
+    }
+
+    const retry = await fallback;
+    data = retry.data;
+    error = retry.error;
+  }
 
   if (error) {
     console.error("Products fetch error:", error.message);

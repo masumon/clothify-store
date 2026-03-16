@@ -2,7 +2,7 @@ import Link from "next/link";
 import AdminTopbar from "@/components/AdminTopbar";
 import AdminStats from "@/components/AdminStats";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
-import { getTrafficSnapshot } from "@/lib/traffic";
+import { getTrafficSnapshotFromDb } from "@/lib/traffic";
 import { Order } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -87,7 +87,7 @@ export default async function AdminHomePage() {
     totalDeliveredToday,
     totalDraft,
   } = await getDashboardData();
-  const traffic = getTrafficSnapshot();
+  const traffic = await getTrafficSnapshotFromDb();
 
   return (
     <section>
@@ -154,6 +154,22 @@ export default async function AdminHomePage() {
               <li key={item.name}>{item.name} - {item.count}</li>
             ))}
           </ul>
+        </div>
+      </div>
+
+      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 className="text-lg font-bold text-slate-900">Traffic Trend (Last 7 Days)</h3>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {traffic.dailyVisits.length === 0 ? (
+            <p className="text-sm text-slate-500">No historical traffic data yet.</p>
+          ) : (
+            traffic.dailyVisits.map((item) => (
+              <div key={item.date} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">{item.date}</p>
+                <p className="mt-1 text-xl font-extrabold text-slate-900">{item.count}</p>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
