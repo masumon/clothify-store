@@ -17,6 +17,7 @@ export default function AddToCartButton({ product }: Props) {
   const [selectedSize, setSelectedSize] = useState(
     product.sizes?.[0] || "Standard"
   );
+  const [toast, setToast] = useState("");
 
   const handleAdd = () => {
     addToCart({
@@ -28,7 +29,8 @@ export default function AddToCartButton({ product }: Props) {
       quantity: 1,
     });
 
-    alert("Product added to cart");
+    setToast("✅ Product added to cart");
+    window.setTimeout(() => setToast(""), 1800);
   };
 
   return (
@@ -60,6 +62,10 @@ export default function AddToCartButton({ product }: Props) {
       >
         Add to Cart
       </button>
+
+      {toast ? (
+        <p className="mt-3 text-sm font-semibold text-emerald-700">{toast}</p>
+      ) : null}
     </div>
   );
 }

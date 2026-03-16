@@ -29,8 +29,16 @@ export default function SearchAndFilter({ categories }: Props) {
     router.push(query ? `/?${query}` : "/");
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    applyFilters();
+  };
+
   return (
-    <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <form
+      className="mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      onSubmit={handleSubmit}
+    >
       <div className="grid gap-4 md:grid-cols-[1fr_220px_140px]">
         <input
           type="text"
@@ -56,13 +64,12 @@ export default function SearchAndFilter({ categories }: Props) {
         </select>
 
         <button
-          type="button"
-          onClick={applyFilters}
+          type="submit"
           className="rounded-lg bg-black px-5 py-3 font-medium text-white"
         >
           Apply
         </button>
       </div>
-    </div>
+    </form>
   );
 }
