@@ -365,6 +365,8 @@ export default function ProductUploadForm() {
           <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
             <input
               type="checkbox"
+              title="Mark product as featured"
+              aria-label="Mark product as featured"
               checked={isFeatured}
               onChange={(e) => setIsFeatured(e.target.checked)}
             />
