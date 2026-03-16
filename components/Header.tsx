@@ -106,7 +106,7 @@ export default function Header({
           onClick={() => setMenuOpen((prev) => !prev)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 text-slate-700 transition hover:bg-slate-100 md:hidden"
           aria-label="Open mobile menu"
-          aria-expanded={menuOpen}
+          aria-expanded={menuOpen ? "true" : "false"}
         >
           <span className="text-lg leading-none">{menuOpen ? "✕" : "☰"}</span>
         </button>
