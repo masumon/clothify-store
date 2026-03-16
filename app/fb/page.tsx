@@ -3,7 +3,7 @@ import Image from "next/image";
 import { getProducts, getStoreSettings } from "@/lib/data";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "ফেইসবুক অফার — Clothify",
