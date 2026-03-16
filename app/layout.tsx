@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Hind_Siliguri, Plus_Jakarta_Sans } from "next/font/google";
 import TrafficTracker from "@/components/TrafficTracker";
 import SumonixAIWidget from "@/components/SumonixAIWidget";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -47,10 +48,24 @@ export const metadata: Metadata = {
       "Shop exclusive Eid fashion at Clothify – Premium fabrics, fast delivery, bKash payment.",
   },
   robots: { index: true, follow: true },
+  manifest: "/manifest.webmanifest",
+  applicationName: "CLOTHFY",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "CLOTHFY",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#0F172A",
 };
 
 export default function RootLayout({
@@ -65,6 +80,7 @@ export default function RootLayout({
       >
         <TrafficTracker />
         <SumonixAIWidget />
+        <PWAInstallPrompt />
         {children}
       </body>
     </html>
