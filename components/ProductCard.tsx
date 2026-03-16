@@ -12,34 +12,42 @@ type ProductCardProps = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow border border-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
-      <Link href={`/product/${product.id}`}>
-        <img
-          src={product.image_url}
-          alt={product.name}
-          className="h-64 w-full object-cover"
-        />
-      </Link>
+    <div className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div className="relative overflow-hidden">
+        <Link href={`/product/${product.id}`}>
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="h-64 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-72"
+          />
+        </Link>
 
-      <div className="p-4">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div className="absolute left-3 top-3 rounded-full bg-black/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+          Featured
+        </div>
+
+        <div className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
           {product.category}
-        </p>
+        </div>
+      </div>
 
-        <h3 className="line-clamp-2 text-lg font-bold text-slate-900">
+      <div className="p-4 sm:p-5">
+        <h3 className="line-clamp-2 min-h-[56px] text-lg font-bold leading-7 text-slate-900">
           {product.name}
         </h3>
 
-        <p className="mt-2 text-base font-semibold text-pink-600">
-          ৳{product.price}
-        </p>
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-lg font-extrabold text-pink-600 sm:text-xl">
+            ৳{product.price}
+          </p>
 
-        <Link
-          href={`/product/${product.id}`}
-          className="mt-4 inline-block rounded-lg bg-black px-4 py-2 text-sm font-medium text-white"
-        >
-          View Details
-        </Link>
+          <Link
+            href={`/product/${product.id}`}
+            className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+          >
+            View
+          </Link>
+        </div>
       </div>
     </div>
   );
