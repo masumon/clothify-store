@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type Props = {
   name?: string
   role?: string
@@ -8,8 +10,6 @@ type Props = {
   phone?: string
   address?: string
 }
-
-import Image from "next/image";
 
 export default function DeveloperCredit({
   name = "Mumain Ahmed",
