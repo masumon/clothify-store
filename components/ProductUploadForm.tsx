@@ -4,6 +4,9 @@ import NextImage from "next/image";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+const categoryPresets = ["Panjabi", "Shirt", "Polo", "T-Shirt", "Sharee", "Kids"];
+const commonSizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+
 async function resizeImageToSquare(file: File, size = 1000): Promise<File> {
   const imageUrl = URL.createObjectURL(file);
 
@@ -73,7 +76,8 @@ export default function ProductUploadForm() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
-  const [sizes, setSizes] = useState("");
+  const [sizesText, setSizesText] = useState("");
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -81,13 +85,38 @@ export default function ProductUploadForm() {
     "Choose image and wait for upload success message"
   );
 
+  const mergedSizes = Array.from(
+    new Set([
+      ...selectedSizes,
+      ...sizesText
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ])
+  );
+
+  const checklist = {
+    name: name.trim().length >= 3,
+    price: Number(price) > 0,
+    category: category.trim().length >= 2,
+    sizes: mergedSizes.length > 0,
+    image: Boolean(imageUrl.trim()),
+  };
+
   const resetForm = () => {
     setName("");
     setPrice("");
     setCategory("");
-    setSizes("");
+    setSizesText("");
+    setSelectedSizes([]);
     setImageUrl("");
     setStatusText("Choose image and wait for upload success message");
+  };
+
+  const toggleSize = (size: string) => {
+    setSelectedSizes((prev) =>
+      prev.includes(size) ? prev.filter((item) => item !== size) : [...prev, size]
+    );
   };
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -161,11 +190,6 @@ export default function ProductUploadForm() {
     try {
       setSaving(true);
 
-      const sizesArray = sizes
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
-
       const response = await fetch("/api/admin/products", {
         method: "POST",
         headers: {
@@ -175,7 +199,7 @@ export default function ProductUploadForm() {
           name: name.trim(),
           price: Number(price),
           category: category.trim(),
-          sizes: sizesArray,
+          sizes: mergedSizes,
           image_url: imageUrl,
         }),
       });
@@ -199,102 +223,158 @@ export default function ProductUploadForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+      className="mb-8 grid gap-6 rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_10px_30px_-22px_rgba(2,6,23,0.65)] lg:grid-cols-[1fr_320px]"
     >
-      <h2 className="text-xl font-bold text-slate-900">Add New Product</h2>
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-slate-900">Add New Product</h2>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Product Name
-          </label>
-          <input
-            type="text"
-            placeholder="Enter product name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
-          />
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">
+              Product Name
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Premium Cotton Panjabi"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Price</label>
+            <input
+              type="number"
+              placeholder="e.g. 1450"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Price
-          </label>
-          <input
-            type="number"
-            placeholder="Enter product price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Category
-          </label>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">Category</label>
           <input
             type="text"
-            placeholder="Enter category"
+            placeholder="Select preset or type custom category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            {categoryPresets.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setCategory(item)}
+                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                  category.toLowerCase() === item.toLowerCase()
+                    ? "border-teal-700 bg-teal-700 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div>
           <label className="mb-2 block text-sm font-semibold text-slate-700">
             Sizes
           </label>
+          <div className="flex flex-wrap gap-2">
+            {commonSizes.map((size) => (
+              <button
+                key={size}
+                type="button"
+                onClick={() => toggleSize(size)}
+                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                  selectedSizes.includes(size)
+                    ? "border-cyan-700 bg-cyan-700 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+
           <input
             type="text"
-            placeholder="M,L,XL"
-            value={sizes}
-            onChange={(e) => setSizes(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+            placeholder="Custom sizes (comma separated), e.g. 36, 38"
+            value={sizesText}
+            onChange={(e) => setSizesText(e.target.value)}
+            className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           />
+          <p className="mt-2 text-xs text-slate-500">
+            Selected sizes: {mergedSizes.length ? mergedSizes.join(", ") : "None"}
+          </p>
         </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Product Image
+          </label>
+          <input
+            type="file"
+            title="Product Image"
+            aria-label="Product Image"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm"
+          />
+          <p className="mt-2 text-xs text-slate-500">{statusText}</p>
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving || uploading}
+          className="w-full rounded-xl bg-teal-700 px-5 py-3 font-semibold text-white transition hover:bg-teal-800 disabled:opacity-60"
+        >
+          {uploading ? "Uploading image..." : saving ? "Saving..." : "Add Product"}
+        </button>
       </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          Product Image
-        </label>
-        <input
-          type="file"
-          title="Product Image"
-          aria-label="Product Image"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="w-full text-sm"
-        />
-        <p className="mt-2 text-xs text-slate-500">{statusText}</p>
-      </div>
+      <aside className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+        <h3 className="text-lg font-bold text-slate-900">Setup Checklist</h3>
+        <ul className="space-y-2 text-sm text-slate-700">
+          <li>{checklist.name ? "✅" : "⬜"} Product name is clear</li>
+          <li>{checklist.price ? "✅" : "⬜"} Price is valid</li>
+          <li>{checklist.category ? "✅" : "⬜"} Category selected</li>
+          <li>{checklist.sizes ? "✅" : "⬜"} Size added</li>
+          <li>{checklist.image ? "✅" : "⬜"} Image uploaded</li>
+        </ul>
 
-      {imageUrl ? (
-        <NextImage
-          src={imageUrl}
-          alt="Preview"
-          width={160}
-          height={160}
-          className="h-40 w-40 rounded-xl border object-cover"
-        />
-      ) : null}
+        <div className="rounded-xl border border-slate-200 bg-white p-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Live Preview
+          </p>
 
-      <button
-        type="submit"
-        disabled={saving || uploading}
-        className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white disabled:opacity-60"
-      >
-        {uploading
-          ? "Uploading image..."
-          : saving
-          ? "Saving..."
-          : "Add Product"}
-      </button>
+          {imageUrl ? (
+            <NextImage
+              src={imageUrl}
+              alt="Preview"
+              width={280}
+              height={280}
+              className="mt-3 h-44 w-full rounded-xl border object-cover"
+            />
+          ) : (
+            <div className="mt-3 flex h-44 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-400">
+              Image preview will appear here
+            </div>
+          )}
+
+          <p className="mt-3 text-sm font-bold text-slate-900">{name || "Product name"}</p>
+          <p className="mt-1 text-sm text-slate-500">{category || "Category"}</p>
+          <p className="mt-1 font-semibold text-teal-700">৳{price || "0"}</p>
+          <p className="mt-1 text-xs text-slate-500">
+            Sizes: {mergedSizes.length ? mergedSizes.join(", ") : "Not set"}
+          </p>
+        </div>
+      </aside>
     </form>
   );
 }
