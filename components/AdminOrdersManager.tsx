@@ -9,6 +9,8 @@ import type { Order } from "@/types";
 type Props = {
   orders: Order[];
   activeRangeLabel: string;
+  storeName: string;
+  logoUrl?: string;
 };
 
 const kanbanStatuses = [
@@ -31,13 +33,43 @@ function parsePayment(deliveryMethod: string) {
   return match?.[1]?.trim() || "Unknown";
 }
 
-export default function AdminOrdersManager({ orders, activeRangeLabel }: Props) {
+function formatOrderDate(dateValue?: string) {
+  if (!dateValue) return "N/A";
+  const value = new Date(dateValue);
+  if (Number.isNaN(value.getTime())) return "N/A";
+  return value.toLocaleDateString();
+}
+
+async function fetchImageAsDataUrl(url: string) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Failed to read image"));
+    reader.readAsDataURL(blob);
+  });
+}
+
+export default function AdminOrdersManager({
+  orders,
+  activeRangeLabel,
+  storeName,
+  logoUrl,
+}: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [courierFilter, setCourierFilter] = useState("All");
+  const [paymentFilter, setPaymentFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState("");
 
   const courierOptions = useMemo(() => {
     return ["All", ...Array.from(new Set(orders.map((item) => parseCourier(item.delivery_method))))];
+  }, [orders]);
+
+  const paymentOptions = useMemo(() => {
+    return ["All", ...Array.from(new Set(orders.map((item) => parsePayment(item.delivery_method))))];
   }, [orders]);
 
   const filteredOrders = useMemo(() => {
@@ -54,10 +86,14 @@ export default function AdminOrdersManager({ orders, activeRangeLabel }: Props) 
       const matchesStatus = statusFilter === "All" || order.status === statusFilter;
       const courier = parseCourier(order.delivery_method);
       const matchesCourier = courierFilter === "All" || courier === courierFilter;
+      const payment = parsePayment(order.delivery_method);
+      const matchesPayment = paymentFilter === "All" || payment === paymentFilter;
+      const orderDateKey = order.created_at ? new Date(order.created_at).toISOString().slice(0, 10) : "";
+      const matchesDate = !dateFilter || orderDateKey === dateFilter;
 
-      return matchesQuery && matchesStatus && matchesCourier;
+      return matchesQuery && matchesStatus && matchesCourier && matchesPayment && matchesDate;
     });
-  }, [orders, search, statusFilter, courierFilter]);
+  }, [orders, search, statusFilter, courierFilter, paymentFilter, dateFilter]);
 
   const courierReport = useMemo(() => {
     const report = new Map<string, { orders: number; amount: number }>();
@@ -90,21 +126,70 @@ export default function AdminOrdersManager({ orders, activeRangeLabel }: Props) 
     return nextBoard;
   }, [filteredOrders]);
 
-  const exportPdf = () => {
+  const exportPdf = async () => {
     const doc = new jsPDF({ orientation: "landscape" });
     const generatedAt = new Date().toLocaleString();
+    const totalAmount = filteredOrders.reduce(
+      (sum, order) => sum + Number(order.total_amount || 0),
+      0
+    );
+    const deliveredCount = filteredOrders.filter((order) => order.status === "Delivered").length;
+    const pendingCount = filteredOrders.filter((order) => order.status === "Pending").length;
+    const returnedCount = filteredOrders.filter((order) => order.status === "Returned").length;
+    const cancelledCount = filteredOrders.filter((order) => order.status === "Cancelled").length;
 
-    doc.setFontSize(16);
-    doc.text("Clothify Orders Report", 14, 14);
+    doc.setFillColor(15, 118, 110);
+    doc.rect(0, 0, 297, 34, "F");
+
+    if (logoUrl) {
+      try {
+        const imageData = await fetchImageAsDataUrl(logoUrl);
+        if (imageData) {
+          doc.addImage(imageData, "PNG", 14, 6, 18, 18);
+        }
+      } catch {
+        // Ignore logo load failures and continue with text-only header.
+      }
+    }
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.text(`${storeName} Orders Report`, logoUrl ? 38 : 14, 15);
     doc.setFontSize(10);
-    doc.text(`Range: ${activeRangeLabel}`, 14, 21);
-    doc.text(`Generated: ${generatedAt}`, 14, 27);
-    doc.text(`Filtered Orders: ${filteredOrders.length}`, 14, 33);
+    doc.text(`Professional admin export`, logoUrl ? 38 : 14, 22);
+
+    doc.setTextColor(31, 41, 55);
+    doc.setFontSize(10);
+    doc.text(`Range: ${activeRangeLabel}`, 14, 44);
+    doc.text(`Generated: ${generatedAt}`, 14, 50);
+    doc.text(`Filtered Orders: ${filteredOrders.length}`, 14, 56);
+
+    const summaryCards = [
+      { label: "Total Sales", value: `৳${totalAmount}`, fill: [236, 253, 245] as const, text: [6, 95, 70] as const },
+      { label: "Pending", value: String(pendingCount), fill: [255, 251, 235] as const, text: [146, 64, 14] as const },
+      { label: "Delivered", value: String(deliveredCount), fill: [236, 253, 245] as const, text: [4, 120, 87] as const },
+      { label: "Issues", value: String(returnedCount + cancelledCount), fill: [254, 242, 242] as const, text: [159, 18, 57] as const },
+    ];
+
+    let cardX = 96;
+    for (const card of summaryCards) {
+      doc.setFillColor(card.fill[0], card.fill[1], card.fill[2]);
+      doc.roundedRect(cardX, 39, 43, 18, 3, 3, "F");
+      doc.setTextColor(card.text[0], card.text[1], card.text[2]);
+      doc.setFontSize(9);
+      doc.text(card.label, cardX + 4, 46);
+      doc.setFontSize(12);
+      doc.text(card.value, cardX + 4, 53);
+      cardX += 47;
+    }
+
+    doc.setTextColor(31, 41, 55);
 
     autoTable(doc, {
-      startY: 38,
-      head: [["Customer", "Phone", "Courier", "Payment", "Amount", "Status", "TRX ID"]],
+      startY: 64,
+      head: [["Date", "Customer", "Phone", "Courier", "Payment", "Amount", "Status", "TRX ID"]],
       body: filteredOrders.map((order) => [
+        formatOrderDate(order.created_at),
         order.customer_name,
         order.phone,
         parseCourier(order.delivery_method),
@@ -144,7 +229,7 @@ export default function AdminOrdersManager({ orders, activeRangeLabel }: Props) 
   return (
     <div>
       <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
-        <div className="grid gap-3 lg:grid-cols-[1fr_220px_220px_auto]">
+        <div className="grid gap-3 lg:grid-cols-[1fr_180px_180px_180px_180px_auto]">
           <input
             type="text"
             placeholder="Search by customer, phone, address, TRX"
@@ -181,6 +266,27 @@ export default function AdminOrdersManager({ orders, activeRangeLabel }: Props) 
               </option>
             ))}
           </select>
+
+          <select
+            aria-label="Filter by payment method"
+            title="Filter by payment method"
+            value={paymentFilter}
+            onChange={(e) => setPaymentFilter(e.target.value)}
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+          >
+            {paymentOptions.map((payment) => (
+              <option key={payment} value={payment}>
+                {payment}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+          />
 
           <button
             type="button"
@@ -251,6 +357,7 @@ export default function AdminOrdersManager({ orders, activeRangeLabel }: Props) 
               <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
               <th className="px-4 py-3 text-left text-sm font-semibold">Phone</th>
               <th className="px-4 py-3 text-left text-sm font-semibold">Address</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
               <th className="px-4 py-3 text-left text-sm font-semibold">Courier</th>
               <th className="px-4 py-3 text-left text-sm font-semibold">Payment</th>
               <th className="px-4 py-3 text-left text-sm font-semibold">Amount</th>
@@ -273,6 +380,7 @@ export default function AdminOrdersManager({ orders, activeRangeLabel }: Props) 
                   <td className="px-4 py-3">{order.customer_name}</td>
                   <td className="px-4 py-3">{order.phone}</td>
                   <td className="px-4 py-3">{order.address}</td>
+                  <td className="px-4 py-3">{formatOrderDate(order.created_at)}</td>
                   <td className="px-4 py-3">{parseCourier(order.delivery_method)}</td>
                   <td className="px-4 py-3">{parsePayment(order.delivery_method)}</td>
                   <td className="px-4 py-3">৳{order.total_amount}</td>

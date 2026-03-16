@@ -1,6 +1,7 @@
 import AdminTopbar from "@/components/AdminTopbar";
 import AdminOrdersManager from "@/components/AdminOrdersManager";
 import Link from "next/link";
+import { getStoreSettings } from "@/lib/data";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 import { Order } from "@/types";
 
@@ -44,6 +45,7 @@ export default async function AdminOrdersPage({
   searchParams?: { range?: string };
 }) {
   const activeRange = resolveRange(searchParams?.range);
+  const settings = await getStoreSettings();
   const orders = await getOrders();
   const now = Date.now();
   const periodStart = now - activeRange.days * DAY_MS;
@@ -128,7 +130,12 @@ export default async function AdminOrdersPage({
         </ul>
       </div>
 
-      <AdminOrdersManager orders={filteredOrders} activeRangeLabel={activeRange.label} />
+      <AdminOrdersManager
+        orders={filteredOrders}
+        activeRangeLabel={activeRange.label}
+        storeName={settings?.store_name || "Clothify"}
+        logoUrl={settings?.logo_url || ""}
+      />
     </section>
   );
 }
