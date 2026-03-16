@@ -3,7 +3,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-async function resizeImageToSquare(file: File, size = 1200): Promise<File> {
+async function resizeImageToSquare(file: File, size = 1000): Promise<File> {
   const imageUrl = URL.createObjectURL(file);
 
   try {
@@ -28,20 +28,18 @@ async function resizeImageToSquare(file: File, size = 1200): Promise<File> {
 
     const sourceWidth = img.width;
     const sourceHeight = img.height;
-    const sourceRatio = sourceWidth / sourceHeight;
-    const targetRatio = 1;
 
     let sx = 0;
     let sy = 0;
     let sWidth = sourceWidth;
     let sHeight = sourceHeight;
 
-    if (sourceRatio > targetRatio) {
+    if (sourceWidth > sourceHeight) {
       sWidth = sourceHeight;
-      sx = (sourceWidth - sWidth) / 2;
-    } else if (sourceRatio < targetRatio) {
+      sx = (sourceWidth - sourceHeight) / 2;
+    } else if (sourceHeight > sourceWidth) {
       sHeight = sourceWidth;
-      sy = (sourceHeight - sHeight) / 2;
+      sy = (sourceHeight - sourceWidth) / 2;
     }
 
     ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, size, size);
@@ -53,13 +51,14 @@ async function resizeImageToSquare(file: File, size = 1200): Promise<File> {
           else reject(new Error("Image resize failed"));
         },
         "image/jpeg",
-        0.9
+        0.82
       );
     });
 
-    const newFileName = file.name.replace(/\.[^/.]+$/, "") + "-square.jpg";
+    const fileName =
+      file.name.replace(/\.[^/.]+$/, "").replace(/\s+/g, "-") + "-optimized.jpg";
 
-    return new File([blob], newFileName, {
+    return new File([blob], fileName, {
       type: "image/jpeg",
       lastModified: Date.now(),
     });
@@ -76,6 +75,18 @@ export default function ProductUploadForm() {
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [statusText, setStatusText] = useState(
+    "Choose image and wait for upload success message"
+  );
+
+  const resetForm = () => {
+    setName("");
+    setPrice("");
+    setCategory("");
+    setSizes("");
+    setImageUrl("");
+    setStatusText("Choose image and wait for upload success message");
+  };
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const originalFile = e.target.files?.[0];
@@ -84,8 +95,12 @@ export default function ProductUploadForm() {
     try {
       setUploading(true);
       setImageUrl("");
+      setStatusText("Optimizing image... please wait");
 
-      const resizedFile = await resizeImageToSquare(originalFile, 1200);
+      const resizedFile = await resizeImageToSquare(originalFile, 1000);
+
+      setStatusText("Uploading optimized image... please wait");
+
       const cleanName = resizedFile.name.replace(/\s+/g, "-");
       const filePath = `products/${Date.now()}-${cleanName}`;
 
@@ -100,8 +115,10 @@ export default function ProductUploadForm() {
         .getPublicUrl(filePath);
 
       setImageUrl(data.publicUrl);
+      setStatusText("Image uploaded successfully");
       alert("Product image uploaded successfully");
     } catch (error: any) {
+      setStatusText("Image upload failed");
       alert(error.message || "Image upload failed");
     } finally {
       setUploading(false);
@@ -157,6 +174,7 @@ export default function ProductUploadForm() {
       if (error) throw error;
 
       alert("Product added successfully");
+      resetForm();
       window.location.reload();
     } catch (error: any) {
       alert(error.message || "Failed to add product");
@@ -173,37 +191,59 @@ export default function ProductUploadForm() {
       <h2 className="text-xl font-bold text-slate-900">Add New Product</h2>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
-        />
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Product Name
+          </label>
+          <input
+            type="text"
+            placeholder="Enter product name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Price
+          </label>
+          <input
+            type="number"
+            placeholder="Enter product price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <input
-          type="text"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
-        />
-        <input
-          type="text"
-          placeholder="Sizes comma separated (M,L,XL)"
-          value={sizes}
-          onChange={(e) => setSizes(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
-        />
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Category
+          </label>
+          <input
+            type="text"
+            placeholder="Enter category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Sizes
+          </label>
+          <input
+            type="text"
+            placeholder="M,L,XL"
+            value={sizes}
+            onChange={(e) => setSizes(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+          />
+        </div>
       </div>
 
       <div>
@@ -216,13 +256,7 @@ export default function ProductUploadForm() {
           onChange={handleImageUpload}
           className="w-full text-sm"
         />
-        <p className="mt-2 text-xs text-slate-500">
-          {uploading
-            ? "Uploading and resizing image... please wait"
-            : imageUrl
-            ? "Image uploaded successfully"
-            : "Choose image and wait for upload success message"}
-        </p>
+        <p className="mt-2 text-xs text-slate-500">{statusText}</p>
       </div>
 
       {imageUrl ? (
@@ -246,4 +280,4 @@ export default function ProductUploadForm() {
       </button>
     </form>
   );
-      }
+}
