@@ -59,14 +59,36 @@ export default async function PaymentPage() {
             href="/checkout"
             className="bg-black text-white text-center py-3 rounded-full font-semibold"
           >
-            Go to Checkout
+            ✅ Go to Checkout
           </Link>
 
           <Link
             href="/"
             className="border border-slate-300 text-center py-3 rounded-full font-semibold"
           >
-            Back to Home
+            🏠 Back to Home
+          </Link>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/fb"
+              className="rounded-full border border-slate-300 py-2 text-center text-sm font-semibold text-slate-700"
+            >
+              📣 Landing
+            </Link>
+            <Link
+              href="/settings"
+              className="rounded-full border border-slate-300 py-2 text-center text-sm font-semibold text-slate-700"
+            >
+              ⚙️ Settings
+            </Link>
+          </div>
+
+          <Link
+            href="/cart"
+            className="rounded-full border border-slate-300 py-2 text-center text-sm font-semibold text-slate-700"
+          >
+            🛒 Cart
           </Link>
         </div>
       </div>
