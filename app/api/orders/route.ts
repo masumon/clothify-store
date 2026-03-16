@@ -4,6 +4,47 @@ import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 
 const BD_PHONE_RE = /^(?:\+?880|0)?1[3-9]\d{8}$/;
 const TRX_RE = /^[A-Z0-9]{6,20}$/i;
+const RATE_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT = 8;
+
+type RateBucket = {
+  count: number;
+  resetAt: number;
+};
+
+const globalRateStore = globalThis as unknown as {
+  __clothifyOrderRateStore?: Map<string, RateBucket>;
+};
+
+if (!globalRateStore.__clothifyOrderRateStore) {
+  globalRateStore.__clothifyOrderRateStore = new Map<string, RateBucket>();
+}
+
+function getClientIp(req: Request) {
+  const forwarded = req.headers.get("x-forwarded-for") || "";
+  const first = forwarded.split(",")[0]?.trim();
+  return first || req.headers.get("x-real-ip") || "unknown";
+}
+
+function isRateLimited(req: Request) {
+  const key = getClientIp(req);
+  const store = globalRateStore.__clothifyOrderRateStore!;
+  const now = Date.now();
+  const bucket = store.get(key);
+
+  if (!bucket || now > bucket.resetAt) {
+    store.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+
+  if (bucket.count >= RATE_LIMIT) {
+    return true;
+  }
+
+  bucket.count += 1;
+  store.set(key, bucket);
+  return false;
+}
 
 const OrderSchema = z.object({
   customer_name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -11,10 +52,9 @@ const OrderSchema = z.object({
     .string()
     .regex(BD_PHONE_RE, "Invalid Bangladesh phone number (e.g. 01XXXXXXXXX)"),
   address: z.string().min(5, "Address must be at least 5 characters").max(300),
-  delivery_method: z.enum(["Home Delivery", "Pickup"] as const).refine(
-    (v) => v !== undefined,
-    { message: "Delivery method must be Home Delivery or Pickup" }
-  ),
+  delivery_method: z
+    .enum(["Home Delivery", "Pickup", "Store Pickup"] as const)
+    .transform((v) => (v === "Store Pickup" ? "Pickup" : v)),
   total_amount: z
     .number()
     .positive("Total amount must be positive")
@@ -26,6 +66,13 @@ const OrderSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    if (isRateLimited(req)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again shortly." },
+        { status: 429 }
+      );
+    }
+
     const body: unknown = await req.json();
     const parsed = OrderSchema.safeParse(body);
 
@@ -38,6 +85,19 @@ export async function POST(req: Request) {
       parsed.data;
 
     const supabase = getSupabaseAdminClient();
+
+    const { data: existingTrx } = await supabase
+      .from("orders")
+      .select("id")
+      .eq("bkash_trx_id", bkash_trx_id)
+      .limit(1);
+
+    if (existingTrx && existingTrx.length > 0) {
+      return NextResponse.json(
+        { error: "This Transaction ID was already used." },
+        { status: 409 }
+      );
+    }
 
     const { data, error } = await supabase
       .from("orders")
