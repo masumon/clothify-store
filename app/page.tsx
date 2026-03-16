@@ -48,6 +48,7 @@ export default async function Home({
         <HomeHero
           storeName={settings?.store_name || "Clothify"}
           slogan={settings?.slogan || "Find Your Fit"}
+          whatsappNumber={settings?.whatsapp_number || "8801811314262"}
         />
 
         <HomeQuickActions whatsapp={settings?.whatsapp_number || ""} />

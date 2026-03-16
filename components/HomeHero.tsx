@@ -1,12 +1,26 @@
 type Props = {
   storeName?: string;
   slogan?: string;
+  whatsappNumber?: string;
 };
+
+function normalizeBangladeshWhatsAppNumber(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return "8801811314262";
+  if (digits.startsWith("880")) return digits;
+  if (digits.startsWith("0")) return `88${digits}`;
+  return digits;
+}
 
 export default function HomeHero({
   storeName = "Clothify",
   slogan = "Find Your Fit",
+  whatsappNumber = "8801811314262",
 }: Props) {
+  const waLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}?text=${encodeURIComponent(
+    "Hello, I want to order premium fashion from Clothify."
+  )}`;
+
   return (
     <section className="relative mb-8 overflow-hidden rounded-[30px] border border-slate-700/20 shadow-2xl shadow-slate-900/30">
       <div className="absolute inset-0 bg-[url('/store-banner.jpg')] bg-cover bg-center" />
@@ -34,19 +48,40 @@ export default function HomeHero({
             with fast checkout, WhatsApp support, and intelligent SUMONIX AI assistance.
           </p>
 
+          <div className="mt-5 flex flex-wrap gap-2">
+            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
+              ⭐ 4.8/5 Customer Rating
+            </span>
+            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
+              🚚 Fast Delivery Nationwide
+            </span>
+            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
+              💳 bKash + COD Available
+            </span>
+          </div>
+
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <a
               href="#products"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 text-base font-bold text-slate-900 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-400"
             >
-              Shop Now
+              🛍️ Shop Now
             </a>
 
             <a
               href="/checkout"
               className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/60 bg-white/10 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/20"
             >
-              Order For Eid
+              ✅ Order For Eid
+            </a>
+
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-emerald-300/70 bg-emerald-500/20 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500/35"
+            >
+              💬 WhatsApp Chat
             </a>
           </div>
         </div>
