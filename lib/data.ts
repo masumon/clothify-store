@@ -2,8 +2,6 @@ import { unstable_noStore as noStore } from "next/cache";
 import { hasSupabasePublicConfig, supabase } from "./supabase";
 
 export async function getStoreSettings() {
-  noStore();
-
   if (!hasSupabasePublicConfig() || !supabase) {
     return null;
   }
@@ -26,7 +24,10 @@ export async function getProducts(filters?: {
   search?: string;
   category?: string;
 }) {
-  noStore();
+  const hasFilters = Boolean(filters?.search?.trim()) || Boolean(filters?.category && filters.category !== "All");
+  if (hasFilters) {
+    noStore();
+  }
 
   if (!hasSupabasePublicConfig() || !supabase) {
     return [];
@@ -56,8 +57,6 @@ export async function getProducts(filters?: {
 }
 
 export async function getCategories() {
-  noStore();
-
   if (!hasSupabasePublicConfig() || !supabase) {
     return [];
   }
@@ -81,8 +80,6 @@ export async function getCategories() {
 }
 
 export async function getProductById(id: string) {
-  noStore();
-
   if (!hasSupabasePublicConfig() || !supabase) {
     return null;
   }
