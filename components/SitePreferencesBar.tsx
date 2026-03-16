@@ -68,7 +68,11 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
         ? savedTheme
         : "system";
     const resolvedLanguage: Language =
-      savedLanguage === "bn" || savedLanguage === "en" ? savedLanguage : "en";
+      savedLanguage === "bn" || savedLanguage === "en"
+        ? savedLanguage
+        : savedLanguage === "BN" || savedLanguage === "EN"
+          ? (savedLanguage.toLowerCase() as Language)
+          : "bn";
     const resolvedTextSize: TextSize =
       savedTextSize === "large" || savedTextSize === "normal"
         ? savedTextSize
@@ -109,6 +113,11 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
       if (savedLanguage === "en" || savedLanguage === "bn") {
         setLanguage(savedLanguage);
         applyLanguage(savedLanguage);
+      } else if (savedLanguage === "EN" || savedLanguage === "BN") {
+        const normalizedLanguage = savedLanguage.toLowerCase() as Language;
+        setLanguage(normalizedLanguage);
+        applyLanguage(normalizedLanguage);
+        localStorage.setItem(LANGUAGE_KEY, normalizedLanguage);
       }
     };
 
