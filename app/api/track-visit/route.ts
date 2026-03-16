@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { trackVisit } from "@/lib/traffic";
+import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 
 type TrackPayload = {
   visitorId?: string;
@@ -27,6 +28,20 @@ export async function POST(req: Request) {
       source,
       country,
     });
+
+    try {
+      const supabase = getSupabaseAdminClient();
+      await supabase.from("page_visits").insert([
+        {
+          visitor_id: visitorId,
+          path: path || "/",
+          source: source || "Direct",
+          country,
+        },
+      ]);
+    } catch {
+      // Keep request successful even when analytics table is not ready.
+    }
 
     return NextResponse.json({ ok: true });
   } catch {

@@ -96,3 +96,99 @@ export function getTrafficSnapshot() {
     topPages,
   };
 }
+
+function aggregateVisits(visits: Array<{ visitor_id: string; path: string; source: string; country: string; created_at: string }>) {
+  const now = Date.now();
+  const sourceCounts = new Map<string, number>();
+  const countryCounts = new Map<string, number>();
+  const pageCounts = new Map<string, number>();
+  const latestVisitorEvent = new Map<string, number>();
+  const dailyCounts = new Map<string, number>();
+
+  for (const item of visits) {
+    const at = new Date(item.created_at).getTime();
+    if (!Number.isFinite(at)) continue;
+
+    sourceCounts.set(item.source || "Direct", (sourceCounts.get(item.source || "Direct") || 0) + 1);
+    countryCounts.set(item.country || "Unknown", (countryCounts.get(item.country || "Unknown") || 0) + 1);
+    pageCounts.set(item.path || "/", (pageCounts.get(item.path || "/") || 0) + 1);
+
+    const existing = latestVisitorEvent.get(item.visitor_id) || 0;
+    if (at > existing) {
+      latestVisitorEvent.set(item.visitor_id, at);
+    }
+
+    const dayKey = new Date(at).toISOString().slice(0, 10);
+    dailyCounts.set(dayKey, (dailyCounts.get(dayKey) || 0) + 1);
+  }
+
+  const liveUsers = Array.from(latestVisitorEvent.values()).filter(
+    (lastSeen) => now - lastSeen <= ACTIVE_WINDOW_MS
+  ).length;
+
+  const topSources = Array.from(sourceCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const topCountries = Array.from(countryCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const topPages = Array.from(pageCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const dailyVisits = Array.from(dailyCounts.entries())
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-7);
+
+  return {
+    liveUsers,
+    visits24h: visits.length,
+    topSources,
+    topCountries,
+    topPages,
+    dailyVisits,
+  };
+}
+
+export async function getTrafficSnapshotFromDb() {
+  try {
+    const { getSupabaseAdminClient } = await import("@/lib/supabase-admin");
+    const supabase = getSupabaseAdminClient();
+    const sinceIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const { data, error } = await supabase
+      .from("page_visits")
+      .select("visitor_id,path,source,country,created_at")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(5000);
+
+    if (error) {
+      return {
+        ...getTrafficSnapshot(),
+        dailyVisits: [],
+      };
+    }
+
+    const visits = (data || []) as Array<{
+      visitor_id: string;
+      path: string;
+      source: string;
+      country: string;
+      created_at: string;
+    }>;
+
+    return aggregateVisits(visits);
+  } catch {
+    return {
+      ...getTrafficSnapshot(),
+      dailyVisits: [],
+    };
+  }
+}
