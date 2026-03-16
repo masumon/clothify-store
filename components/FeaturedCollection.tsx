@@ -51,9 +51,9 @@ export default function FeaturedCollection() {
 
             <Link
               href={item.href}
-              className="mt-5 inline-flex rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#0F172A] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              View Collection
+              👁️ View Collection
             </Link>
           </div>
         ))}
