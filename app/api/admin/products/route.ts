@@ -49,6 +49,15 @@ export async function POST(req: Request) {
     ]);
 
     if (error) {
+      if (error.message.toLowerCase().includes("is_published")) {
+        return NextResponse.json(
+          {
+            error:
+              "Draft mode requires products.is_published column in database. Please add the column and retry.",
+          },
+          { status: 400 }
+        );
+      }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
