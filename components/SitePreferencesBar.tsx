@@ -15,7 +15,6 @@ const CONTRAST_KEY = "clothify-contrast";
 const MOTION_KEY = "clothify-motion";
 
 function applyTheme(theme: Theme) {
-  const body = document.body;
   const root = document.documentElement;
   const prefersDark =
     typeof window !== "undefined" &&
@@ -24,14 +23,6 @@ function applyTheme(theme: Theme) {
 
   root.setAttribute("data-theme", theme);
   root.classList.toggle("dark-theme", resolvedTheme === "dark");
-
-  if (resolvedTheme === "dark") {
-    body.classList.remove("bg-gray-100", "text-slate-900");
-    body.classList.add("bg-slate-950", "text-slate-100");
-  } else {
-    body.classList.remove("bg-slate-950", "text-slate-100");
-    body.classList.add("bg-gray-100", "text-slate-900");
-  }
 }
 
 function emitPreferenceChange() {
@@ -59,7 +50,7 @@ function applyMotion(motion: Motion) {
 
 export default function SitePreferencesBar({ compact = false }: { compact?: boolean }) {
   const [theme, setTheme] = useState<Theme>("system");
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguage] = useState<Language>("bn");
   const [textSize, setTextSize] = useState<TextSize>("normal");
   const [contrast, setContrast] = useState<Contrast>("normal");
   const [motion, setMotion] = useState<Motion>("normal");
@@ -184,7 +175,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
 
   const resetAllPreferences = () => {
     const defaultTheme: Theme = "system";
-    const defaultLanguage: Language = "en";
+    const defaultLanguage: Language = "bn";
     const defaultTextSize: TextSize = "normal";
     const defaultContrast: Contrast = "normal";
     const defaultMotion: Motion = "normal";

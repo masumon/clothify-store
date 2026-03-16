@@ -60,6 +60,29 @@ html.dark-theme .border-slate-300 {
   border-color: rgba(71, 85, 105, 0.9) !important;
 }
 
+html.dark-theme .bg-slate-50,
+html.dark-theme .bg-slate-100 {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+}
+
+html.dark-theme input,
+html.dark-theme select,
+html.dark-theme textarea {
+  background-color: rgba(15, 23, 42, 0.92) !important;
+  color: #e5e7eb !important;
+  border-color: rgba(71, 85, 105, 0.9) !important;
+}
+
+html.dark-theme input::placeholder,
+html.dark-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.dark-theme option {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
 .admin-shell {
   background:
     radial-gradient(900px 460px at 0% -10%, rgba(16, 185, 129, 0.14), transparent 55%),
