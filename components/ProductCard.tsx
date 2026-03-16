@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 type ProductCardProps = {
   product: {
@@ -15,9 +16,11 @@ export default function ProductCard({ product }: ProductCardProps) {
     <div className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative overflow-hidden">
         <Link href={`/product/${product.id}`}>
-          <img
+          <Image
             src={product.image_url}
             alt={product.name}
+            width={400}
+            height={288}
             className="h-64 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-72"
           />
         </Link>

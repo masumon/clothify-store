@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getStoreSettings } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -27,9 +28,11 @@ export default async function PaymentPage() {
 
         {settings?.bkash_qr_url ? (
           <div className="mt-6 flex justify-center">
-            <img
+          <Image
               src={settings.bkash_qr_url}
               alt="bKash QR"
+              width={192}
+              height={192}
               className="w-48 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
             />
           </div>

@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 import CheckoutForm from "@/components/CheckoutForm";
 import { getStoreSettings } from "@/lib/data";
@@ -34,9 +35,11 @@ export default async function CheckoutPage() {
             <div>
               <p className="mb-3 text-sm text-slate-500">bKash QR</p>
               {settings?.bkash_qr_url ? (
-                <img
+                <Image
                   src={settings.bkash_qr_url}
                   alt="bKash QR"
+                  width={320}
+                  height={320}
                   className="w-full max-w-xs rounded-xl border border-slate-200"
                 />
               ) : (

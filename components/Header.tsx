@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 type HeaderProps = {
@@ -18,9 +19,11 @@ export default function Header({
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
           {logoUrl ? (
-            <img
+          <Image
               src={logoUrl}
               alt={storeName}
+              width={48}
+              height={48}
               className="h-12 w-12 rounded-full border border-slate-200 object-cover"
             />
           ) : (
