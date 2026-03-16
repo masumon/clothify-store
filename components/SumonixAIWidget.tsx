@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { addToCart, getCart } from "@/lib/cart";
 
 type SuggestedProduct = {
   id: string;
@@ -11,6 +12,8 @@ type SuggestedProduct = {
   price: number;
   image_url: string;
   category: string;
+  sizes?: string[];
+  stock_quantity?: number;
   campaign_badge?: string | null;
 };
 
@@ -18,6 +21,7 @@ type ChatMessage = {
   role: "user" | "assistant";
   text: string;
   products?: SuggestedProduct[];
+  actions?: string[];
 };
 
 type Props = {
@@ -53,6 +57,28 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
     setQuestion("");
     setLoading(true);
 
+    if (mode === "public") {
+      const q = text.toLowerCase();
+      if (q.includes("cart") || q.includes("কার্ট") || q.includes("আমার কার্ট")) {
+        const cart = getCart();
+        const total = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+        const summary =
+          cart.length === 0
+            ? "আপনার কার্ট এখন খালি। আমি চাইলে কিছু কাপড় সাজেস্ট করতে পারি।"
+            : `আপনার কার্টে ${cart.length}টি item আছে। মোট মূল্য ৳${total}.`;
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            text: summary,
+          },
+        ]);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await fetch(mode === "admin" ? "/api/admin/sumonix" : "/api/sumonix", {
         method: "POST",
@@ -73,6 +99,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
           role: "assistant",
           text: result.message || "কোনো উত্তর পাওয়া যায়নি।",
           products: Array.isArray(result.products) ? result.products : [],
+          actions: Array.isArray(result.actions) ? result.actions : [],
         },
       ]);
     } catch (error: unknown) {
@@ -125,26 +152,69 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                 {message.products?.length ? (
                   <div className="mt-3 grid gap-3">
                     {message.products.map((product) => (
-                      <Link
+                      <div
                         key={product.id}
-                        href={`/product/${product.id}`}
-                        className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
+                        className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
                       >
-                        <Image
-                          src={product.image_url}
-                          alt={product.name}
-                          width={56}
-                          height={56}
-                          className="h-14 w-14 rounded-xl object-cover"
-                        />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-bold text-slate-900">{product.name}</p>
-                          <p className="text-xs text-slate-500">{product.category}</p>
-                          <p className="text-sm font-semibold text-teal-700">৳{product.price}</p>
-                        </div>
-                      </Link>
+                        <Link href={`/product/${product.id}`} className="flex items-center gap-3">
+                          <Image
+                            src={product.image_url}
+                            alt={product.name}
+                            width={56}
+                            height={56}
+                            className="h-14 w-14 rounded-xl object-cover"
+                          />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold text-slate-900">{product.name}</p>
+                            <p className="text-xs text-slate-500">{product.category}</p>
+                            <p className="text-sm font-semibold text-teal-700">৳{product.price}</p>
+                            {(product.stock_quantity ?? 20) <= 5 ? (
+                              <p className="text-[11px] font-semibold text-amber-700">
+                                {(product.stock_quantity ?? 20) <= 0
+                                  ? "Out of stock"
+                                  : `Low stock: ${product.stock_quantity ?? 20}`}
+                              </p>
+                            ) : null}
+                          </div>
+                        </Link>
+
+                        {mode === "public" ? (
+                          <button
+                            type="button"
+                            disabled={(product.stock_quantity ?? 20) <= 0}
+                            onClick={() => {
+                              addToCart({
+                                id: product.id,
+                                name: product.name,
+                                price: Number(product.price),
+                                image_url: product.image_url,
+                                selectedSize: product.sizes?.[0] || "Standard",
+                                quantity: 1,
+                              });
+                              setMessages((prev) => [
+                                ...prev,
+                                {
+                                  role: "assistant",
+                                  text: `✅ ${product.name} কার্টে যোগ হয়েছে।`,
+                                },
+                              ]);
+                            }}
+                            className="mt-2 w-full rounded-xl bg-teal-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                          >
+                            {(product.stock_quantity ?? 20) <= 0 ? "Out of Stock" : "Add to Cart"}
+                          </button>
+                        ) : null}
+                      </div>
                     ))}
                   </div>
+                ) : null}
+
+                {message.actions?.length ? (
+                  <ul className="mt-2 space-y-1 text-xs font-semibold text-emerald-700">
+                    {message.actions.map((action, idx) => (
+                      <li key={`${action}-${idx}`}>• {action}</li>
+                    ))}
+                  </ul>
                 ) : null}
               </div>
             ))}
