@@ -8,8 +8,8 @@ type TextSize = "normal" | "large";
 type Contrast = "normal" | "high";
 type Motion = "normal" | "reduced";
 
-const THEME_KEY = "clothify-theme";
-const LANGUAGE_KEY = "clothify-language";
+const THEME_KEY = "clothfy-theme";
+const LANGUAGE_KEY = "clothfy-lang";
 const TEXT_SIZE_KEY = "clothify-text-size";
 const CONTRAST_KEY = "clothify-contrast";
 const MOTION_KEY = "clothify-motion";
@@ -52,7 +52,6 @@ function applyMotion(motion: Motion) {
   root.classList.toggle("reduce-motion", motion === "reduced");
 }
 
-export default function SitePreferencesBar() {
 export default function SitePreferencesBar({ compact = false }: { compact?: boolean }) {
   const [theme, setTheme] = useState<Theme>("system");
   const [language, setLanguage] = useState<Language>("en");
@@ -62,8 +61,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
+    const savedTheme = localStorage.getItem(THEME_KEY) || localStorage.getItem("clothify-theme");
+    const savedLanguage = localStorage.getItem(LANGUAGE_KEY) || localStorage.getItem("clothify-language");
     const savedTextSize = localStorage.getItem(TEXT_SIZE_KEY);
     const savedContrast = localStorage.getItem(CONTRAST_KEY);
     const savedMotion = localStorage.getItem(MOTION_KEY);
