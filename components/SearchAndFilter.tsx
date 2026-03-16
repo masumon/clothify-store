@@ -41,6 +41,8 @@ export default function SearchAndFilter({ categories }: Props) {
         />
 
         <select
+          aria-label="Product Category"
+          title="Product Category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"

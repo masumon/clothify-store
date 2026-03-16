@@ -1,34 +1,33 @@
 import AdminTopbar from "@/components/AdminTopbar";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdminClient } from "@/lib/supabase-admin";
+import { Order } from "@/types";
 
 async function getOrders() {
+  try {
+    const supabase = getSupabaseAdminClient();
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("id", { ascending: false });
 
-  const { data, error } = await supabase
-    .from("orders")
-    .select("*")
-    .order("id", { ascending: false });
+    if (error) {
+      console.error(error.message);
+      return [];
+    }
 
-  if (error) {
-    console.error(error.message);
+    return (data || []) as Order[];
+  } catch {
     return [];
   }
-
-  return data || [];
 }
 
 export default async function AdminOrdersPage() {
-
   const orders = await getOrders();
 
   return (
     <section>
-
       <AdminTopbar />
 
       <div className="mb-6">
@@ -37,9 +36,7 @@ export default async function AdminOrdersPage() {
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-
         <table className="min-w-full">
-
           <thead className="bg-slate-50">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
@@ -54,7 +51,6 @@ export default async function AdminOrdersPage() {
           </thead>
 
           <tbody>
-
             {orders.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-sm text-slate-500">
@@ -62,9 +58,8 @@ export default async function AdminOrdersPage() {
                 </td>
               </tr>
             ) : (
-              orders.map((order:any)=>(
+              orders.map((order) => (
                 <tr key={order.id} className="border-t border-slate-200">
-
                   <td className="px-4 py-3">{order.customer_name}</td>
                   <td className="px-4 py-3">{order.phone}</td>
                   <td className="px-4 py-3">{order.address}</td>
@@ -74,22 +69,14 @@ export default async function AdminOrdersPage() {
                   <td className="px-4 py-3">{order.status}</td>
 
                   <td className="px-4 py-3">
-                    <OrderStatusSelect
-                      orderId={order.id}
-                      currentStatus={order.status}
-                    />
+                    <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
                   </td>
-
                 </tr>
               ))
             )}
-
           </tbody>
-
         </table>
-
       </div>
-
     </section>
   );
 }

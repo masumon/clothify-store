@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 type Props = {
   orderId: string;
@@ -17,16 +16,24 @@ export default function OrderStatusSelect({ orderId, currentStatus }: Props) {
       setStatus(value);
       setUpdating(true);
 
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: value })
-        .eq("id", orderId);
+      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: value }),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update status");
+      }
 
       alert("Order status updated");
-    } catch (error: any) {
-      alert(error.message || "Failed to update status");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update status";
+      alert(message);
     } finally {
       setUpdating(false);
     }
@@ -34,6 +41,8 @@ export default function OrderStatusSelect({ orderId, currentStatus }: Props) {
 
   return (
     <select
+      aria-label="Order Status"
+      title="Order Status"
       value={status}
       disabled={updating}
       onChange={(e) => handleChange(e.target.value)}

@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { clearCart, getCart } from "@/lib/cart";
-import { createOrder } from "@/lib/data";
+import { CartItem } from "@/types";
 
 export default function CheckoutForm() {
   const [customerName, setCustomerName] = useState("");
@@ -11,7 +11,7 @@ export default function CheckoutForm() {
   const [deliveryMethod, setDeliveryMethod] = useState("Home Delivery");
   const [trxId, setTrxId] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     setCart(getCart());
@@ -37,19 +37,31 @@ export default function CheckoutForm() {
     try {
       setSubmitting(true);
 
-      await createOrder({
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
         customer_name: customerName,
         phone,
         address,
         delivery_method: deliveryMethod,
         total_amount: total,
         bkash_trx_id: trxId,
+        }),
       });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to place order");
+      }
 
       clearCart();
       window.location.href = "/order-success";
-    } catch (error: any) {
-      alert(error.message || "Failed to place order");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to place order";
+      alert(message);
     } finally {
       setSubmitting(false);
     }
@@ -78,6 +90,8 @@ export default function CheckoutForm() {
         className="min-h-[120px] w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
       />
       <select
+        aria-label="Delivery Method"
+        title="Delivery Method"
         value={deliveryMethod}
         onChange={(e) => setDeliveryMethod(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"

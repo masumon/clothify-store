@@ -1,18 +1,27 @@
 import Link from "next/link";
 import AdminTopbar from "@/components/AdminTopbar";
 import AdminStats from "@/components/AdminStats";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdminClient } from "@/lib/supabase-admin";
+import { Order } from "@/types";
 
 async function getDashboardData() {
-  const { data: products } = await supabase.from("products").select("id");
-  const { data: orders } = await supabase.from("orders").select("id,status");
+  try {
+    const supabase = getSupabaseAdminClient();
 
-  const totalProducts = products?.length || 0;
-  const totalOrders = orders?.length || 0;
-  const totalPending =
-    orders?.filter((order: any) => order.status === "Pending").length || 0;
+    const { data: products } = await supabase.from("products").select("id");
+    const { data: orders } = await supabase.from("orders").select("id,status");
 
-  return { totalProducts, totalOrders, totalPending };
+    const totalProducts = products?.length || 0;
+    const totalOrders = orders?.length || 0;
+    const totalPending =
+      (orders as Pick<Order, "status">[] | null)?.filter(
+        (order) => order.status === "Pending"
+      ).length || 0;
+
+    return { totalProducts, totalOrders, totalPending };
+  } catch {
+    return { totalProducts: 0, totalOrders: 0, totalPending: 0 };
+  }
 }
 
 export default async function AdminHomePage() {

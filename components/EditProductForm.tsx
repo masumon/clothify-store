@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type Props = {
   product: {
@@ -15,6 +15,7 @@ type Props = {
 };
 
 export default function EditProductForm({ product }: Props) {
+  const router = useRouter();
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(String(product.price));
   const [category, setCategory] = useState(product.category);
@@ -33,22 +34,31 @@ export default function EditProductForm({ product }: Props) {
         .map((item) => item.trim())
         .filter(Boolean);
 
-      const { error } = await supabase
-        .from("products")
-        .update({
+      const response = await fetch("/api/admin/products", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: product.id,
           name,
           price: Number(price),
           category,
           sizes: sizesArray,
-        })
-        .eq("id", product.id);
+        }),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update product");
+      }
 
       alert("Product updated successfully");
-      window.location.reload();
-    } catch (error: any) {
-      alert(error.message || "Failed to update product");
+      setOpen(false);
+      router.refresh();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update product";
+      alert(message);
     } finally {
       setSaving(false);
     }
@@ -70,6 +80,8 @@ export default function EditProductForm({ product }: Props) {
     <form onSubmit={handleSubmit} className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
       <input
         type="text"
+        title="Product Name"
+        aria-label="Product Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"
@@ -77,6 +89,8 @@ export default function EditProductForm({ product }: Props) {
 
       <input
         type="number"
+        title="Product Price"
+        aria-label="Product Price"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"
@@ -84,6 +98,8 @@ export default function EditProductForm({ product }: Props) {
 
       <input
         type="text"
+        title="Product Category"
+        aria-label="Product Category"
         value={category}
         onChange={(e) => setCategory(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"
@@ -91,6 +107,8 @@ export default function EditProductForm({ product }: Props) {
 
       <input
         type="text"
+        title="Product Sizes"
+        aria-label="Product Sizes"
         value={sizes}
         onChange={(e) => setSizes(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none"

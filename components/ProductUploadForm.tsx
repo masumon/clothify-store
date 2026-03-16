@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 async function resizeImageToSquare(file: File, size = 1000): Promise<File> {
   const imageUrl = URL.createObjectURL(file);
@@ -68,6 +68,7 @@ async function resizeImageToSquare(file: File, size = 1000): Promise<File> {
 }
 
 export default function ProductUploadForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
@@ -101,25 +102,28 @@ export default function ProductUploadForm() {
 
       setStatusText("Uploading optimized image... please wait");
 
-      const cleanName = resizedFile.name.replace(/\s+/g, "-");
-      const filePath = `products/${Date.now()}-${cleanName}`;
+      const formData = new FormData();
+      formData.append("file", resizedFile);
+      formData.append("bucket", "product-images");
+      formData.append("folder", "products");
 
-      const { error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(filePath, resizedFile, { upsert: true });
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (uploadError) throw uploadError;
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Image upload failed");
+      }
 
-      const { data } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(filePath);
-
-      setImageUrl(data.publicUrl);
+      setImageUrl(result.url || "");
       setStatusText("Image uploaded successfully");
       alert("Product image uploaded successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStatusText("Image upload failed");
-      alert(error.message || "Image upload failed");
+      const message = error instanceof Error ? error.message : "Image upload failed";
+      alert(message);
     } finally {
       setUploading(false);
     }
@@ -161,23 +165,31 @@ export default function ProductUploadForm() {
         .map((item) => item.trim())
         .filter(Boolean);
 
-      const { error } = await supabase.from("products").insert([
-        {
+      const response = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           name: name.trim(),
           price: Number(price),
           category: category.trim(),
           sizes: sizesArray,
           image_url: imageUrl,
-        },
-      ]);
+        }),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to add product");
+      }
 
       alert("Product added successfully");
       resetForm();
-      window.location.reload();
-    } catch (error: any) {
-      alert(error.message || "Failed to add product");
+      router.refresh();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to add product";
+      alert(message);
     } finally {
       setSaving(false);
     }
@@ -252,6 +264,8 @@ export default function ProductUploadForm() {
         </label>
         <input
           type="file"
+          title="Product Image"
+          aria-label="Product Image"
           accept="image/*"
           onChange={handleImageUpload}
           className="w-full text-sm"

@@ -1,31 +1,33 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { createClient } from "@supabase/supabase-js";
 import AdminTopbar from "@/components/AdminTopbar";
 import ProductUploadForm from "@/components/ProductUploadForm";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import EditProductForm from "@/components/EditProductForm";
+import { getSupabaseAdminClient } from "@/lib/supabase-admin";
+import { Product } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 async function getProducts() {
   noStore();
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  try {
+    const supabase = getSupabaseAdminClient();
 
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Admin products fetch error:", error.message);
+    if (error) {
+      console.error("Admin products fetch error:", error.message);
+      return [];
+    }
+
+    return (data || []) as Product[];
+  } catch {
     return [];
   }
-
-  return data || [];
 }
 
 export default async function AdminProductsPage() {
@@ -44,7 +46,7 @@ export default async function AdminProductsPage() {
             <p className="text-slate-600">No products found.</p>
           </div>
         ) : (
-          products.map((product: any) => (
+          products.map((product) => (
             <div
               key={product.id}
               className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type Props = {
   initialData: {
@@ -18,6 +18,7 @@ type Props = {
 };
 
 export default function StoreSettingsForm({ initialData }: Props) {
+  const router = useRouter();
   const [storeName, setStoreName] = useState(initialData?.store_name || "");
   const [slogan, setSlogan] = useState(initialData?.slogan || "");
   const [address, setAddress] = useState(initialData?.address || "");
@@ -44,17 +45,26 @@ export default function StoreSettingsForm({ initialData }: Props) {
       setLoading(true);
       const filePath = `${folder}/${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file, { upsert: true });
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("bucket", bucket);
+      formData.append("folder", folder);
 
-      if (uploadError) throw uploadError;
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      setUrl(data.publicUrl);
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Upload failed");
+      }
+
+      setUrl(result.url || "");
       alert("Upload successful");
-    } catch (error: any) {
-      alert(error.message || "Upload failed");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Upload failed";
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -67,7 +77,6 @@ export default function StoreSettingsForm({ initialData }: Props) {
       setSaving(true);
 
       const payload = {
-        id: 1,
         store_name: storeName,
         slogan,
         logo_url: logoUrl,
@@ -78,13 +87,24 @@ export default function StoreSettingsForm({ initialData }: Props) {
         bkash_qr_url: bkashQrUrl,
       };
 
-      const { error } = await supabase.from("store_settings").upsert(payload);
+      const response = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update store settings");
+      }
 
       alert("Store settings updated successfully");
-    } catch (error: any) {
-      alert(error.message || "Failed to update store settings");
+      router.refresh();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update store settings";
+      alert(message);
     } finally {
       setSaving(false);
     }
@@ -96,6 +116,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
         <label className="mb-2 block text-sm font-semibold text-slate-700">Store Name</label>
         <input
           type="text"
+          title="Store Name"
           value={storeName}
           onChange={(e) => setStoreName(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -106,6 +127,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
         <label className="mb-2 block text-sm font-semibold text-slate-700">Slogan</label>
         <input
           type="text"
+          title="Slogan"
           value={slogan}
           onChange={(e) => setSlogan(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -115,6 +137,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
       <div>
         <label className="mb-2 block text-sm font-semibold text-slate-700">Address</label>
         <textarea
+          title="Address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           className="min-h-[100px] w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -126,6 +149,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
           <label className="mb-2 block text-sm font-semibold text-slate-700">Contact Phone</label>
           <input
             type="text"
+            title="Contact Phone"
             value={contactPhone}
             onChange={(e) => setContactPhone(e.target.value)}
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -136,6 +160,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
           <label className="mb-2 block text-sm font-semibold text-slate-700">WhatsApp Number</label>
           <input
             type="text"
+            title="WhatsApp Number"
             value={whatsappNumber}
             onChange={(e) => setWhatsappNumber(e.target.value)}
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -146,6 +171,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
           <label className="mb-2 block text-sm font-semibold text-slate-700">bKash Number</label>
           <input
             type="text"
+            title="bKash Number"
             value={bkashNumber}
             onChange={(e) => setBkashNumber(e.target.value)}
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -158,6 +184,8 @@ export default function StoreSettingsForm({ initialData }: Props) {
           <label className="mb-2 block text-sm font-semibold text-slate-700">Logo Upload</label>
           <input
             type="file"
+            title="Logo Upload"
+            aria-label="Logo Upload"
             accept="image/*"
             onChange={(e) =>
               uploadFile(e, "store-assets", "logos", setLogoUrl, setUploadingLogo)
@@ -177,6 +205,8 @@ export default function StoreSettingsForm({ initialData }: Props) {
           <label className="mb-2 block text-sm font-semibold text-slate-700">bKash QR Upload</label>
           <input
             type="file"
+            title="bKash QR Upload"
+            aria-label="bKash QR Upload"
             accept="image/*"
             onChange={(e) =>
               uploadFile(e, "store-assets", "bkash", setBkashQrUrl, setUploadingQr)

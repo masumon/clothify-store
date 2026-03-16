@@ -1,8 +1,12 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { supabase } from "./supabase";
+import { hasSupabasePublicConfig, supabase } from "./supabase";
 
 export async function getStoreSettings() {
   noStore();
+
+  if (!hasSupabasePublicConfig() || !supabase) {
+    return null;
+  }
 
   const { data, error } = await supabase
     .from("store_settings")
@@ -23,6 +27,10 @@ export async function getProducts(filters?: {
   category?: string;
 }) {
   noStore();
+
+  if (!hasSupabasePublicConfig() || !supabase) {
+    return [];
+  }
 
   let query = supabase
     .from("products")
@@ -50,6 +58,10 @@ export async function getProducts(filters?: {
 export async function getCategories() {
   noStore();
 
+  if (!hasSupabasePublicConfig() || !supabase) {
+    return [];
+  }
+
   const { data, error } = await supabase.from("products").select("category");
 
   if (error) {
@@ -58,7 +70,11 @@ export async function getCategories() {
   }
 
   const uniqueCategories = Array.from(
-    new Set((data || []).map((item: any) => item.category).filter(Boolean))
+    new Set(
+      (data || [])
+        .map((item) => item.category)
+        .filter((item): item is string => Boolean(item))
+    )
   );
 
   return uniqueCategories;
@@ -66,6 +82,10 @@ export async function getCategories() {
 
 export async function getProductById(id: string) {
   noStore();
+
+  if (!hasSupabasePublicConfig() || !supabase) {
+    return null;
+  }
 
   const { data, error } = await supabase
     .from("products")
@@ -76,28 +96,6 @@ export async function getProductById(id: string) {
   if (error) {
     console.error("Product fetch error:", error.message);
     return null;
-  }
-
-  return data;
-}
-
-export async function createOrder(orderData: {
-  customer_name: string;
-  phone: string;
-  address: string;
-  delivery_method: string;
-  total_amount: number;
-  bkash_trx_id: string;
-}) {
-  const { data, error } = await supabase
-    .from("orders")
-    .insert([orderData])
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Order insert error:", error.message);
-    throw new Error(error.message);
   }
 
   return data;
