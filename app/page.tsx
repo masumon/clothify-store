@@ -40,6 +40,7 @@ export default async function Home({
         storeName={settings?.store_name || "Clothify"}
         slogan={settings?.slogan || "Find Your Fit"}
         logoUrl={settings?.logo_url || ""}
+        whatsappNumber={settings?.whatsapp_number || "8801811314262"}
       />
 
       <section className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
