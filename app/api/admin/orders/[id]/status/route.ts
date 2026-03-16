@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 
-const allowedStatuses = new Set(["Pending", "Completed", "Cancelled"]);
+const allowedStatuses = new Set([
+  "Pending",
+  "Processing",
+  "Shipped",
+  "Delivered",
+  "Completed",
+  "Returned",
+  "Cancelled",
+]);
 
 export async function PATCH(
   req: Request,

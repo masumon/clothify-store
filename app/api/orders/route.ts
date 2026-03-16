@@ -8,6 +8,14 @@ const RATE_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT = 8;
 const MIN_FORM_FILL_MS = 2500;
 const MAX_FORM_FILL_MS = 24 * 60 * 60 * 1000;
+const allowedCouriers = [
+  "Pathao",
+  "Sundarban",
+  "SA Paribahan",
+  "RedX",
+  "Steadfast",
+  "Self Managed",
+] as const;
 
 type RateBucket = {
   count: number;
@@ -57,13 +65,13 @@ const OrderSchema = z.object({
   delivery_method: z
     .enum(["Home Delivery", "Pickup", "Store Pickup"] as const)
     .transform((v) => (v === "Store Pickup" ? "Pickup" : v)),
+  courier_name: z.enum(allowedCouriers).optional().default("Pathao"),
+  payment_method: z.enum(["bKash", "Cash on Delivery"] as const).default("bKash"),
   total_amount: z
     .number()
     .positive("Total amount must be positive")
     .max(500000, "Amount too large"),
-  bkash_trx_id: z
-    .string()
-    .regex(TRX_RE, "Transaction ID must be 6-20 alphanumeric characters"),
+  bkash_trx_id: z.string().optional().default(""),
   website: z.string().optional().default(""),
   client_started_at: z.number().int().optional(),
 });
@@ -90,11 +98,26 @@ export async function POST(req: Request) {
       phone,
       address,
       delivery_method,
+      courier_name,
+      payment_method,
       total_amount,
       bkash_trx_id,
       website,
       client_started_at,
     } = parsed.data;
+
+    const normalizedTrx = bkash_trx_id.trim();
+    const finalTrxId =
+      payment_method === "Cash on Delivery"
+        ? `COD-${Date.now().toString(36).toUpperCase()}`
+        : normalizedTrx;
+
+    if (payment_method === "bKash" && !TRX_RE.test(normalizedTrx)) {
+      return NextResponse.json(
+        { error: "Transaction ID must be 6-20 alphanumeric characters" },
+        { status: 400 }
+      );
+    }
 
     if (website.trim().length > 0) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
@@ -109,18 +132,22 @@ export async function POST(req: Request) {
 
     const supabase = getSupabaseAdminClient();
 
-    const { data: existingTrx } = await supabase
-      .from("orders")
-      .select("id")
-      .eq("bkash_trx_id", bkash_trx_id)
-      .limit(1);
+    if (payment_method === "bKash") {
+      const { data: existingTrx } = await supabase
+        .from("orders")
+        .select("id")
+        .eq("bkash_trx_id", finalTrxId)
+        .limit(1);
 
-    if (existingTrx && existingTrx.length > 0) {
-      return NextResponse.json(
-        { error: "This Transaction ID was already used." },
-        { status: 409 }
-      );
+      if (existingTrx && existingTrx.length > 0) {
+        return NextResponse.json(
+          { error: "This Transaction ID was already used." },
+          { status: 409 }
+        );
+      }
     }
+
+    const deliveryMeta = `${delivery_method} | Courier: ${courier_name} | Payment: ${payment_method}`;
 
     const { data, error } = await supabase
       .from("orders")
@@ -129,9 +156,9 @@ export async function POST(req: Request) {
           customer_name,
           phone,
           address,
-          delivery_method,
+          delivery_method: deliveryMeta,
           total_amount,
-          bkash_trx_id,
+          bkash_trx_id: finalTrxId,
           status: "Pending",
         },
       ])

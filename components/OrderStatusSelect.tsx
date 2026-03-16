@@ -49,7 +49,11 @@ export default function OrderStatusSelect({ orderId, currentStatus }: Props) {
       className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none"
     >
       <option value="Pending">Pending</option>
+      <option value="Processing">Processing</option>
+      <option value="Shipped">Shipped</option>
+      <option value="Delivered">Delivered</option>
       <option value="Completed">Completed</option>
+      <option value="Returned">Returned</option>
       <option value="Cancelled">Cancelled</option>
     </select>
   );
