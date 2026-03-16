@@ -11,6 +11,9 @@ type Props = {
     category: string;
     sizes: string[];
     image_url: string;
+    stock_quantity?: number;
+    is_featured?: boolean;
+    campaign_badge?: string | null;
   };
 };
 
@@ -20,6 +23,9 @@ export default function EditProductForm({ product }: Props) {
   const [price, setPrice] = useState(String(product.price));
   const [category, setCategory] = useState(product.category);
   const [sizes, setSizes] = useState(product.sizes?.join(", ") || "");
+  const [stockQuantity, setStockQuantity] = useState(String(product.stock_quantity ?? 20));
+  const [isFeatured, setIsFeatured] = useState(product.is_featured === true);
+  const [campaignBadge, setCampaignBadge] = useState(product.campaign_badge || "");
   const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -45,6 +51,9 @@ export default function EditProductForm({ product }: Props) {
           price: Number(price),
           category,
           sizes: sizesArray,
+          stock_quantity: Number(stockQuantity),
+          is_featured: isFeatured,
+          campaign_badge: campaignBadge,
         }),
       });
 
@@ -116,6 +125,33 @@ export default function EditProductForm({ product }: Props) {
         onChange={(e) => setSizes(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
       />
+
+      <input
+        type="number"
+        title="Stock Quantity"
+        aria-label="Stock Quantity"
+        value={stockQuantity}
+        onChange={(e) => setStockQuantity(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+      />
+
+      <input
+        type="text"
+        title="Campaign Badge"
+        aria-label="Campaign Badge"
+        value={campaignBadge}
+        onChange={(e) => setCampaignBadge(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+      />
+
+      <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <input
+          type="checkbox"
+          checked={isFeatured}
+          onChange={(e) => setIsFeatured(e.target.checked)}
+        />
+        Featured Product
+      </label>
 
       <div className="grid grid-cols-2 gap-2">
         <button

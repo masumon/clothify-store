@@ -251,6 +251,27 @@ export default function AdminProductsManager({ products }: Props) {
                 <h3 className="mt-3 font-bold text-slate-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-slate-500">{product.category}</p>
                 <p className="mt-1 font-semibold text-teal-700">৳{product.price}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {product.is_featured ? (
+                    <span className="rounded-full bg-slate-900 px-2 py-1 text-[11px] font-bold text-white">
+                      Featured
+                    </span>
+                  ) : null}
+                  {product.campaign_badge ? (
+                    <span className="rounded-full bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700">
+                      {product.campaign_badge}
+                    </span>
+                  ) : null}
+                  {(product.stock_quantity ?? 20) <= 5 ? (
+                    <span className="rounded-full bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700">
+                      Low Stock: {product.stock_quantity ?? 20}
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-bold text-emerald-700">
+                      Stock: {product.stock_quantity ?? 20}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-slate-600">
                   Sizes: {product.sizes?.length ? product.sizes.join(", ") : "N/A"}
                 </p>

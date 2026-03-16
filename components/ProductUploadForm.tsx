@@ -79,6 +79,9 @@ export default function ProductUploadForm() {
   const [sizesText, setSizesText] = useState("");
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("20");
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [campaignBadge, setCampaignBadge] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [statusText, setStatusText] = useState(
@@ -101,6 +104,7 @@ export default function ProductUploadForm() {
     category: category.trim().length >= 2,
     sizes: mergedSizes.length > 0,
     image: Boolean(imageUrl.trim()),
+    stock: Number(stockQuantity) >= 0,
   };
 
   const resetForm = () => {
@@ -110,6 +114,9 @@ export default function ProductUploadForm() {
     setSizesText("");
     setSelectedSizes([]);
     setImageUrl("");
+    setStockQuantity("20");
+    setIsFeatured(false);
+    setCampaignBadge("");
     setStatusText("Choose image and wait for upload success message");
   };
 
@@ -201,6 +208,9 @@ export default function ProductUploadForm() {
           category: category.trim(),
           sizes: mergedSizes,
           image_url: imageUrl,
+          stock_quantity: Number(stockQuantity),
+          is_featured: isFeatured,
+          campaign_badge: campaignBadge.trim(),
         }),
       });
 
@@ -329,6 +339,39 @@ export default function ProductUploadForm() {
           <p className="mt-2 text-xs text-slate-500">{statusText}</p>
         </div>
 
+        <div className="grid gap-4 md:grid-cols-3">
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Stock Quantity</label>
+            <input
+              type="number"
+              min="0"
+              value={stockQuantity}
+              onChange={(e) => setStockQuantity(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Campaign Badge</label>
+            <input
+              type="text"
+              placeholder="e.g. Eid Sale"
+              value={campaignBadge}
+              onChange={(e) => setCampaignBadge(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            />
+          </div>
+
+          <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={(e) => setIsFeatured(e.target.checked)}
+            />
+            Mark as Featured
+          </label>
+        </div>
+
         <button
           type="submit"
           disabled={saving || uploading}
@@ -346,6 +389,7 @@ export default function ProductUploadForm() {
           <li>{checklist.category ? "✅" : "⬜"} Category selected</li>
           <li>{checklist.sizes ? "✅" : "⬜"} Size added</li>
           <li>{checklist.image ? "✅" : "⬜"} Image uploaded</li>
+          <li>{checklist.stock ? "✅" : "⬜"} Stock is valid</li>
         </ul>
 
         <div className="rounded-xl border border-slate-200 bg-white p-3">
@@ -370,6 +414,11 @@ export default function ProductUploadForm() {
           <p className="mt-3 text-sm font-bold text-slate-900">{name || "Product name"}</p>
           <p className="mt-1 text-sm text-slate-500">{category || "Category"}</p>
           <p className="mt-1 font-semibold text-teal-700">৳{price || "0"}</p>
+          <p className="mt-1 text-xs text-slate-500">Stock: {stockQuantity || "0"}</p>
+          <p className="mt-1 text-xs text-slate-500">
+            {isFeatured ? "Featured product" : "Regular product"}
+            {campaignBadge.trim() ? ` | Badge: ${campaignBadge.trim()}` : ""}
+          </p>
           <p className="mt-1 text-xs text-slate-500">
             Sizes: {mergedSizes.length ? mergedSizes.join(", ") : "Not set"}
           </p>
