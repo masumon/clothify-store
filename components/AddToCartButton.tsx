@@ -10,6 +10,7 @@ type Props = {
     price: number;
     image_url: string;
     sizes?: string[];
+    stock_quantity?: number;
   };
 };
 
@@ -18,8 +19,15 @@ export default function AddToCartButton({ product }: Props) {
     product.sizes?.[0] || "Standard"
   );
   const [toast, setToast] = useState("");
+  const isOutOfStock = (product.stock_quantity ?? 20) <= 0;
 
   const handleAdd = () => {
+    if (isOutOfStock) {
+      setToast("এই প্রোডাক্ট এখন স্টকে নেই");
+      window.setTimeout(() => setToast(""), 1800);
+      return;
+    }
+
     addToCart({
       id: product.id,
       name: product.name,
@@ -58,9 +66,10 @@ export default function AddToCartButton({ product }: Props) {
       <button
         type="button"
         onClick={handleAdd}
-        className="rounded-lg bg-black px-5 py-3 text-sm font-medium text-white"
+        disabled={isOutOfStock}
+        className="rounded-lg bg-black px-5 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Add to Cart
+        {isOutOfStock ? "Out of Stock" : "Add to Cart"}
       </button>
 
       {toast ? (

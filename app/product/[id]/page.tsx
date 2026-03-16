@@ -71,6 +71,26 @@ export default async function ProductDetailsPage({
             {product.category}
           </p>
 
+          <div className="mt-3 flex flex-wrap gap-2">
+            {product.is_featured ? (
+              <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-white">
+                Featured Product
+              </span>
+            ) : null}
+            {product.campaign_badge ? (
+              <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700">
+                {product.campaign_badge}
+              </span>
+            ) : null}
+            <span className={`rounded-full px-3 py-1 text-xs font-bold ${(product.stock_quantity ?? 20) <= 5 ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+              {(product.stock_quantity ?? 20) <= 0
+                ? "Out of stock"
+                : (product.stock_quantity ?? 20) <= 5
+                ? `Low stock: ${product.stock_quantity ?? 20}`
+                : `In stock: ${product.stock_quantity ?? 20}`}
+            </span>
+          </div>
+
           <h1 className="mt-2 text-3xl font-bold text-slate-900">
             {product.name}
           </h1>

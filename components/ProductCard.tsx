@@ -8,6 +8,9 @@ type ProductCardProps = {
     price: number;
     category: string;
     image_url: string;
+    stock_quantity?: number;
+    is_featured?: boolean;
+    campaign_badge?: string | null;
   };
 };
 
@@ -25,8 +28,17 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </Link>
 
-        <div className="absolute left-3 top-3 rounded-full bg-slate-900/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
-          Featured
+        <div className="absolute left-3 top-3 flex flex-col gap-2">
+          {product.is_featured ? (
+            <div className="rounded-full bg-slate-900/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
+              Featured
+            </div>
+          ) : null}
+          {product.campaign_badge ? (
+            <div className="rounded-full bg-rose-600/90 px-3 py-1 text-[11px] font-semibold text-white">
+              {product.campaign_badge}
+            </div>
+          ) : null}
         </div>
 
         <div className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur">
@@ -44,6 +56,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             ৳{product.price}
           </p>
         </div>
+
+        <p className={`mt-2 text-xs font-semibold ${(product.stock_quantity ?? 20) <= 5 ? "text-amber-700" : "text-slate-500"}`}>
+          {(product.stock_quantity ?? 20) <= 0
+            ? "Out of stock"
+            : (product.stock_quantity ?? 20) <= 5
+            ? `Low stock: ${product.stock_quantity ?? 20} left`
+            : `In stock: ${product.stock_quantity ?? 20}`}
+        </p>
 
         <div className="mt-3 flex gap-2">
           <Link
