@@ -35,7 +35,8 @@ export default async function CheckoutPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-bold text-slate-900">Payment Details</h2>
           <p className="mt-2 text-sm text-slate-600">
-            bKash <b>Payment (Merchant)</b> অপশন ব্যবহার করুন। QR scan বা নাম্বার দিয়ে payment করতে পারবেন।
+            bKash <b>Payment (Merchant)</b> অথবা <b>Cash on Delivery</b> বেছে নিতে পারবেন।
+            Home delivery নিলে courier service-ও select করতে পারবেন।
           </p>
 
           <div className="mt-5 space-y-3">

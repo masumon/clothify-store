@@ -9,6 +9,8 @@ export default function CheckoutForm() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("Home Delivery");
+  const [courierName, setCourierName] = useState("Pathao");
+  const [paymentMethod, setPaymentMethod] = useState("bKash");
   const [trxId, setTrxId] = useState("");
   const [website, setWebsite] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -27,8 +29,13 @@ export default function CheckoutForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!customerName || !phone || !address || !trxId) {
+    if (!customerName || !phone || !address) {
       alert("Please fill all fields");
+      return;
+    }
+
+    if (paymentMethod === "bKash" && !trxId.trim()) {
+      alert("Please provide your bKash Transaction ID");
       return;
     }
 
@@ -50,6 +57,8 @@ export default function CheckoutForm() {
           phone,
           address,
           delivery_method: deliveryMethod,
+          courier_name: courierName,
+          payment_method: paymentMethod,
           total_amount: total,
           bkash_trx_id: trxId,
           website,
@@ -104,13 +113,48 @@ export default function CheckoutForm() {
         <option value="Home Delivery">Home Delivery</option>
         <option value="Pickup">Store Pickup</option>
       </select>
-      <input
-        type="text"
-        placeholder="bKash Transaction ID"
-        value={trxId}
-        onChange={(e) => setTrxId(e.target.value)}
+
+      {deliveryMethod === "Home Delivery" ? (
+        <select
+          aria-label="Courier Service"
+          title="Courier Service"
+          value={courierName}
+          onChange={(e) => setCourierName(e.target.value)}
+          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+        >
+          <option value="Pathao">Pathao</option>
+          <option value="Sundarban">Sundarban</option>
+          <option value="SA Paribahan">SA Paribahan</option>
+          <option value="RedX">RedX</option>
+          <option value="Steadfast">Steadfast</option>
+          <option value="Self Managed">Self Managed</option>
+        </select>
+      ) : null}
+
+      <select
+        aria-label="Payment Method"
+        title="Payment Method"
+        value={paymentMethod}
+        onChange={(e) => setPaymentMethod(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
-      />
+      >
+        <option value="bKash">bKash</option>
+        <option value="Cash on Delivery">Cash on Delivery</option>
+      </select>
+
+      {paymentMethod === "bKash" ? (
+        <input
+          type="text"
+          placeholder="bKash Transaction ID"
+          value={trxId}
+          onChange={(e) => setTrxId(e.target.value)}
+          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+        />
+      ) : (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+          Cash on Delivery selected. Pay to courier at delivery time.
+        </div>
+      )}
 
       <input
         type="text"
