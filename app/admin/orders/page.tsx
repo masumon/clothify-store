@@ -31,13 +31,13 @@ export default async function AdminOrdersPage() {
       <AdminTopbar />
 
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Orders</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Orders</h1>
         <p className="mt-2 text-slate-600">Manage customer orders here.</p>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/95 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
         <table className="min-w-full">
-          <thead className="bg-slate-50">
+          <thead className="bg-slate-50/90">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
               <th className="px-4 py-3 text-left text-sm font-semibold">Phone</th>
@@ -59,7 +59,7 @@ export default async function AdminOrdersPage() {
               </tr>
             ) : (
               orders.map((order) => (
-                <tr key={order.id} className="border-t border-slate-200">
+                <tr key={order.id} className="border-t border-slate-200 hover:bg-slate-50/70">
                   <td className="px-4 py-3">{order.customer_name}</td>
                   <td className="px-4 py-3">{order.phone}</td>
                   <td className="px-4 py-3">{order.address}</td>
