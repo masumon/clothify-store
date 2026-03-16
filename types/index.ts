@@ -17,6 +17,7 @@ export type Product = {
   category: string;
   sizes: string[];
   image_url: string;
+  is_published?: boolean;
   created_at: string;
 };
 
@@ -29,6 +30,7 @@ export type Order = {
   total_amount: number;
   bkash_trx_id: string;
   status: string;
+  created_at?: string;
 };
 
 export type CartItem = {
