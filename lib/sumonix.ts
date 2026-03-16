@@ -9,12 +9,15 @@ type SuggestedProduct = {
   price: number;
   image_url: string;
   category: string;
+  sizes?: string[];
+  stock_quantity?: number;
   campaign_badge?: string | null;
 };
 
 type AssistantReply = {
   message: string;
   products?: SuggestedProduct[];
+  actions?: string[];
 };
 
 function normalize(text: string) {
@@ -36,6 +39,8 @@ function productToSuggestion(product: Product): SuggestedProduct {
     price: Number(product.price),
     image_url: product.image_url,
     category: product.category,
+    sizes: product.sizes || [],
+    stock_quantity: product.stock_quantity ?? 20,
     campaign_badge: product.campaign_badge || null,
   };
 }
@@ -79,6 +84,132 @@ function findProductMatches(products: Product[], query: string) {
     .slice(0, 6);
 }
 
+function extractBudget(query: string) {
+  const match = query.match(/(\d{2,6})/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
+function topProductsByBudget(products: Product[], budget: number) {
+  const under = products
+    .filter((item) => Number(item.price) <= budget)
+    .sort((a, b) => Number(b.price) - Number(a.price))
+    .slice(0, 6);
+
+  if (under.length > 0) return under;
+
+  return products
+    .slice()
+    .sort((a, b) => Math.abs(Number(a.price) - budget) - Math.abs(Number(b.price) - budget))
+    .slice(0, 6);
+}
+
+function normalizeOrderStatus(query: string): string | null {
+  const mapping: Array<{ words: string[]; status: string }> = [
+    { words: ["pending", "পেন্ডিং"], status: "Pending" },
+    { words: ["processing", "প্রসেসিং"], status: "Processing" },
+    { words: ["shipped", "shipment", "শিপ", "কুরিয়ারে"], status: "Shipped" },
+    { words: ["delivered", "complete delivery", "ডেলিভার"], status: "Delivered" },
+    { words: ["completed", "done", "কমপ্লিট"], status: "Completed" },
+    { words: ["returned", "রিটার্ন"], status: "Returned" },
+    { words: ["cancel", "cancelled", "বাতিল", "ক্যানসেল"], status: "Cancelled" },
+  ];
+
+  for (const item of mapping) {
+    if (includesAny(query, item.words)) {
+      return item.status;
+    }
+  }
+
+  return null;
+}
+
+function parseNameAfterKeyword(query: string, keywords: string[]) {
+  for (const keyword of keywords) {
+    const idx = query.indexOf(keyword);
+    if (idx === -1) continue;
+    const raw = query.slice(idx + keyword.length).trim();
+    if (!raw) continue;
+    return raw.replace(/(কে|to|as|করুন|set|status|product|order)/g, "").trim();
+  }
+  return "";
+}
+
+async function executeAdminAction(question: string) {
+  const query = normalize(question);
+  const supabase = getSupabaseAdminClient();
+  const actions: string[] = [];
+
+  const status = normalizeOrderStatus(query);
+  const orderIdMatch = question.match(/([a-f0-9]{8}-[a-f0-9-]{12,}|\border[-_ ]?[a-z0-9-]{4,}\b)/i);
+
+  if (status && orderIdMatch && includesAny(query, ["order", "অর্ডার", "status", "স্ট্যাটাস"])) {
+    const orderId = orderIdMatch[1].replace(/^order[-_ ]?/i, "").trim();
+    const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
+
+    if (!error) {
+      actions.push(`Order ${orderId} status updated to ${status}.`);
+    }
+  }
+
+  const { data: products } = await supabase.from("products").select("id,name").limit(300);
+  const productRows = (products || []) as Array<{ id: string; name: string }>;
+
+  const publishName = parseNameAfterKeyword(query, ["publish", "প্রকাশ", "live"]);
+  if (publishName) {
+    const target = productRows.find((item) => normalize(item.name).includes(normalize(publishName)));
+    if (target) {
+      const { error } = await supabase
+        .from("products")
+        .update({ is_published: true })
+        .eq("id", target.id);
+      if (!error) actions.push(`Product \"${target.name}\" published.`);
+    }
+  }
+
+  const draftName = parseNameAfterKeyword(query, ["draft", "ড্রাফট", "unpublish"]);
+  if (draftName) {
+    const target = productRows.find((item) => normalize(item.name).includes(normalize(draftName)));
+    if (target) {
+      const { error } = await supabase
+        .from("products")
+        .update({ is_published: false })
+        .eq("id", target.id);
+      if (!error) actions.push(`Product \"${target.name}\" moved to draft.`);
+    }
+  }
+
+  const featuredName = parseNameAfterKeyword(query, ["featured", "ফিচার্ড", "feature"]);
+  if (featuredName) {
+    const target = productRows.find((item) => normalize(item.name).includes(normalize(featuredName)));
+    if (target) {
+      const { error } = await supabase
+        .from("products")
+        .update({ is_featured: true })
+        .eq("id", target.id);
+      if (!error) actions.push(`Product \"${target.name}\" marked featured.`);
+    }
+  }
+
+  const stockMatch = question.match(/(stock|স্টক)\s+(.+?)\s+(\d{1,5})/i);
+  if (stockMatch) {
+    const productName = stockMatch[2].trim();
+    const quantity = Number(stockMatch[3]);
+    const target = productRows.find((item) => normalize(item.name).includes(normalize(productName)));
+
+    if (target && Number.isFinite(quantity) && quantity >= 0) {
+      const { error } = await supabase
+        .from("products")
+        .update({ stock_quantity: quantity })
+        .eq("id", target.id);
+      if (!error) actions.push(`Product \"${target.name}\" stock set to ${quantity}.`);
+    }
+  }
+
+  return actions;
+}
+
 function buildStoreReply(settings: StoreSettings | null) {
   if (!settings) {
     return "স্টোর তথ্য এখন পাওয়া যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।";
@@ -91,6 +222,19 @@ export async function getPublicSumonixReply(question: string): Promise<Assistant
   const query = normalize(question);
   const settings = await getStoreSettings();
   const products = await getPublishedProducts();
+
+  const budget = extractBudget(query);
+
+  if (budget && includesAny(query, ["within", "under", "below", "কমে", "ভিতরে", "budget", "বাজেট"])) {
+    const recommended = topProductsByBudget(products, budget);
+    return {
+      message:
+        recommended.length > 0
+          ? `৳${budget} বাজেট অনুযায়ী ${recommended.length}টি প্রডাক্ট সাজেস্ট করেছি। নিচে দেখে কার্টে যোগ করতে পারবেন।`
+          : "এই বাজেটে প্রডাক্ট পাওয়া যায়নি।",
+      products: recommended.map(productToSuggestion),
+    };
+  }
 
   if (!query) {
     return {
@@ -161,6 +305,7 @@ export async function getPublicSumonixReply(question: string): Promise<Assistant
 
 export async function getAdminSumonixReply(question: string): Promise<AssistantReply> {
   const query = normalize(question);
+  const actions = await executeAdminAction(question);
   const supabase = getSupabaseAdminClient();
   const settings = await getStoreSettings();
 
@@ -179,6 +324,14 @@ export async function getAdminSumonixReply(question: string): Promise<AssistantR
   const lowStock = productRows.filter((item) => (item.stock_quantity ?? 20) <= 5).length;
   const featured = productRows.filter((item) => item.is_featured).length;
   const drafts = productRows.filter((item) => item.is_published === false).length;
+
+  if (actions.length > 0) {
+    return {
+      message: `Action completed: ${actions.join(" ")}`,
+      actions,
+      products: productRows.slice(0, 5).map(productToSuggestion),
+    };
+  }
 
   if (!query || includesAny(query, ["overview", "summary", "ড্যাশবোর্ড", "সব তথ্য", "store status"])) {
     return {
