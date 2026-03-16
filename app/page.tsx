@@ -15,7 +15,6 @@ import HomeSectionDivider from "@/components/HomeSectionDivider";
 import BestSellerStrip from "@/components/BestSellerStrip";
 import TrustBadges from "@/components/TrustBadges";
 import EidCampaignSection from "@/components/EidCampaignSection";
-import SitePreferencesBar from "@/components/SitePreferencesBar";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const revalidate = 60;
@@ -43,10 +42,6 @@ export default async function Home({
         logoUrl={settings?.logo_url || ""}
         whatsappNumber={settings?.whatsapp_number || "8801811314262"}
       />
-
-      <div className="mx-auto max-w-6xl px-4 pt-4 sm:pt-5">
-        <SitePreferencesBar compact />
-      </div>
 
       <section className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
         <HomeHero
