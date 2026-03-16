@@ -5,6 +5,8 @@ import BottomNav from "@/components/BottomNav";
 import CheckoutForm from "@/components/CheckoutForm";
 import { getStoreSettings } from "@/lib/data";
 
+export const revalidate = 60;
+
 export default async function CheckoutPage() {
   const settings = await getStoreSettings();
 

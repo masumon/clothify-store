@@ -5,7 +5,7 @@ import SitePreferencesBar from "@/components/SitePreferencesBar";
 import Link from "next/link";
 import { getStoreSettings } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 export default async function SettingsPage() {
   const settings = await getStoreSettings();
