@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SumonixAIWidget from "@/components/SumonixAIWidget";
 
 export default function AdminLayout({
   children,
@@ -7,6 +8,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-cyan-50/30 to-emerald-50/20">
+      <SumonixAIWidget mode="admin" />
       <div className="grid min-h-screen md:grid-cols-[270px_1fr]">
         <aside className="border-r border-slate-200/80 bg-white/90 p-6 backdrop-blur">
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">

@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import type { Order } from "@/types";
 
@@ -111,6 +109,8 @@ export default function AdminOrdersManager({
       .sort((a, b) => b.orders - a.orders);
   }, [filteredOrders]);
 
+  const maxCourierOrders = Math.max(1, ...courierReport.map((item) => item.orders));
+
   const board = useMemo(() => {
     const nextBoard: Record<string, Order[]> = Object.fromEntries(
       kanbanStatuses.map((status) => [status, [] as Order[]])
@@ -127,6 +127,11 @@ export default function AdminOrdersManager({
   }, [filteredOrders]);
 
   const exportPdf = async () => {
+    const [{ default: jsPDF }, autoTableModule] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+    const autoTable = autoTableModule.default;
     const doc = new jsPDF({ orientation: "landscape" });
     const generatedAt = new Date().toLocaleString();
     const totalAmount = filteredOrders.reduce(
@@ -317,6 +322,32 @@ export default function AdminOrdersManager({
                 <p className="text-lg font-bold text-teal-700">৳{item.amount}</p>
               </div>
             ))
+          )}
+        </div>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
+        <h2 className="text-lg font-bold text-slate-900">Courier Performance Trend Chart</h2>
+        <div className="mt-4 flex items-end gap-3 overflow-x-auto">
+          {courierReport.length === 0 ? (
+            <p className="text-sm text-slate-500">No courier chart data available.</p>
+          ) : (
+            courierReport.map((item) => {
+              const height = Math.max(20, Math.round((item.orders / maxCourierOrders) * 140));
+              return (
+                <div key={item.courier} className="min-w-[90px] flex-1">
+                  <div className="flex h-40 items-end">
+                    <div
+                      className="w-full rounded-t-xl bg-gradient-to-t from-cyan-600 to-teal-400"
+                      style={{ height }}
+                      title={`${item.courier}: ${item.orders} orders, ৳${item.amount}`}
+                    />
+                  </div>
+                  <p className="mt-2 truncate text-xs font-semibold text-slate-700">{item.courier}</p>
+                  <p className="text-[11px] text-slate-500">{item.orders} orders</p>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
