@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import type { FormEvent } from "react";
 
 type Props = {
   categories: string[];
@@ -29,7 +30,7 @@ export default function SearchAndFilter({ categories }: Props) {
     router.push(query ? `/?${query}` : "/");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     applyFilters();
   };
