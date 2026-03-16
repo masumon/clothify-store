@@ -1,9 +1,17 @@
 import AdminTopbar from "@/components/AdminTopbar";
+import Link from "next/link";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 import { Order } from "@/types";
 
 export const dynamic = "force-dynamic";
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const rangeOptions = [
+  { key: "today", label: "Today", days: 1 },
+  { key: "7d", label: "Last 7 Days", days: 7 },
+  { key: "30d", label: "Last 30 Days", days: 30 },
+] as const;
 
 const kanbanStatuses = [
   "Pending",
@@ -15,17 +23,9 @@ const kanbanStatuses = [
   "Cancelled",
 ] as const;
 
-function isToday(dateValue?: string) {
-  if (!dateValue) return false;
-  const input = new Date(dateValue);
-  if (Number.isNaN(input.getTime())) return false;
-
-  const now = new Date();
-  return (
-    input.getFullYear() === now.getFullYear() &&
-    input.getMonth() === now.getMonth() &&
-    input.getDate() === now.getDate()
-  );
+function resolveRange(range?: string) {
+  const selected = rangeOptions.find((item) => item.key === range);
+  return selected || rangeOptions[1];
 }
 
 async function getOrders() {
@@ -48,21 +48,37 @@ async function getOrders() {
   }
 }
 
-export default async function AdminOrdersPage() {
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams?: { range?: string };
+}) {
+  const activeRange = resolveRange(searchParams?.range);
   const orders = await getOrders();
-  const totalSales = orders.reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
-  const pendingCount = orders.filter((item) => item.status === "Pending").length;
-  const deliveredToday = orders.filter(
-    (item) => item.status === "Delivered" && isToday(item.created_at)
-  ).length;
-  const returnedCount = orders.filter((item) => item.status === "Returned").length;
-  const cancelledCount = orders.filter((item) => item.status === "Cancelled").length;
+  const now = Date.now();
+  const periodStart = now - activeRange.days * DAY_MS;
+
+  const filteredOrders = orders.filter((item) => {
+    if (!item.created_at) return activeRange.days !== 1;
+    const time = new Date(item.created_at).getTime();
+    if (!Number.isFinite(time)) return activeRange.days !== 1;
+    return time >= periodStart && time <= now;
+  });
+
+  const totalSales = filteredOrders.reduce(
+    (sum, item) => sum + Number(item.total_amount || 0),
+    0
+  );
+  const pendingCount = filteredOrders.filter((item) => item.status === "Pending").length;
+  const deliveredCount = filteredOrders.filter((item) => item.status === "Delivered").length;
+  const returnedCount = filteredOrders.filter((item) => item.status === "Returned").length;
+  const cancelledCount = filteredOrders.filter((item) => item.status === "Cancelled").length;
 
   const board: Record<string, Order[]> = Object.fromEntries(
     kanbanStatuses.map((status) => [status, [] as Order[]])
   );
 
-  for (const order of orders) {
+  for (const order of filteredOrders) {
     const key = kanbanStatuses.includes(order.status as (typeof kanbanStatuses)[number])
       ? order.status
       : "Pending";
@@ -78,9 +94,30 @@ export default async function AdminOrdersPage() {
         <p className="mt-2 text-slate-600">Manage customer orders here.</p>
       </div>
 
+      <div className="mb-6 flex flex-wrap gap-2">
+        {rangeOptions.map((item) => {
+          const isActive = item.key === activeRange.key;
+          return (
+            <Link
+              key={item.key}
+              href={`/admin/orders?range=${item.key}`}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                isActive
+                  ? "border-teal-700 bg-teal-700 text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
+
       <div className="mb-6 grid gap-4 md:grid-cols-5">
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Total Sales</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
+            Sales ({activeRange.label})
+          </p>
           <p className="mt-1 text-2xl font-extrabold text-teal-700">৳{totalSales}</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
@@ -88,8 +125,10 @@ export default async function AdminOrdersPage() {
           <p className="mt-1 text-2xl font-extrabold text-amber-600">{pendingCount}</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Delivered Today</p>
-          <p className="mt-1 text-2xl font-extrabold text-emerald-700">{deliveredToday}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
+            Delivered ({activeRange.label})
+          </p>
+          <p className="mt-1 text-2xl font-extrabold text-emerald-700">{deliveredCount}</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Returned</p>
@@ -104,9 +143,9 @@ export default async function AdminOrdersPage() {
       <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4">
         <h2 className="text-lg font-bold text-slate-900">Notifications</h2>
         <ul className="mt-2 space-y-1 text-sm text-slate-700">
-          <li>{pendingCount > 0 ? `🔔 ${pendingCount} orders are waiting for action.` : "✅ No pending orders."}</li>
-          <li>{cancelledCount > 0 ? `⚠️ ${cancelledCount} orders are cancelled.` : "✅ No cancelled orders."}</li>
-          <li>{returnedCount > 0 ? `↩️ ${returnedCount} orders were returned.` : "✅ No returned orders."}</li>
+          <li>{pendingCount > 0 ? `🔔 ${pendingCount} orders are waiting for action in ${activeRange.label.toLowerCase()}.` : "✅ No pending orders."}</li>
+          <li>{cancelledCount > 0 ? `⚠️ ${cancelledCount} orders are cancelled in ${activeRange.label.toLowerCase()}.` : "✅ No cancelled orders."}</li>
+          <li>{returnedCount > 0 ? `↩️ ${returnedCount} orders were returned in ${activeRange.label.toLowerCase()}.` : "✅ No returned orders."}</li>
         </ul>
       </div>
 
@@ -154,14 +193,14 @@ export default async function AdminOrdersPage() {
           </thead>
 
           <tbody>
-            {orders.length === 0 ? (
+            {filteredOrders.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-sm text-slate-500">
                   No orders found.
                 </td>
               </tr>
             ) : (
-              orders.map((order) => (
+              filteredOrders.map((order) => (
                 <tr key={order.id} className="border-t border-slate-200 hover:bg-slate-50/70">
                   <td className="px-4 py-3">{order.customer_name}</td>
                   <td className="px-4 py-3">{order.phone}</td>
