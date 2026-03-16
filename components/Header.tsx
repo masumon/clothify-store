@@ -33,28 +33,29 @@ export default function Header({
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
-    const savedTheme = localStorage.getItem("clothfy-theme");
+    const syncPreferences = () => {
+      const savedLang = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
+      const savedTheme = localStorage.getItem("clothfy-theme") || "system";
 
-    if (savedLang === "en" || savedLang === "bn") {
-      setUiLang(savedLang);
-      document.documentElement.lang = savedLang;
-    } else if (savedLang === "EN" || savedLang === "BN") {
-      const normalized = savedLang.toLowerCase() as "en" | "bn";
-      setUiLang(normalized);
-      document.documentElement.lang = normalized;
-      localStorage.setItem("clothfy-lang", normalized);
-    }
+      if (savedLang === "en" || savedLang === "bn") {
+        setUiLang(savedLang);
+        document.documentElement.lang = savedLang;
+      } else if (savedLang === "EN" || savedLang === "BN") {
+        const normalized = savedLang.toLowerCase() as "en" | "bn";
+        setUiLang(normalized);
+        document.documentElement.lang = normalized;
+        localStorage.setItem("clothfy-lang", normalized);
+      }
 
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark = savedTheme === "dark" || (savedTheme === "system" && prefersDark);
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const shouldUseDark = savedTheme === "dark" || (savedTheme === "system" && prefersDark);
+      setIsDarkMode(shouldUseDark);
+      document.documentElement.classList.toggle("dark-theme", shouldUseDark);
+    };
 
-    if (shouldUseDark) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add("dark-theme");
-    } else {
-      document.documentElement.classList.remove("dark-theme");
-    }
+    syncPreferences();
+    window.addEventListener("clothfy-preferences-change", syncPreferences);
+    return () => window.removeEventListener("clothfy-preferences-change", syncPreferences);
   }, []);
 
   const toggleLanguage = () => {
@@ -62,6 +63,7 @@ export default function Header({
     setUiLang(nextLang);
     localStorage.setItem("clothfy-lang", nextLang);
     document.documentElement.lang = nextLang;
+    window.dispatchEvent(new Event("clothfy-preferences-change"));
   };
 
   const toggleTheme = () => {
@@ -69,6 +71,7 @@ export default function Header({
     setIsDarkMode(nextDark);
     localStorage.setItem("clothfy-theme", nextDark ? "dark" : "light");
     document.documentElement.classList.toggle("dark-theme", nextDark);
+    window.dispatchEvent(new Event("clothfy-preferences-change"));
   };
 
   const whatsappLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}`;
