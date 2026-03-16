@@ -11,15 +11,15 @@ export default async function PaymentPage() {
     <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="max-w-xl w-full rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-bold text-slate-900 text-center">
-          bKash Payment
+          bKash Merchant Payment
         </h1>
 
         <p className="mt-3 text-slate-600 text-center">
-          Complete your order payment using the bKash number from store settings.
+          bKash Merchant অপশন থেকে QR স্ক্যান করে অথবা নাম্বার দিয়ে পেমেন্ট করুন।
         </p>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-slate-500 mb-2">Send Money To</p>
+          <p className="text-sm text-slate-500 mb-2">Merchant bKash Number</p>
 
           <div className="text-xl font-bold text-black bg-slate-100 rounded-xl py-3">
             {settings?.bkash_number || "bKash number not set"}
@@ -43,12 +43,15 @@ export default async function PaymentPage() {
         )}
 
         <div className="mt-6 text-sm text-slate-600 space-y-2">
-          <p>1️⃣ Open your bKash app</p>
-          <p>2️⃣ Tap Send Money</p>
-          <p>3️⃣ Enter the number shown above</p>
-          <p>4️⃣ Send the exact order amount</p>
-          <p>5️⃣ Copy your Transaction ID</p>
-          <p>6️⃣ Enter the Transaction ID during checkout</p>
+          <p className="font-semibold text-slate-800">Payment Instructions (Merchant)</p>
+          <p>1️⃣ bKash app খুলুন এবং <b>Payment</b> অপশনে যান</p>
+          <p>2️⃣ QR scan করে merchant select করুন অথবা merchant নাম্বার দিন</p>
+          <p>3️⃣ অর্ডারের ঠিক amount লিখে payment confirm করুন</p>
+          <p>4️⃣ payment সম্পন্ন হলে <b>Transaction ID (TRX ID)</b> কপি করুন</p>
+          <p>5️⃣ Checkout page-এ TRX ID বসিয়ে order complete করুন</p>
+          <p className="pt-1 text-xs text-emerald-700 font-medium">
+            Tip: Send Money নয়, Merchant Payment ব্যবহার করুন।
+          </p>
         </div>
 
         <div className="mt-8 flex flex-col gap-3">
