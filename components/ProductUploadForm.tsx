@@ -274,9 +274,11 @@ export default function ProductUploadForm() {
       </div>
 
       {imageUrl ? (
-        <img
+        <Image
           src={imageUrl}
           alt="Preview"
+          width={160}
+          height={160}
           className="h-40 w-40 rounded-xl border object-cover"
         />
       ) : null}

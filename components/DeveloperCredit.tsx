@@ -9,6 +9,8 @@ type Props = {
   address?: string
 }
 
+import Image from "next/image";
+
 export default function DeveloperCredit({
   name = "Mumain Ahmed",
   role = "AI Solutions Architect | Full Stack Python Developer | Multimedia & Tech Specialist",
@@ -29,9 +31,11 @@ export default function DeveloperCredit({
 
       <div className="mt-5 flex flex-col items-center text-center">
 
-        <img
+        <Image
           src="/abo-logo.png"
           alt="ABO Enterprise"
+          width={80}
+          height={80}
           className="w-20 h-20 rounded-full object-cover border border-white/20 shadow-lg"
         />
 

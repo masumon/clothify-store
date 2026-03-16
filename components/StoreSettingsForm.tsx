@@ -197,7 +197,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
           </p>
 
           {logoUrl ? (
-            <img src={logoUrl} alt="Logo" className="mt-4 h-24 w-24 rounded-xl border object-cover" />
+            <Image src={logoUrl} alt="Logo" width={96} height={96} className="mt-4 h-24 w-24 rounded-xl border object-cover" />
           ) : null}
         </div>
 
@@ -218,7 +218,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
           </p>
 
           {bkashQrUrl ? (
-            <img src={bkashQrUrl} alt="QR" className="mt-4 h-32 w-32 rounded-xl border object-cover" />
+            <Image src={bkashQrUrl} alt="QR" width={128} height={128} className="mt-4 h-32 w-32 rounded-xl border object-cover" />
           ) : null}
         </div>
       </div>
