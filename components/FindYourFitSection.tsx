@@ -29,10 +29,10 @@ export default function FindYourFitSection() {
           </h3>
         </div>
         <Link
-          href="/settings"
+          href="/#products"
           className="inline-flex items-center rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
         >
-          Size preference
+          Browse matching styles
         </Link>
       </div>
 

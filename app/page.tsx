@@ -81,6 +81,7 @@ export default async function Home({
 
         <div id="products" className="mt-10">
           <SectionHeader
+            icon="🧥"
             title="Latest Products"
             subtitle="Explore your collection with better browsing, category shortcuts, and a polished shopping experience."
             rightText={`${products.length} item(s) found`}

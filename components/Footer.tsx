@@ -31,7 +31,7 @@ export default function Footer({
 
           <div>
             <h4 className="text-lg font-semibold">
-              Store Information
+              📍 Store Information
             </h4>
 
             <p className="mt-3 text-sm leading-6 text-slate-300">
@@ -41,7 +41,7 @@ export default function Footer({
 
           <div>
             <h4 className="text-lg font-semibold">
-              Contact
+              ☎️ Contact
             </h4>
 
             <p className="mt-3 text-sm leading-6 text-slate-300">
