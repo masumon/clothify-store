@@ -6,11 +6,13 @@ type Theme = "light" | "dark";
 type Language = "en" | "bn";
 type TextSize = "normal" | "large";
 type Contrast = "normal" | "high";
+type Motion = "normal" | "reduced";
 
 const THEME_KEY = "clothify-theme";
 const LANGUAGE_KEY = "clothify-language";
 const TEXT_SIZE_KEY = "clothify-text-size";
 const CONTRAST_KEY = "clothify-contrast";
+const MOTION_KEY = "clothify-motion";
 
 function applyTheme(theme: Theme) {
   const body = document.body;
@@ -41,17 +43,24 @@ function applyContrast(contrast: Contrast) {
   root.classList.toggle("high-contrast", contrast === "high");
 }
 
+function applyMotion(motion: Motion) {
+  const root = document.documentElement;
+  root.classList.toggle("reduce-motion", motion === "reduced");
+}
+
 export default function SitePreferencesBar() {
   const [theme, setTheme] = useState<Theme>("light");
   const [language, setLanguage] = useState<Language>("en");
   const [textSize, setTextSize] = useState<TextSize>("normal");
   const [contrast, setContrast] = useState<Contrast>("normal");
+  const [motion, setMotion] = useState<Motion>("normal");
 
   useEffect(() => {
     const savedTheme = localStorage.getItem(THEME_KEY);
     const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
     const savedTextSize = localStorage.getItem(TEXT_SIZE_KEY);
     const savedContrast = localStorage.getItem(CONTRAST_KEY);
+    const savedMotion = localStorage.getItem(MOTION_KEY);
 
     const resolvedTheme: Theme =
       savedTheme === "dark" || savedTheme === "light" ? savedTheme : "light";
@@ -65,15 +74,21 @@ export default function SitePreferencesBar() {
       savedContrast === "high" || savedContrast === "normal"
         ? savedContrast
         : "normal";
+    const resolvedMotion: Motion =
+      savedMotion === "reduced" || savedMotion === "normal"
+        ? savedMotion
+        : "normal";
 
     setTheme(resolvedTheme);
     setLanguage(resolvedLanguage);
     setTextSize(resolvedTextSize);
     setContrast(resolvedContrast);
+    setMotion(resolvedMotion);
     applyTheme(resolvedTheme);
     applyLanguage(resolvedLanguage);
     applyTextSize(resolvedTextSize);
     applyContrast(resolvedContrast);
+    applyMotion(resolvedMotion);
   }, []);
 
   const toggleTheme = () => {
@@ -104,6 +119,39 @@ export default function SitePreferencesBar() {
     applyContrast(nextContrast);
   };
 
+  const toggleMotion = () => {
+    const nextMotion: Motion = motion === "normal" ? "reduced" : "normal";
+    setMotion(nextMotion);
+    localStorage.setItem(MOTION_KEY, nextMotion);
+    applyMotion(nextMotion);
+  };
+
+  const resetAllPreferences = () => {
+    const defaultTheme: Theme = "light";
+    const defaultLanguage: Language = "en";
+    const defaultTextSize: TextSize = "normal";
+    const defaultContrast: Contrast = "normal";
+    const defaultMotion: Motion = "normal";
+
+    setTheme(defaultTheme);
+    setLanguage(defaultLanguage);
+    setTextSize(defaultTextSize);
+    setContrast(defaultContrast);
+    setMotion(defaultMotion);
+
+    localStorage.setItem(THEME_KEY, defaultTheme);
+    localStorage.setItem(LANGUAGE_KEY, defaultLanguage);
+    localStorage.setItem(TEXT_SIZE_KEY, defaultTextSize);
+    localStorage.setItem(CONTRAST_KEY, defaultContrast);
+    localStorage.setItem(MOTION_KEY, defaultMotion);
+
+    applyTheme(defaultTheme);
+    applyLanguage(defaultLanguage);
+    applyTextSize(defaultTextSize);
+    applyContrast(defaultContrast);
+    applyMotion(defaultMotion);
+  };
+
   const isBn = language === "bn";
   const title = isBn ? "সাইট পছন্দ" : "Site Preferences";
   const subtitle = isBn
@@ -119,6 +167,10 @@ export default function SitePreferencesBar() {
   const contrastLabel = isBn ? "কনট্রাস্ট" : "Contrast";
   const contrastValue =
     contrast === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "হাই" : "High";
+  const motionLabel = isBn ? "মোশন" : "Motion";
+  const motionValue =
+    motion === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "কম" : "Reduced";
+  const resetLabel = isBn ? "সব সেটিংস রিসেট" : "Reset All Preferences";
 
   return (
     <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -173,6 +225,26 @@ export default function SitePreferencesBar() {
             }`}
           >
             {contrastLabel}: {contrastValue}
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleMotion}
+            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+              motion === "reduced"
+                ? "border-cyan-300 bg-cyan-100 text-cyan-900 hover:bg-cyan-200"
+                : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
+            }`}
+          >
+            {motionLabel}: {motionValue}
+          </button>
+
+          <button
+            type="button"
+            onClick={resetAllPreferences}
+            className="rounded-full border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 transition hover:bg-rose-100"
+          >
+            {resetLabel}
           </button>
         </div>
       </div>
