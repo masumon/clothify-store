@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import NextImage from "next/image";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -275,7 +275,7 @@ export default function ProductUploadForm() {
       </div>
 
       {imageUrl ? (
-        <Image
+        <NextImage
           src={imageUrl}
           alt="Preview"
           width={160}
