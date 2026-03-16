@@ -34,7 +34,7 @@ export default function HomeQuickActions({ whatsapp }: Props) {
   ];
 
   return (
-    <section className="mb-8 grid grid-cols-4 gap-3">
+    <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
       {actions.map((action) =>
         action.external ? (
           <a
@@ -42,7 +42,7 @@ export default function HomeQuickActions({ whatsapp }: Props) {
             href={action.href}
             target="_blank"
             rel="noreferrer"
-            className={`rounded-2xl border px-2 py-4 text-center text-sm font-bold shadow-[0_10px_20px_-16px_rgba(2,6,23,0.45)] transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${action.className}`}
+            className={`rounded-2xl border px-2 py-3 text-center text-sm font-bold shadow-[0_10px_20px_-16px_rgba(2,6,23,0.45)] transition duration-300 hover:-translate-y-0.5 hover:shadow-md sm:py-4 ${action.className}`}
           >
             {action.label}
           </a>
@@ -50,7 +50,7 @@ export default function HomeQuickActions({ whatsapp }: Props) {
           <Link
             key={action.href}
             href={action.href}
-            className={`rounded-2xl border px-2 py-4 text-center text-sm font-bold shadow-[0_10px_20px_-16px_rgba(2,6,23,0.45)] transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${action.className}`}
+            className={`rounded-2xl border px-2 py-3 text-center text-sm font-bold shadow-[0_10px_20px_-16px_rgba(2,6,23,0.45)] transition duration-300 hover:-translate-y-0.5 hover:shadow-md sm:py-4 ${action.className}`}
           >
             {action.label}
           </Link>
