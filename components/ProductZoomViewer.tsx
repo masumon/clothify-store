@@ -15,13 +15,19 @@ export default function ProductZoomViewer({ imageUrl, productName }: Props) {
   const startRef = useRef({ x: 0, y: 0 });
   const lastPositionRef = useRef({ x: 0, y: 0 });
 
+  const pinchStartDistanceRef = useRef(0);
+  const pinchStartScaleRef = useRef(1);
+  const lastTouchRef = useRef({ x: 0, y: 0 });
+
+  const clampScale = (value: number) => Math.min(Math.max(value, 1), 5);
+
   const zoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.5, 4));
+    setScale((prev) => clampScale(prev + 0.5));
   };
 
   const zoomOut = () => {
     setScale((prev) => {
-      const next = Math.max(prev - 0.5, 1);
+      const next = clampScale(prev - 0.5);
       if (next === 1) {
         setPosition({ x: 0, y: 0 });
         lastPositionRef.current = { x: 0, y: 0 };
@@ -66,21 +72,79 @@ export default function ProductZoomViewer({ imageUrl, productName }: Props) {
     lastPositionRef.current = position;
   };
 
+  const getTouchDistance = (touches: React.TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2) {
+      pinchStartDistanceRef.current = getTouchDistance(e.touches);
+      pinchStartScaleRef.current = scale;
+      return;
+    }
+
+    if (e.touches.length === 1 && scale > 1) {
+      lastTouchRef.current = {
+        x: e.touches[0].clientX - lastPositionRef.current.x,
+        y: e.touches[0].clientY - lastPositionRef.current.y,
+      };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+
+      const currentDistance = getTouchDistance(e.touches);
+      const ratio = currentDistance / pinchStartDistanceRef.current;
+      const nextScale = clampScale(pinchStartScaleRef.current * ratio);
+
+      setScale(nextScale);
+
+      if (nextScale === 1) {
+        setPosition({ x: 0, y: 0 });
+        lastPositionRef.current = { x: 0, y: 0 };
+      }
+
+      return;
+    }
+
+    if (e.touches.length === 1 && scale > 1) {
+      e.preventDefault();
+
+      const newPosition = {
+        x: e.touches[0].clientX - lastTouchRef.current.x,
+        y: e.touches[0].clientY - lastTouchRef.current.y,
+      };
+
+      setPosition(newPosition);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    lastPositionRef.current = position;
+  };
+
   return (
     <div className="space-y-4">
       <div
-        className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white"
+        className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white touch-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="aspect-square w-full overflow-hidden bg-slate-100">
           <img
             src={imageUrl}
             alt={productName}
             draggable={false}
-            className="h-full w-full object-cover select-none transition-transform duration-150"
+            className="h-full w-full select-none object-cover transition-transform duration-100"
             style={{
               transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               cursor: scale > 1 ? (dragging ? "grabbing" : "grab") : "default",
@@ -117,7 +181,7 @@ export default function ProductZoomViewer({ imageUrl, productName }: Props) {
       </div>
 
       <p className="text-sm text-slate-500">
-        Use + / - to zoom. When zoomed in, drag the image to inspect fabric details.
+        Use + / - to zoom. On mobile, use two fingers to pinch zoom and drag to inspect fabric details.
       </p>
     </div>
   );
