@@ -23,7 +23,7 @@ export default function HomeHero({
 
   return (
     <section className="relative mb-8 overflow-hidden rounded-[30px] border border-slate-700/20 shadow-2xl shadow-slate-900/30">
-      <div className="absolute inset-0 bg-[url('/store-banner.jpg')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-[url('/hero-modern-fashion.svg')] bg-cover bg-center" />
 
       <div className="absolute inset-0 bg-gradient-to-r from-[#0F172A]/90 via-[#0F172A]/70 to-[#1e293b]/60" />
       <div className="absolute -left-16 -top-20 h-52 w-52 rounded-full bg-amber-300/20 blur-3xl" />
