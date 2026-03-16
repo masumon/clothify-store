@@ -1,9 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
-import Image from "next/image";
 import AdminTopbar from "@/components/AdminTopbar";
 import ProductUploadForm from "@/components/ProductUploadForm";
-import DeleteProductButton from "@/components/DeleteProductButton";
-import EditProductForm from "@/components/EditProductForm";
+import AdminProductsManager from "@/components/AdminProductsManager";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 import { Product } from "@/types";
 
@@ -69,39 +67,7 @@ export default async function AdminProductsPage() {
       </div>
 
       <ProductUploadForm />
-
-      <div className="grid gap-6 md:grid-cols-3">
-        {products.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-6">
-            <p className="text-slate-600">No products found.</p>
-          </div>
-        ) : (
-          products.map((product) => (
-            <div
-              key={product.id}
-              className="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]"
-            >
-              <Image
-                src={product.image_url}
-                alt={product.name}
-                width={400}
-                height={256}
-                className="h-64 w-full rounded-xl object-cover"
-              />
-
-              <h3 className="mt-3 font-bold text-slate-900">{product.name}</h3>
-              <p className="mt-1 text-sm text-slate-500">{product.category}</p>
-              <p className="mt-1 font-semibold text-teal-700">৳{product.price}</p>
-              <p className="mt-1 text-sm text-slate-600">
-                Sizes: {product.sizes?.length ? product.sizes.join(", ") : "N/A"}
-              </p>
-
-              <EditProductForm product={product} />
-              <DeleteProductButton productId={product.id} />
-            </div>
-          ))
-        )}
-      </div>
+      <AdminProductsManager products={products} />
     </section>
   );
 }
