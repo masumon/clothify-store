@@ -6,10 +6,8 @@ import { usePathname } from "next/navigation";
 const items = [
   { href: "/", icon: "🏠", label: "হোম", external: false },
   { href: "/cart", icon: "🛒", label: "কার্ট", external: false },
-  { href: "/fb", icon: "📣", label: "ল্যান্ডিং", external: false },
   { href: "/checkout", icon: "✅", label: "অর্ডার", external: false },
   { href: "/payment", icon: "💳", label: "পেমেন্ট", external: false },
-  { href: "/settings", icon: "⚙️", label: "সেটিং", external: false },
   { href: "https://wa.me/8801811314262", icon: "💬", label: "সাপোর্ট", external: true },
 ];
 
@@ -18,14 +16,14 @@ export default function MobileStickyBar() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">
-      <div className="flex gap-1 overflow-x-auto px-1 py-1.5">
+      <div className="grid grid-cols-5 gap-1 px-1 py-1.5">
         {items.map((item) => {
           const active =
             !item.external &&
             (pathname === item.href ||
               (item.href !== "/" && pathname.startsWith(item.href)));
 
-          const cls = `min-w-[74px] flex flex-col items-center gap-0.5 rounded-xl px-1 py-2 text-center transition ${
+          const cls = `flex min-w-0 flex-col items-center gap-0.5 rounded-xl px-1 py-2 text-center transition ${
             active ? "text-green-700" : "text-slate-400"
           }`;
 

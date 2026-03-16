@@ -98,7 +98,11 @@ export default async function Home({
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {products.map((product: any) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  whatsappNumber={settings?.whatsapp_number || "8801811314262"}
+                />
               ))}
             </div>
           )}

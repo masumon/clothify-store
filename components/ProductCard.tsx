@@ -15,13 +15,23 @@ type ProductCardProps = {
     is_featured?: boolean;
     campaign_badge?: string | null;
   };
+  whatsappNumber?: string;
 };
 
-export default function ProductCard({ product }: ProductCardProps) {
+function normalizeBangladeshWhatsAppNumber(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+
+  if (!digits) return "8801811314262";
+  if (digits.startsWith("880")) return digits;
+  if (digits.startsWith("0")) return `88${digits}`;
+  return digits;
+}
+
+export default function ProductCard({ product, whatsappNumber = "8801811314262" }: ProductCardProps) {
   const waText = `Hello, I want to order this product:%0A%0AProduct: ${encodeURIComponent(
     product.name
   )}%0APrice: ৳${product.price}`;
-  const whatsappUrl = `https://wa.me/8801811314262?text=${waText}`;
+  const whatsappUrl = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}?text=${waText}`;
 
   return (
     <div className="group overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 shadow-[0_12px_32px_-24px_rgba(2,6,23,0.6)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgba(2,6,23,0.45)]">
@@ -88,7 +98,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             }
             className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
           >
-            Add to Cart
+            🛒 Add to Cart
           </button>
           <a
             href={whatsappUrl}
@@ -96,7 +106,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             rel="noreferrer"
             className="flex-1 rounded-full bg-emerald-600 px-3 py-2.5 text-center text-sm font-bold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700"
           >
-            WhatsApp Order
+            💬 WhatsApp
           </a>
         </div>
 
