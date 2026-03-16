@@ -4,7 +4,10 @@ import AddToCartButton from "@/components/AddToCartButton";
 import BottomNav from "@/components/BottomNav";
 import WhatsAppOrderButton from "@/components/WhatsAppOrderButton";
 import Footer from "@/components/Footer";
+import ProductZoomViewer from "@/components/ProductZoomViewer";
 import { getProductById, getStoreSettings } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProductDetailsPage({
   params,
@@ -48,10 +51,9 @@ export default async function ProductDetailsPage({
 
       <section className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-2">
         <div>
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="w-full rounded-2xl border border-slate-200 object-cover"
+          <ProductZoomViewer
+            imageUrl={product.image_url}
+            productName={product.name}
           />
         </div>
 
@@ -72,7 +74,7 @@ export default async function ProductDetailsPage({
 
           <div className="mt-4">
             <WhatsAppOrderButton
-              phone={settings?.whatsapp_number || "8801805996960"}
+              phone={settings?.whatsapp_number || "8801811314262"}
               productName={product.name}
               price={product.price}
             />
