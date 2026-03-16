@@ -10,11 +10,14 @@ export default function CheckoutForm() {
   const [address, setAddress] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("Home Delivery");
   const [trxId, setTrxId] = useState("");
+  const [website, setWebsite] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [startedAt, setStartedAt] = useState(Date.now());
 
   useEffect(() => {
     setCart(getCart());
+    setStartedAt(Date.now());
   }, []);
 
   const total = useMemo(() => {
@@ -43,12 +46,14 @@ export default function CheckoutForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-        customer_name: customerName,
-        phone,
-        address,
-        delivery_method: deliveryMethod,
-        total_amount: total,
-        bkash_trx_id: trxId,
+          customer_name: customerName,
+          phone,
+          address,
+          delivery_method: deliveryMethod,
+          total_amount: total,
+          bkash_trx_id: trxId,
+          website,
+          client_started_at: startedAt,
         }),
       });
 
@@ -105,6 +110,17 @@ export default function CheckoutForm() {
         value={trxId}
         onChange={(e) => setTrxId(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+      />
+
+      <input
+        type="text"
+        name="website"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        className="hidden"
+        aria-hidden="true"
       />
 
       <div className="rounded-xl bg-slate-50 p-4">
