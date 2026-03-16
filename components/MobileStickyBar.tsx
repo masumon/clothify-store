@@ -10,12 +10,13 @@ export default function MobileStickyBar() {
     { href: "/", label: "Shop" },
     { href: "/cart", label: "Cart" },
     { href: "/checkout", label: "Checkout" },
-    { href: "/admin", label: "Admin" },
+    { href: "/payment", label: "Payment" },
+    { href: "/settings", label: "Settings" },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {items.map((item) => {
           const active =
             pathname === item.href ||
@@ -25,7 +26,7 @@ export default function MobileStickyBar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`px-2 py-3 text-center text-xs font-semibold transition ${
+              className={`px-2 py-3 text-center text-[11px] font-semibold transition ${
                 active ? "text-black" : "text-slate-500"
               }`}
             >
