@@ -3,6 +3,71 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+async function resizeImageToSquare(file: File, size = 1200): Promise<File> {
+  const imageUrl = URL.createObjectURL(file);
+
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("Image load failed"));
+      image.src = imageUrl;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Canvas context not available");
+    }
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+
+    const sourceWidth = img.width;
+    const sourceHeight = img.height;
+    const sourceRatio = sourceWidth / sourceHeight;
+    const targetRatio = 1;
+
+    let sx = 0;
+    let sy = 0;
+    let sWidth = sourceWidth;
+    let sHeight = sourceHeight;
+
+    if (sourceRatio > targetRatio) {
+      sWidth = sourceHeight;
+      sx = (sourceWidth - sWidth) / 2;
+    } else if (sourceRatio < targetRatio) {
+      sHeight = sourceWidth;
+      sy = (sourceHeight - sHeight) / 2;
+    }
+
+    ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, size, size);
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => {
+          if (result) resolve(result);
+          else reject(new Error("Image resize failed"));
+        },
+        "image/jpeg",
+        0.9
+      );
+    });
+
+    const newFileName = file.name.replace(/\.[^/.]+$/, "") + "-square.jpg";
+
+    return new File([blob], newFileName, {
+      type: "image/jpeg",
+      lastModified: Date.now(),
+    });
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
+}
+
 export default function ProductUploadForm() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -13,19 +78,20 @@ export default function ProductUploadForm() {
   const [saving, setSaving] = useState(false);
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const originalFile = e.target.files?.[0];
+    if (!originalFile) return;
 
     try {
       setUploading(true);
       setImageUrl("");
 
-      const cleanName = file.name.replace(/\s+/g, "-");
+      const resizedFile = await resizeImageToSquare(originalFile, 1200);
+      const cleanName = resizedFile.name.replace(/\s+/g, "-");
       const filePath = `products/${Date.now()}-${cleanName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("product-images")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, resizedFile, { upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -152,7 +218,7 @@ export default function ProductUploadForm() {
         />
         <p className="mt-2 text-xs text-slate-500">
           {uploading
-            ? "Uploading image... please wait"
+            ? "Uploading and resizing image... please wait"
             : imageUrl
             ? "Image uploaded successfully"
             : "Choose image and wait for upload success message"}
@@ -163,7 +229,7 @@ export default function ProductUploadForm() {
         <img
           src={imageUrl}
           alt="Preview"
-          className="h-32 w-32 rounded-xl border object-cover"
+          className="h-40 w-40 rounded-xl border object-cover"
         />
       ) : null}
 
@@ -180,4 +246,4 @@ export default function ProductUploadForm() {
       </button>
     </form>
   );
-}
+      }
