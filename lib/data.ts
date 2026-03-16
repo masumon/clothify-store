@@ -61,7 +61,8 @@ async function getOrSetPending<T>(key: string, load: () => Promise<T>) {
 }
 
 export async function getStoreSettings() {
-  if (!hasSupabasePublicConfig() || !supabase) {
+  const client = supabase;
+  if (!hasSupabasePublicConfig() || !client) {
     return null;
   }
 
@@ -71,7 +72,7 @@ export async function getStoreSettings() {
   }
 
   return getOrSetPending("store-settings", async () => {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("store_settings")
       .select("*")
       .eq("id", 1)
@@ -96,7 +97,8 @@ export async function getProducts(filters?: {
     noStore();
   }
 
-  if (!hasSupabasePublicConfig() || !supabase) {
+  const client = supabase;
+  if (!hasSupabasePublicConfig() || !client) {
     return [];
   }
 
@@ -107,7 +109,7 @@ export async function getProducts(filters?: {
     }
 
     return getOrSetPending("products-all", async () => {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from("products")
         .select("*")
         .order("created_at", { ascending: false });
@@ -123,7 +125,7 @@ export async function getProducts(filters?: {
     });
   }
 
-  let query = supabase.from("products").select("*").order("created_at", { ascending: false });
+  let query = client.from("products").select("*").order("created_at", { ascending: false });
 
   if (filters?.search) {
     query = query.ilike("name", `%${filters.search}%`);
@@ -144,7 +146,8 @@ export async function getProducts(filters?: {
 }
 
 export async function getCategories() {
-  if (!hasSupabasePublicConfig() || !supabase) {
+  const client = supabase;
+  if (!hasSupabasePublicConfig() || !client) {
     return [];
   }
 
@@ -154,7 +157,7 @@ export async function getCategories() {
   }
 
   return getOrSetPending("categories", async () => {
-    const { data, error } = await supabase.from("products").select("category");
+    const { data, error } = await client.from("products").select("category");
 
     if (error) {
       console.error("Category fetch error:", error.message);
@@ -175,7 +178,8 @@ export async function getCategories() {
 }
 
 export async function getProductById(id: string) {
-  if (!hasSupabasePublicConfig() || !supabase) {
+  const client = supabase;
+  if (!hasSupabasePublicConfig() || !client) {
     return null;
   }
 
@@ -188,7 +192,7 @@ export async function getProductById(id: string) {
   }
 
   return getOrSetPending(`product-${key}`, async () => {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("products")
       .select("*")
       .eq("id", key)
