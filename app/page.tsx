@@ -48,7 +48,7 @@ export default async function Home({
           slogan={settings?.slogan || "Find Your Fit"}
         />
 
-        <HomeQuickActions />
+        <HomeQuickActions whatsapp={settings?.whatsapp_number || ""} />
 
         <SitePreferencesBar />
 
