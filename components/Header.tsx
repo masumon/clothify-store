@@ -44,10 +44,6 @@ export default function Header({
       icon: "🔒",
       color: "border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200",
     },
-  ];
-
-  const mobileMenuItems = [
-    ...navItems,
     {
       href: "/settings",
       label: "Settings",
@@ -55,6 +51,8 @@ export default function Header({
       color: "border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100",
     },
   ];
+
+  const mobileMenuItems = navItems;
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
