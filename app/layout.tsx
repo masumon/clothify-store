@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Hind_Siliguri, Plus_Jakarta_Sans } from "next/font/google";
+import TrafficTracker from "@/components/TrafficTracker";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -61,6 +62,7 @@ export default function RootLayout({
       <body
         className={`${plusJakarta.variable} ${hindSiliguri.variable} bg-gray-100 text-slate-900 antialiased`}
       >
+        <TrafficTracker />
         {children}
       </body>
     </html>
