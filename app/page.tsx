@@ -7,6 +7,7 @@ import HomeCategoryBar from "@/components/HomeCategoryBar";
 import HomeHighlights from "@/components/HomeHighlights";
 import SectionHeader from "@/components/SectionHeader";
 import HomeQuickActions from "@/components/HomeQuickActions";
+import FindYourFitSection from "@/components/FindYourFitSection";
 import MobileStickyBar from "@/components/MobileStickyBar";
 import HomePromoStrip from "@/components/HomePromoStrip";
 import FeaturedCollection from "@/components/FeaturedCollection";
@@ -50,6 +51,8 @@ export default async function Home({
         />
 
         <HomeQuickActions whatsapp={settings?.whatsapp_number || ""} />
+
+        <FindYourFitSection />
 
         <SitePreferencesBar />
 
