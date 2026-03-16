@@ -20,7 +20,15 @@ export default async function CheckoutPage() {
 
       <section className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-bold text-slate-900">Checkout</h1>
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-2xl font-bold text-slate-900">Checkout</h1>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              🏠 Back to Home
+            </Link>
+          </div>
           <CheckoutForm />
         </div>
 

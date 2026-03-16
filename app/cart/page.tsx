@@ -29,7 +29,15 @@ export default function CartPage() {
 
       <section className="mx-auto max-w-5xl px-4 py-10">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h1 className="text-2xl font-bold text-slate-900">Your Cart</h1>
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-2xl font-bold text-slate-900">Your Cart</h1>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              🏠 Back to Home
+            </Link>
+          </div>
 
           {cart.length === 0 ? (
             <p className="mt-4 text-slate-600">Your cart is empty.</p>
