@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation";
 const items = [
   { href: "/", icon: "🏠", label: "Shop", external: false },
   { href: "/cart", icon: "🛒", label: "Cart", external: false },
+  { href: "/fb", icon: "📣", label: "Landing", external: false },
   { href: "/checkout", icon: "✅", label: "Checkout", external: false },
+  { href: "/payment", icon: "💳", label: "Payment", external: false },
   { href: "/settings", icon: "⚙️", label: "Settings", external: false },
   {
     href: "https://wa.me/8801811314262",
@@ -21,14 +23,14 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white md:hidden">
-      <div className="grid grid-cols-5">
+      <div className="flex gap-1 overflow-x-auto px-1 py-1.5">
         {items.map((item) => {
           const active =
             !item.external &&
             (pathname === item.href ||
               (item.href !== "/" && pathname.startsWith(item.href)));
 
-          const cls = `flex flex-col items-center gap-0.5 px-1 py-2.5 text-center transition ${
+          const cls = `min-w-[74px] flex flex-col items-center gap-0.5 rounded-xl px-1 py-2 text-center transition ${
             active ? "text-green-700" : "text-slate-400"
           }`;
 
