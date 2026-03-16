@@ -10,9 +10,11 @@ export default async function AdminSettingsPage() {
       <AdminTopbar />
 
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Store Settings</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+          Store Settings
+        </h1>
         <p className="mt-2 text-slate-600">
-          Update your brand identity, contact numbers, logo, and bKash QR.
+          Set up your brand identity, support contacts, logo, and bKash QR for trust.
         </p>
       </div>
 
