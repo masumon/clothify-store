@@ -14,6 +14,7 @@ import HomeSectionDivider from "@/components/HomeSectionDivider";
 import BestSellerStrip from "@/components/BestSellerStrip";
 import TrustBadges from "@/components/TrustBadges";
 import EidCampaignSection from "@/components/EidCampaignSection";
+import SitePreferencesBar from "@/components/SitePreferencesBar";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +49,8 @@ export default async function Home({
         />
 
         <HomeQuickActions />
+
+        <SitePreferencesBar />
 
         <EidCampaignSection />
 
