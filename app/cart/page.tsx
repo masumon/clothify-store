@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -39,9 +40,11 @@ export default function CartPage() {
                   key={`${item.id}-${item.selectedSize}-${index}`}
                   className="flex flex-col gap-4 rounded-xl border border-slate-200 p-4 md:flex-row md:items-center"
                 >
-                  <img
+                  <Image
                     src={item.image_url}
                     alt={item.name}
+                    width={96}
+                    height={96}
                     className="h-24 w-24 rounded-lg object-cover"
                   />
 

@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import Image from "next/image";
 import AdminTopbar from "@/components/AdminTopbar";
 import ProductUploadForm from "@/components/ProductUploadForm";
 import DeleteProductButton from "@/components/DeleteProductButton";
@@ -51,9 +52,11 @@ export default async function AdminProductsPage() {
               key={product.id}
               className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
             >
-              <img
+              <Image
                 src={product.image_url}
                 alt={product.name}
+                width={400}
+                height={256}
                 className="h-64 w-full rounded-lg object-cover"
               />
 
