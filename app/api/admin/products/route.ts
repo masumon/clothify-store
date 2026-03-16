@@ -10,6 +10,9 @@ type ProductPayload = {
   sizes?: string[];
   image_url?: string;
   is_published?: boolean;
+  stock_quantity?: number;
+  is_featured?: boolean;
+  campaign_badge?: string;
 };
 
 function readString(value: unknown) {
@@ -31,8 +34,19 @@ export async function POST(req: Request) {
     const image_url = readString(payload.image_url);
     const sizes = readSizes(payload.sizes);
     const price = Number(payload.price);
+    const stock_quantity = Number(payload.stock_quantity ?? 20);
+    const is_featured = Boolean(payload.is_featured);
+    const campaign_badge = readString(payload.campaign_badge);
 
-    if (!name || !category || !image_url || !Number.isFinite(price) || price <= 0) {
+    if (
+      !name ||
+      !category ||
+      !image_url ||
+      !Number.isFinite(price) ||
+      price <= 0 ||
+      !Number.isFinite(stock_quantity) ||
+      stock_quantity < 0
+    ) {
       return NextResponse.json({ error: "Invalid product payload." }, { status: 400 });
     }
 
@@ -46,6 +60,9 @@ export async function POST(req: Request) {
         sizes,
         image_url,
         is_published: true,
+        stock_quantity,
+        is_featured,
+        campaign_badge: campaign_badge || null,
       },
     ]);
 
@@ -84,6 +101,10 @@ export async function PATCH(req: Request) {
     const price = Number(payload.price);
     const hasPublishedFlag = typeof payload.is_published === "boolean";
     const isPublished = payload.is_published;
+    const hasFeaturedFlag = typeof payload.is_featured === "boolean";
+    const isFeatured = payload.is_featured;
+    const stockQuantity = Number(payload.stock_quantity);
+    const campaignBadge = readString(payload.campaign_badge);
     const isBulk = ids.length > 0;
 
     if (isBulk && !hasPublishedFlag) {
@@ -116,6 +137,13 @@ export async function PATCH(req: Request) {
       if (category) updates.category = category;
       if (Array.isArray(payload.sizes)) updates.sizes = sizes;
       if (hasPublishedFlag) updates.is_published = isPublished;
+      if (hasFeaturedFlag) updates.is_featured = isFeatured;
+      if (Number.isFinite(stockQuantity) && stockQuantity >= 0) {
+        updates.stock_quantity = stockQuantity;
+      }
+      if (typeof payload.campaign_badge === "string") {
+        updates.campaign_badge = campaignBadge || null;
+      }
 
       if (Object.keys(updates).length === 0) {
         return NextResponse.json({ error: "No valid updates provided." }, { status: 400 });

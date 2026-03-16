@@ -18,6 +18,9 @@ export type Product = {
   sizes: string[];
   image_url: string;
   is_published?: boolean;
+  stock_quantity?: number;
+  is_featured?: boolean;
+  campaign_badge?: string | null;
   created_at: string;
 };
 
