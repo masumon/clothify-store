@@ -53,6 +53,7 @@ function applyMotion(motion: Motion) {
 }
 
 export default function SitePreferencesBar() {
+export default function SitePreferencesBar({ compact = false }: { compact?: boolean }) {
   const [theme, setTheme] = useState<Theme>("system");
   const [language, setLanguage] = useState<Language>("en");
   const [textSize, setTextSize] = useState<TextSize>("normal");
@@ -209,17 +210,124 @@ export default function SitePreferencesBar() {
     motion === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "কম" : "Reduced";
   const resetLabel = isBn ? "সব সেটিংস রিসেট" : "Reset All Preferences";
 
+  const applyPreset = (preset: "default" | "focus" | "readable") => {
+    if (preset === "default") {
+      const defaultTheme: Theme = "system";
+      const defaultLanguage: Language = "bn";
+      const defaultTextSize: TextSize = "normal";
+      const defaultContrast: Contrast = "normal";
+      const defaultMotion: Motion = "normal";
+
+      setTheme(defaultTheme);
+      setLanguage(defaultLanguage);
+      setTextSize(defaultTextSize);
+      setContrast(defaultContrast);
+      setMotion(defaultMotion);
+
+      localStorage.setItem(THEME_KEY, defaultTheme);
+      localStorage.setItem(LANGUAGE_KEY, defaultLanguage);
+      localStorage.setItem(TEXT_SIZE_KEY, defaultTextSize);
+      localStorage.setItem(CONTRAST_KEY, defaultContrast);
+      localStorage.setItem(MOTION_KEY, defaultMotion);
+
+      applyTheme(defaultTheme);
+      applyLanguage(defaultLanguage);
+      applyTextSize(defaultTextSize);
+      applyContrast(defaultContrast);
+      applyMotion(defaultMotion);
+      setToast(isBn ? "ডিফল্ট প্রিসেট চালু হয়েছে" : "Default preset activated");
+      return;
+    }
+
+    if (preset === "focus") {
+      const nextTheme: Theme = "dark";
+      const nextLanguage: Language = language;
+      const nextTextSize: TextSize = "normal";
+      const nextContrast: Contrast = "high";
+      const nextMotion: Motion = "reduced";
+
+      setTheme(nextTheme);
+      setLanguage(nextLanguage);
+      setTextSize(nextTextSize);
+      setContrast(nextContrast);
+      setMotion(nextMotion);
+
+      localStorage.setItem(THEME_KEY, nextTheme);
+      localStorage.setItem(LANGUAGE_KEY, nextLanguage);
+      localStorage.setItem(TEXT_SIZE_KEY, nextTextSize);
+      localStorage.setItem(CONTRAST_KEY, nextContrast);
+      localStorage.setItem(MOTION_KEY, nextMotion);
+
+      applyTheme(nextTheme);
+      applyLanguage(nextLanguage);
+      applyTextSize(nextTextSize);
+      applyContrast(nextContrast);
+      applyMotion(nextMotion);
+      setToast(isBn ? "ফোকাস মোড চালু হয়েছে" : "Focus mode activated");
+      return;
+    }
+
+    const nextTheme: Theme = "light";
+    const nextLanguage: Language = language;
+    const nextTextSize: TextSize = "large";
+    const nextContrast: Contrast = "high";
+    const nextMotion: Motion = "reduced";
+
+    setTheme(nextTheme);
+    setLanguage(nextLanguage);
+    setTextSize(nextTextSize);
+    setContrast(nextContrast);
+    setMotion(nextMotion);
+
+    localStorage.setItem(THEME_KEY, nextTheme);
+    localStorage.setItem(LANGUAGE_KEY, nextLanguage);
+    localStorage.setItem(TEXT_SIZE_KEY, nextTextSize);
+    localStorage.setItem(CONTRAST_KEY, nextContrast);
+    localStorage.setItem(MOTION_KEY, nextMotion);
+
+    applyTheme(nextTheme);
+    applyLanguage(nextLanguage);
+    applyTextSize(nextTextSize);
+    applyContrast(nextContrast);
+    applyMotion(nextMotion);
+    setToast(isBn ? "রিডেবল মোড চালু হয়েছে" : "Readable mode activated");
+  };
+
   return (
-    <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+    <section className={`rounded-3xl border border-slate-200 bg-white p-4 shadow-sm ${compact ? "mb-4" : "mb-8"}`}>
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+          <h3 className="text-lg font-bold text-slate-900">⚙️ {title}</h3>
           <p className="mt-1 text-sm text-slate-500">
             {subtitle}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+          <button
+            type="button"
+            onClick={() => applyPreset("default")}
+            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+          >
+            🎯 {isBn ? "ডিফল্ট" : "Default"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => applyPreset("focus")}
+            className="rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-800 transition hover:bg-indigo-100"
+          >
+            🌙 {isBn ? "ফোকাস" : "Focus"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => applyPreset("readable")}
+            className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
+          >
+            🔎 {isBn ? "রিডেবল" : "Readable"}
+          </button>
+
           <button
             type="button"
             onClick={toggleTheme}
@@ -237,7 +345,7 @@ export default function SitePreferencesBar() {
             onClick={toggleLanguage}
             className="rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
           >
-            {languageLabel}: {languageValue}
+            🌐 {languageLabel}: {languageValue}
           </button>
 
           <button
@@ -249,7 +357,7 @@ export default function SitePreferencesBar() {
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
           >
-            {textSizeLabel}: {textSizeValue}
+            🔠 {textSizeLabel}: {textSizeValue}
           </button>
 
           <button
@@ -261,7 +369,7 @@ export default function SitePreferencesBar() {
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
           >
-            {contrastLabel}: {contrastValue}
+            🌓 {contrastLabel}: {contrastValue}
           </button>
 
           <button
@@ -273,7 +381,7 @@ export default function SitePreferencesBar() {
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
           >
-            {motionLabel}: {motionValue}
+            🎞️ {motionLabel}: {motionValue}
           </button>
 
           <button
@@ -281,7 +389,7 @@ export default function SitePreferencesBar() {
             onClick={resetAllPreferences}
             className="rounded-full border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 transition hover:bg-rose-100"
           >
-            {resetLabel}
+            ♻️ {resetLabel}
           </button>
         </div>
       </div>
