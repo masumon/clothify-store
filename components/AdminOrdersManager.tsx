@@ -211,7 +211,7 @@ export default function AdminOrdersManager({
       },
     });
 
-    let currentY = (doc as jsPDF & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 48;
+    let currentY = (doc as typeof doc & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 48;
     currentY += 10;
     doc.setFontSize(12);
     doc.text("Courier-wise Summary", 14, currentY);
