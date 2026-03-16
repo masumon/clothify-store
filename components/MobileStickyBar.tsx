@@ -7,7 +7,7 @@ const items = [
   { href: "/", icon: "🏠", label: "হোম", external: false },
   { href: "/cart", icon: "🛒", label: "কার্ট", external: false },
   { href: "/checkout", icon: "✅", label: "অর্ডার", external: false },
-  { href: "/payment", icon: "💳", label: "পেমেন্ট", external: false },
+  { href: "/settings", icon: "⚙️", label: "সেটিং", external: false },
   { href: "https://wa.me/8801811314262", icon: "💬", label: "সাপোর্ট", external: true },
 ];
 
