@@ -29,29 +29,39 @@ export default function Header({
 }: HeaderProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [uiLang, setUiLang] = useState<"EN" | "BN">("BN");
+  const [uiLang, setUiLang] = useState<"en" | "bn">("bn");
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("clothfy-lang");
+    const savedLang = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
     const savedTheme = localStorage.getItem("clothfy-theme");
 
-    if (savedLang === "EN" || savedLang === "BN") {
+    if (savedLang === "en" || savedLang === "bn") {
       setUiLang(savedLang);
-      document.documentElement.lang = savedLang === "BN" ? "bn" : "en";
+      document.documentElement.lang = savedLang;
+    } else if (savedLang === "EN" || savedLang === "BN") {
+      const normalized = savedLang.toLowerCase() as "en" | "bn";
+      setUiLang(normalized);
+      document.documentElement.lang = normalized;
+      localStorage.setItem("clothfy-lang", normalized);
     }
 
-    if (savedTheme === "dark") {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldUseDark = savedTheme === "dark" || (savedTheme === "system" && prefersDark);
+
+    if (shouldUseDark) {
       setIsDarkMode(true);
       document.documentElement.classList.add("dark-theme");
+    } else {
+      document.documentElement.classList.remove("dark-theme");
     }
   }, []);
 
   const toggleLanguage = () => {
-    const nextLang = uiLang === "BN" ? "EN" : "BN";
+    const nextLang: "en" | "bn" = uiLang === "bn" ? "en" : "bn";
     setUiLang(nextLang);
     localStorage.setItem("clothfy-lang", nextLang);
-    document.documentElement.lang = nextLang === "BN" ? "bn" : "en";
+    document.documentElement.lang = nextLang;
   };
 
   const toggleTheme = () => {
@@ -145,7 +155,7 @@ export default function Header({
             className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100"
             aria-label="Toggle language"
           >
-            {uiLang}
+            {uiLang === "bn" ? "BN" : "EN"}
           </button>
 
           <button
@@ -217,7 +227,7 @@ export default function Header({
               onClick={toggleLanguage}
               className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700"
             >
-              {uiLang}
+              {uiLang === "bn" ? "BN" : "EN"}
             </button>
             <button
               type="button"
