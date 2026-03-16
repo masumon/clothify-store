@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 type Props = {
   storeName?: string;
   slogan?: string;
@@ -17,6 +21,22 @@ export default function HomeHero({
   slogan = "Find Your Fit",
   whatsappNumber = "8801811314262",
 }: Props) {
+  const [lang, setLang] = useState<"en" | "bn">("bn");
+
+  useEffect(() => {
+    const syncLang = () => {
+      const saved = localStorage.getItem("clothfy-lang");
+      if (saved === "en" || saved === "bn") {
+        setLang(saved);
+      }
+    };
+
+    syncLang();
+    window.addEventListener("clothfy-preferences-change", syncLang);
+    return () => window.removeEventListener("clothfy-preferences-change", syncLang);
+  }, []);
+
+  const isBn = lang === "bn";
   const waLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}?text=${encodeURIComponent(
     "Hello, I want to order premium fashion from Clothify."
   )}`;
@@ -32,7 +52,7 @@ export default function HomeHero({
       <div className="relative px-5 py-12 sm:px-8 sm:py-16 md:px-12 md:py-20">
         <div className="max-w-3xl">
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-white backdrop-blur">
-            Eid Special Collection
+            {isBn ? "ঈদ স্পেশাল কালেকশন" : "Eid Special Collection"}
           </p>
 
           <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
@@ -44,19 +64,20 @@ export default function HomeHero({
           </p>
 
           <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-100 sm:text-base">
-            Premium Panjabi, smart casual shirts, and perfect festival looks. Shop confidently
-            with fast checkout, WhatsApp support, and intelligent SUMONIX AI assistance.
+            {isBn
+              ? "প্রিমিয়াম পাঞ্জাবি, স্মার্ট ক্যাজুয়াল শার্ট এবং ফেস্টিভাল লুক। দ্রুত চেকআউট, হোয়াটসঅ্যাপ সাপোর্ট এবং SUMONIX AI সহায়তা সহ নির্ভয়ে শপ করুন।"
+              : "Premium Panjabi, smart casual shirts, and perfect festival looks. Shop confidently with fast checkout, WhatsApp support, and intelligent SUMONIX AI assistance."}
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
             <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
-              ⭐ 4.8/5 Customer Rating
+              {isBn ? "⭐ 4.8/5 কাস্টমার রেটিং" : "⭐ 4.8/5 Customer Rating"}
             </span>
             <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
-              🚚 Fast Delivery Nationwide
+              {isBn ? "🚚 সারা দেশে দ্রুত ডেলিভারি" : "🚚 Fast Delivery Nationwide"}
             </span>
             <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
-              💳 bKash + COD Available
+              {isBn ? "💳 bKash + COD চালু" : "💳 bKash + COD Available"}
             </span>
           </div>
 
@@ -65,14 +86,14 @@ export default function HomeHero({
               href="#products"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 text-base font-bold text-slate-900 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-400"
             >
-              🛍️ Shop Now
+              {isBn ? "🛍️ এখনই শপ করুন" : "🛍️ Shop Now"}
             </a>
 
             <a
               href="/checkout"
               className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/60 bg-white/10 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/20"
             >
-              ✅ Order For Eid
+              {isBn ? "✅ ঈদের জন্য অর্ডার করুন" : "✅ Order For Eid"}
             </a>
 
             <a
@@ -81,7 +102,7 @@ export default function HomeHero({
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-emerald-300/70 bg-emerald-500/20 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500/35"
             >
-              💬 WhatsApp Chat
+              {isBn ? "💬 হোয়াটসঅ্যাপ চ্যাট" : "💬 WhatsApp Chat"}
             </a>
           </div>
         </div>
