@@ -81,6 +81,21 @@ export default function InvoiceAutoDownload({
         ]);
 
         const doc = new jsPDF();
+
+        // Premium page background accents
+        doc.setFillColor(248, 250, 252);
+        doc.rect(0, 0, 210, 297, "F");
+        doc.setFillColor(224, 242, 254);
+        doc.circle(190, 24, 34, "F");
+        doc.setFillColor(236, 253, 245);
+        doc.circle(20, 285, 28, "F");
+
+        // Subtle watermark
+        doc.setTextColor(226, 232, 240);
+        doc.setFontSize(48);
+        doc.text(storeName.toUpperCase(), 105, 170, { angle: -30, align: "center" });
+
+        // Header band
         doc.setFillColor(15, 118, 110);
         doc.rect(0, 0, 210, 34, "F");
 
@@ -133,13 +148,25 @@ export default function InvoiceAutoDownload({
           ]),
           styles: { fontSize: 10 },
           headStyles: { fillColor: [15, 118, 110] },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
         });
 
         const finalY = (doc as typeof doc & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 130;
+
+        doc.setFillColor(15, 118, 110);
+        doc.roundedRect(130, finalY + 2, 66, 20, 3, 3, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(9);
+        doc.text("Grand Total", 134, finalY + 10);
+        doc.setFontSize(14);
+        doc.text(`৳${invoice.total}`, 134, finalY + 18);
+
+        doc.setTextColor(31, 41, 55);
         doc.setFontSize(13);
         doc.text(`Total Amount: ৳${invoice.total}`, 14, finalY + 12);
         doc.setFontSize(10);
         doc.text("Thank you for shopping with Clothify.", 14, finalY + 20);
+        doc.text("Powered by SUMONIX AI Commerce Automation", 14, finalY + 27);
 
         if (cancelled) return;
         doc.save(`clothify-invoice-${invoice.orderId}.pdf`);
