@@ -39,6 +39,18 @@ export default function Header({
       color: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
     },
     {
+      href: "/payment",
+      label: "Payment",
+      icon: "💳",
+      color: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
+    },
+    {
+      href: "/fb",
+      label: "Landing",
+      icon: "📣",
+      color: "border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
+    },
+    {
       href: "/admin",
       label: "Admin",
       icon: "🔒",
