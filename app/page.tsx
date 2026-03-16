@@ -2,6 +2,9 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import Footer from "@/components/Footer";
 import SearchAndFilter from "@/components/SearchAndFilter";
+import HomeHero from "@/components/HomeHero";
+import HomeCategoryBar from "@/components/HomeCategoryBar";
+import HomeHighlights from "@/components/HomeHighlights";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -11,10 +14,13 @@ export default async function Home({
 }: {
   searchParams?: { search?: string; category?: string };
 }) {
+  const activeSearch = searchParams?.search || "";
+  const activeCategory = searchParams?.category || "";
+
   const settings = await getStoreSettings();
   const products = await getProducts({
-    search: searchParams?.search || "",
-    category: searchParams?.category || "",
+    search: activeSearch,
+    category: activeCategory,
   });
   const categories = await getCategories();
 
@@ -27,28 +33,44 @@ export default async function Home({
       />
 
       <section className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-8 rounded-3xl bg-black px-6 py-10 text-center text-white">
-          <h2 className="text-3xl font-bold">
-            {settings?.store_name || "Clothify"}
-          </h2>
-          <p className="mt-2 text-base text-slate-300">
-            {settings?.slogan || "Find Your Fit"}
-          </p>
-          <p className="mt-4 text-sm text-slate-400">
-            Style starts here. Discover the perfect outfit for every day.
-          </p>
-        </div>
+        <HomeHero
+          storeName={settings?.store_name || "Clothify"}
+          slogan={settings?.slogan || "Find Your Fit"}
+        />
+
+        <HomeHighlights />
 
         <SearchAndFilter categories={categories} />
 
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <h3 className="text-2xl font-bold text-slate-900">Latest Products</h3>
-          <p className="text-sm text-slate-500">{products.length} item(s) found</p>
+        <HomeCategoryBar
+          categories={categories}
+          activeCategory={activeCategory}
+          activeSearch={activeSearch}
+        />
+
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-900">
+              Latest Products
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Explore your store collection with dynamic filters and search.
+            </p>
+          </div>
+
+          <p className="text-sm font-medium text-slate-500">
+            {products.length} item(s) found
+          </p>
         </div>
 
         {products.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow">
-            <p className="text-slate-600">No products found for your search.</p>
+          <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+            <h4 className="text-lg font-bold text-slate-900">
+              No products found
+            </h4>
+            <p className="mt-2 text-sm text-slate-500">
+              Try another search term or category.
+            </p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
