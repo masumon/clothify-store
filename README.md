@@ -132,3 +132,21 @@ select
 	count(*) filter (where is_featured is null) as null_featured
 from public.products;
 ```
+
+## PWA (Installable CLOTHFY App)
+
+PWA support has been enabled with `next-pwa`.
+
+- App name: `CLOTHFY`
+- Manifest: `public/manifest.webmanifest`
+- Icons:
+  - `public/icons/icon-192.png`
+  - `public/icons/icon-512.png`
+  - `public/icons/apple-touch-icon.png`
+- Install prompt component: `components/PWAInstallPrompt.tsx`
+
+Production behavior:
+
+- Service worker is generated on `next build`
+- Users get an install banner when browser `beforeinstallprompt` is available
+- App can be installed to device home screen as `CLOTHFY`

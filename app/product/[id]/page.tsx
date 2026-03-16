@@ -24,6 +24,7 @@ export default async function ProductDetailsPage({
           storeName={settings?.store_name || "Clothify"}
           slogan={settings?.slogan || "Find Your Fit"}
           logoUrl={settings?.logo_url || ""}
+          whatsappNumber={settings?.whatsapp_number || "8801811314262"}
         />
 
         <section className="mx-auto max-w-4xl px-4 py-10 text-center">
@@ -47,6 +48,7 @@ export default async function ProductDetailsPage({
         storeName={settings?.store_name || "Clothify"}
         slogan={settings?.slogan || "Find Your Fit"}
         logoUrl={settings?.logo_url || ""}
+        whatsappNumber={settings?.whatsapp_number || "8801811314262"}
       />
 
       <section className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-2">
