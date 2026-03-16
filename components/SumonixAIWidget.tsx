@@ -48,6 +48,12 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
     return null;
   }
 
+  // Keep assistant above mobile sticky navigation on public pages.
+  const floatingPositionClass =
+    mode === "public"
+      ? "bottom-[5.5rem] right-4 sm:bottom-24 sm:right-5 md:bottom-6 md:right-6"
+      : "bottom-5 right-5 md:bottom-6 md:right-6";
+
   const sendQuestion = async (e?: FormEvent) => {
     e?.preventDefault();
     const text = question.trim();
@@ -117,9 +123,9 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-[80]">
+    <div className={`fixed z-[85] ${floatingPositionClass}`}>
       {open ? (
-        <div className="w-[340px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20">
+        <div className="w-[min(92vw,360px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/20 ring-1 ring-slate-100">
           <div className="bg-gradient-to-r from-teal-700 to-cyan-700 px-4 py-4 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -245,9 +251,12 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="rounded-full bg-gradient-to-r from-teal-700 to-cyan-700 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-teal-900/25"
+          className="group rounded-full bg-gradient-to-r from-teal-700 to-cyan-700 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-teal-900/25 transition hover:scale-[1.02] hover:shadow-2xl"
         >
-          SUMONIX AI
+          <span className="flex items-center gap-2">
+            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300 shadow-[0_0_0_4px_rgba(110,231,183,0.25)]" />
+            SUMONIX AI
+          </span>
         </button>
       ) : null}
     </div>
