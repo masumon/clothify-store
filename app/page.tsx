@@ -35,7 +35,7 @@ export default async function Home({
   const categories = await getCategories();
 
   return (
-    <main className="pb-20 md:pb-0">
+    <main className="pb-24 md:pb-0">
       <Header
         storeName={settings?.store_name || "Clothify"}
         slogan={settings?.slogan || "Find Your Fit"}
@@ -92,7 +92,7 @@ export default async function Home({
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {products.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
