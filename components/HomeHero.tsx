@@ -37,6 +37,7 @@ export default function HomeHero({
   whatsappNumber = "8801811314262",
 }: Props) {
   const [lang, setLang] = useState<"en" | "bn">("bn");
+  const [countdown, setCountdown] = useState<Countdown>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     const syncLang = () => {
@@ -51,74 +52,153 @@ export default function HomeHero({
     return () => window.removeEventListener("clothfy-preferences-change", syncLang);
   }, []);
 
+  useEffect(() => {
+    setCountdown(calcCountdown(EID_DATE));
+    const id = setInterval(() => setCountdown(calcCountdown(EID_DATE)), 1000);
+    return () => clearInterval(id);
+  }, []);
+
   const isBn = lang === "bn";
+  const pad = (n: number) => String(n).padStart(2, "0");
+
   const waLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}?text=${encodeURIComponent(
-    "Hello, I want to order premium fashion from Clothify."
+    isBn
+      ? "আস্সালামু আলাইকুম! Clothify-তে ঈদ কালেকশন দেখতে চাই।"
+      : "Hello! I want to explore the Eid Collection at Clothify."
   )}`;
 
+  const chips = [
+    { en: "⭐ 4.9/5 Rating", bn: "⭐ ৪.৯/৫ রেটিং" },
+    { en: "🚚 Nationwide Delivery", bn: "🚚 সারা দেশে ডেলিভারি" },
+    { en: "💳 bKash + COD", bn: "💳 bKash + COD" },
+    { en: "🔄 Easy Returns", bn: "🔄 সহজ রিটার্ন" },
+  ];
+
+  const collection = [
+    { icon: "👔", en: "Premium Panjabi", bn: "প্রিমিয়াম পাঞ্জাবি" },
+    { icon: "👕", en: "Polo Shirts", bn: "পোলো শার্ট" },
+    { icon: "👖", en: "Slim Fit Pants", bn: "স্লিম ফিট প্যান্ট" },
+    { icon: "🧥", en: "Cuban Collar", bn: "কিউবান কলার" },
+  ];
+
+  const cdUnits = [
+    { v: countdown.days, en: "Days", bn: "দিন" },
+    { v: countdown.hours, en: "Hours", bn: "ঘণ্টা" },
+    { v: countdown.minutes, en: "Mins", bn: "মিনিট" },
+    { v: countdown.seconds, en: "Secs", bn: "সেকেন্ড" },
+  ];
+
   return (
-    <section className="relative mb-8 overflow-hidden rounded-[30px] border border-slate-700/20 shadow-2xl shadow-slate-900/30">
+    <section className="relative mb-8 overflow-hidden rounded-[28px] border border-slate-700/20 shadow-2xl shadow-slate-900/30">
+      {/* Background */}
       <div className="absolute inset-0 bg-[url('/hero-modern-fashion.svg')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A]/96 via-[#0F172A]/82 to-[#1e3a5f]/70" />
+      {/* Decorative blobs */}
+      <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-amber-400/15 blur-3xl" />
+      <div className="absolute -bottom-24 right-4 h-72 w-72 rounded-full bg-teal-400/15 blur-3xl" />
+      <div className="absolute right-1/3 top-0 h-40 w-40 rounded-full bg-rose-400/10 blur-2xl" />
 
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0F172A]/90 via-[#0F172A]/70 to-[#1e293b]/60" />
-      <div className="absolute -left-16 -top-20 h-52 w-52 rounded-full bg-amber-300/20 blur-3xl" />
-      <div className="absolute -bottom-20 right-8 h-56 w-56 rounded-full bg-blue-300/20 blur-3xl" />
+      {/* Announcement strip */}
+      <div className="relative border-b border-white/10 bg-amber-400/10 px-5 py-2 text-center text-[11px] font-bold uppercase tracking-[0.25em] text-amber-200 backdrop-blur">
+        {isBn
+          ? "⚡ ঈদ এক্সক্লুসিভ কালেকশন ২০২৬ — সীমিত স্টক — এখনই অর্ডার করুন"
+          : "⚡ Eid Exclusive Collection 2026 — Limited Stock — Order Now"}
+      </div>
 
-      <div className="relative px-5 py-12 sm:px-8 sm:py-16 md:px-12 md:py-20">
-        <div className="max-w-3xl">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-white backdrop-blur">
-            {isBn ? "ঈদ স্পেশাল কালেকশন" : "Eid Special Collection"}
+      {/* Main hero grid */}
+      <div className="relative grid gap-8 px-5 py-10 sm:px-8 sm:py-14 md:grid-cols-[1.1fr_0.9fr] md:items-center md:px-12 md:py-16">
+        {/* LEFT: Copy + CTAs */}
+        <div className="max-w-xl">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-white backdrop-blur">
+            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-amber-400" />
+            {isBn ? "ঈদুল ফিতর ২০২৬ কালেকশন" : "Eid ul-Fitr 2026 Collection"}
           </p>
 
           <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
             {storeName}
           </h2>
+          <p className="mt-1.5 text-xl font-bold text-amber-200 sm:text-2xl">{slogan}</p>
 
-          <p className="mt-2 text-xl font-bold text-amber-200">
-            {slogan}
-          </p>
-
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-100 sm:text-base">
+          <p className="mt-4 max-w-lg text-sm leading-7 text-slate-200 sm:text-base">
             {isBn
-              ? "প্রিমিয়াম পাঞ্জাবি, স্মার্ট ক্যাজুয়াল শার্ট এবং ফেস্টিভাল লুক। দ্রুত চেকআউট, হোয়াটসঅ্যাপ সাপোর্ট এবং SUMONIX AI সহায়তা সহ নির্ভয়ে শপ করুন।"
-              : "Premium Panjabi, smart casual shirts, and perfect festival looks. Shop confidently with fast checkout, WhatsApp support, and intelligent SUMONIX AI assistance."}
+              ? "প্রিমিয়াম পাঞ্জাবি, স্মার্ট পোলো শার্ট, স্লিম ফিট প্যান্ট এবং কিউবান কলার শার্ট। ঈদের জন্য বাছাই করা সেরা কালেকশন।"
+              : "Premium Panjabi, smart polo shirts, slim fit pants, and Cuban collar shirts. Curated exclusively for Eid celebrations."}
           </p>
 
+          {/* Trust chips */}
           <div className="mt-5 flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
-              {isBn ? "⭐ 4.8/5 কাস্টমার রেটিং" : "⭐ 4.8/5 Customer Rating"}
-            </span>
-            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
-              {isBn ? "🚚 সারা দেশে দ্রুত ডেলিভারি" : "🚚 Fast Delivery Nationwide"}
-            </span>
-            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
-              {isBn ? "💳 bKash + COD চালু" : "💳 bKash + COD Available"}
-            </span>
+            {chips.map((chip) => (
+              <span
+                key={chip.en}
+                className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90"
+              >
+                {isBn ? chip.bn : chip.en}
+              </span>
+            ))}
           </div>
 
+          {/* CTAs */}
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <a
               href="#products"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 text-base font-bold text-slate-900 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-400"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 text-base font-extrabold text-slate-900 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-400"
             >
-              {isBn ? "🛍️ এখনই শপ করুন" : "🛍️ Shop Now"}
+              {isBn ? "🛍️ কালেকশন দেখুন" : "🛍️ Shop Collection"}
             </a>
-
-            <a
-              href="/checkout"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/60 bg-white/10 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/20"
-            >
-              {isBn ? "✅ ঈদের জন্য অর্ডার করুন" : "✅ Order For Eid"}
-            </a>
-
             <a
               href={waLink}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-emerald-300/70 bg-emerald-500/20 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500/35"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-emerald-400/60 bg-emerald-500/20 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500/35"
             >
-              {isBn ? "💬 হোয়াটসঅ্যাপ চ্যাট" : "💬 WhatsApp Chat"}
+              {isBn ? "💬 WhatsApp অর্ডার" : "💬 WhatsApp Order"}
             </a>
+            <a
+              href="/checkout"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/25 bg-white/10 px-7 py-3.5 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/20"
+            >
+              {isBn ? "✅ চেকআউট" : "✅ Checkout"}
+            </a>
+          </div>
+        </div>
+
+        {/* RIGHT: Countdown + collection grid */}
+        <div className="flex flex-col gap-4">
+          {/* Countdown card */}
+          <div className="rounded-3xl border border-white/15 bg-white/[0.08] p-5 backdrop-blur">
+            <p className="text-center text-[11px] font-bold uppercase tracking-[0.25em] text-amber-300">
+              {isBn ? "🌙 ঈদ কাউন্টডাউন" : "🌙 Eid Countdown"}
+            </p>
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {cdUnits.map((unit) => (
+                <div
+                  key={unit.en}
+                  className="flex flex-col items-center rounded-2xl border border-white/15 bg-black/20 py-3"
+                >
+                  <span className="text-2xl font-extrabold tabular-nums text-white sm:text-3xl">
+                    {pad(unit.v)}
+                  </span>
+                  <span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/55">
+                    {isBn ? unit.bn : unit.en}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Collection highlights */}
+          <div className="grid grid-cols-2 gap-2">
+            {collection.map((item) => (
+              <div
+                key={item.en}
+                className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.08] px-3.5 py-3 backdrop-blur"
+              >
+                <span className="text-xl">{item.icon}</span>
+                <span className="text-xs font-semibold text-white/90">
+                  {isBn ? item.bn : item.en}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
