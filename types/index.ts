@@ -14,6 +14,7 @@ export type Product = {
   id: string;
   name: string;
   price: number;
+  original_price?: number;
   category: string;
   sizes: string[];
   image_url: string;
@@ -21,6 +22,8 @@ export type Product = {
   stock_quantity?: number;
   is_featured?: boolean;
   campaign_badge?: string | null;
+  has_video?: boolean;
+  video_url?: string | null;
   created_at: string;
 };
 
