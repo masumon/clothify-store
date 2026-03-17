@@ -289,33 +289,37 @@ export default function Header({
 
       {menuOpen && (
         <div className="border-t border-slate-200/80 bg-white/90 px-4 pb-4 pt-3 backdrop-blur lg:hidden">
-          <div className="mb-3 flex items-center gap-2">
+          <div className="mb-3 flex items-center justify-center gap-2.5">
             <button
               type="button"
               onClick={toggleLanguage}
-              className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-base font-bold text-slate-700 transition hover:bg-slate-50"
+              aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
+              title={uiLang === "bn" ? "BN → EN" : "EN → BN"}
             >
-              {uiLang === "bn" ? "BN" : "EN"}
+              🌐
             </button>
             <button
               type="button"
               onClick={toggleTheme}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50"
               aria-label="Toggle dark mode"
+              title="Toggle theme"
             >
-              <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
+              <span className="text-lg leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
             </button>
             <a
               href={whatsappLink}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-white transition hover:bg-emerald-700"
+              aria-label="WhatsApp"
+              title="WhatsApp"
             >
-              <span className="text-sm leading-none">💬</span>
-              {isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp"}
+              <span className="text-lg leading-none">💬</span>
             </a>
           </div>
-          <nav className="grid grid-cols-2 gap-2">
+          <nav className="flex flex-wrap items-center justify-center gap-2.5">
             {mobileMenuItems.map((item) => {
               const active =
                 pathname === item.href ||
@@ -326,12 +330,13 @@ export default function Header({
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${item.color} ${
-                    active ? "ring-2 ring-teal-300/60" : ""
+                  className={`inline-flex h-12 w-12 items-center justify-center rounded-full border transition ${item.color} ${
+                    active ? "ring-2 ring-teal-400/70 ring-offset-1" : ""
                   }`}
+                  aria-label={item.label}
+                  title={item.label}
                 >
-                  <span className="text-base leading-none">{item.icon}</span>
-                  <span>{item.label}</span>
+                  <span className="text-xl leading-none">{item.icon}</span>
                 </Link>
               );
             })}
