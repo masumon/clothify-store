@@ -151,6 +151,7 @@ export default function Header({
   ];
 
   const mobileMenuItems = navItems;
+  const iconBtnClass = "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100";
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/70 bg-white/80 backdrop-blur-xl">
@@ -180,7 +181,7 @@ export default function Header({
           </div>
         </Link>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-1.5 md:flex lg:gap-2">
           {/* Search */}
           {searchOpen ? (
             <form onSubmit={handleSearch} className="flex items-center gap-1.5">
@@ -205,7 +206,7 @@ export default function Header({
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100"
+              className={iconBtnClass}
               aria-label="Search products"
               title="Search"
             >
@@ -216,16 +217,17 @@ export default function Header({
           <button
             type="button"
             onClick={toggleLanguage}
-            className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100"
+            className={iconBtnClass}
             aria-label="Toggle language"
+            title={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
           >
-            {uiLang === "bn" ? "BN" : "EN"}
+            🌐
           </button>
 
           <button
             type="button"
             onClick={toggleTheme}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100"
+            className={iconBtnClass}
             aria-label="Toggle dark mode"
             title="Toggle dark mode"
           >
@@ -235,7 +237,7 @@ export default function Header({
           {/* Wishlist */}
           <Link
             href="/wishlist"
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100"
+            className={`relative ${iconBtnClass}`}
             aria-label="Wishlist"
             title="Wishlist"
           >
@@ -249,7 +251,7 @@ export default function Header({
 
           <Link
             href="/cart"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100"
+            className={iconBtnClass}
             aria-label="Go to cart"
             title="Cart"
           >
@@ -260,14 +262,15 @@ export default function Header({
             href={whatsappLink}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-base text-white transition hover:bg-emerald-700"
+            aria-label="WhatsApp"
+            title="WhatsApp"
           >
             <span className="text-sm leading-none">💬</span>
-            {isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp"}
           </a>
         </div>
 
-        <nav className="hidden items-center gap-2 lg:flex">
+        <nav className="hidden items-center gap-1.5 lg:flex lg:gap-2">
           {navItems.map((item) => {
             const active =
               pathname === item.href ||
@@ -277,12 +280,13 @@ export default function Header({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition ${item.color} ${
+                title={item.label}
+                aria-label={item.label}
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-base transition ${item.color} ${
                   active ? "ring-2 ring-teal-300/60" : ""
                 }`}
               >
                 <span className="text-base leading-none">{item.icon}</span>
-                <span>{item.label}</span>
               </Link>
             );
           })}
