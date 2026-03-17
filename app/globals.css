@@ -50,9 +50,14 @@ html.dark-theme .surface-card {
 
 html.dark-theme .bg-white,
 html.dark-theme .bg-white\/90,
-html.dark-theme .bg-white\/80 {
+html.dark-theme .bg-white\/80,
+html.dark-theme .bg-white\/95 {
   background-color: rgba(15, 23, 42, 0.94) !important;
 }
+
+/* Note: Semi-transparent bg-white/XX classes (like bg-white/10, bg-white/15, bg-white/5, etc.)
+   are NOT overridden here because they're used intentionally on dark gradient backgrounds
+   with white text for proper contrast. Only solid or mostly-opaque white backgrounds are darkened. */
 
 html.dark-theme .text-slate-900,
 html.dark-theme .text-slate-800,
@@ -74,9 +79,8 @@ html.dark-theme .bg-slate-200 {
   background-color: rgba(15, 23, 42, 0.8) !important;
 }
 
-html.dark-theme [class*="bg-white"] {
-  background-color: rgba(15, 23, 42, 0.94) !important;
-}
+/* Removed overly aggressive wildcard selector that was breaking semi-transparent backgrounds */
+/* Semi-transparent bg-white/XX classes are intentionally used on dark backgrounds and should NOT be overridden */
 
 html.dark-theme [class*="border-slate-"] {
   border-color: var(--line) !important;
@@ -117,6 +121,9 @@ html.dark-theme option {
 .admin-shell .bg-slate-50 {
   background-color: rgba(17, 24, 39, 0.88) !important;
 }
+
+/* Semi-transparent white backgrounds (bg-white/10, bg-white/15, etc.) in admin are left untouched
+   as they may be used on dark backgrounds for frosted glass effects */
 
 .admin-shell .text-slate-900,
 .admin-shell .text-slate-800,
