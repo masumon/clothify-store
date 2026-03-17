@@ -6,21 +6,28 @@
   --surface: #f7f9fc;
   --surface-strong: #ffffff;
   --text: #0f172a;
+  --muted-text: #475569;
+  --line: rgba(148, 163, 184, 0.45);
   --brand: #0f766e;
   --brand-strong: #115e59;
+  color-scheme: light;
 }
 
 html.dark-theme {
   --surface: #0b1220;
   --surface-strong: #111827;
   --text: #e5e7eb;
+  --muted-text: #cbd5e1;
+  --line: rgba(71, 85, 105, 0.9);
   --brand: #14b8a6;
   --brand-strong: #0d9488;
+  color-scheme: dark;
 }
 
 body {
   color: var(--text);
   font-family: var(--font-ui), var(--font-bn), "Segoe UI", sans-serif;
+  background-color: var(--surface);
   background:
     radial-gradient(1000px 500px at 0% -10%, rgba(16, 185, 129, 0.2), transparent 55%),
     radial-gradient(850px 400px at 100% 0%, rgba(14, 165, 233, 0.18), transparent 50%),
@@ -51,7 +58,8 @@ html.dark-theme .text-slate-900,
 html.dark-theme .text-slate-800,
 html.dark-theme .text-slate-700,
 html.dark-theme .text-slate-600,
-html.dark-theme .text-slate-500 {
+html.dark-theme .text-slate-500,
+html.dark-theme .text-slate-400 {
   color: #e5e7eb !important;
 }
 
@@ -61,8 +69,21 @@ html.dark-theme .border-slate-300 {
 }
 
 html.dark-theme .bg-slate-50,
-html.dark-theme .bg-slate-100 {
+html.dark-theme .bg-slate-100,
+html.dark-theme .bg-slate-200 {
   background-color: rgba(15, 23, 42, 0.8) !important;
+}
+
+html.dark-theme [class*="bg-white"] {
+  background-color: rgba(15, 23, 42, 0.94) !important;
+}
+
+html.dark-theme [class*="border-slate-"] {
+  border-color: var(--line) !important;
+}
+
+html.dark-theme [class*="text-slate-"] {
+  color: var(--text) !important;
 }
 
 html.dark-theme input,
