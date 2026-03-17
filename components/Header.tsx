@@ -212,12 +212,40 @@ export default function Header({
               🔍
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100"
+            aria-label="Toggle language"
+          >
+            {uiLang === "bn" ? "BN" : "EN"}
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100"
             aria-label="Toggle dark mode"
             title="Toggle dark mode"
           >
             <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
           </button>
+
+          {/* Wishlist */}
+          <Link
+            href="/wishlist"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100"
+            aria-label="Wishlist"
+            title="Wishlist"
+          >
+            🤍
+            {wishlistCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-0.5 text-[9px] font-bold text-white">
+                {wishlistCount > 9 ? "9+" : wishlistCount}
+              </span>
+            )}
+          </Link>
 
           <Link
             href="/cart"
