@@ -4,6 +4,7 @@ import { Hind_Siliguri, Plus_Jakarta_Sans } from "next/font/google";
 import TrafficTracker from "@/components/TrafficTracker";
 import SumonixAIWidget from "@/components/SumonixAIWidget";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import PreferenceSync from "@/components/PreferenceSync";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -74,10 +75,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="bn">
+    <html lang="bn" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var d=document.documentElement;var rawLang=localStorage.getItem("clothfy-lang")||localStorage.getItem("clothify-language")||d.lang||"bn";var lang=rawLang==="en"?"en":"bn";localStorage.setItem("clothfy-lang",lang);localStorage.setItem("clothify-language",lang);d.lang=lang;var rawTheme=localStorage.getItem("clothfy-theme")||localStorage.getItem("clothify-theme")||"system";var theme=(rawTheme==="light"||rawTheme==="dark"||rawTheme==="system")?rawTheme:"system";var dark=theme==="dark"||(theme==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);localStorage.setItem("clothfy-theme",theme);localStorage.setItem("clothify-theme",theme);d.setAttribute("data-theme",theme);d.classList.toggle("dark-theme",dark);d.classList.toggle("text-size-large",localStorage.getItem("clothify-text-size")==="large");d.classList.toggle("high-contrast",localStorage.getItem("clothify-contrast")==="high");d.classList.toggle("reduce-motion",localStorage.getItem("clothify-motion")==="reduced");}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
-        className={`${plusJakarta.variable} ${hindSiliguri.variable} bg-gray-100 text-slate-900 antialiased`}
+        className={`${plusJakarta.variable} ${hindSiliguri.variable} antialiased`}
       >
+        <PreferenceSync />
         <TrafficTracker />
         <SumonixAIWidget />
         <PWAInstallPrompt />
