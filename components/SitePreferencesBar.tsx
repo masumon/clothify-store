@@ -31,6 +31,16 @@ function emitPreferenceChange() {
   window.dispatchEvent(new Event("clothfy-preferences-change"));
 }
 
+function saveTheme(theme: Theme) {
+  localStorage.setItem(THEME_KEY, theme);
+  localStorage.setItem("clothify-theme", theme);
+}
+
+function saveLanguage(language: Language) {
+  localStorage.setItem(LANGUAGE_KEY, language);
+  localStorage.setItem("clothify-language", language);
+}
+
 function applyLanguage(language: Language) {
   document.documentElement.lang = language;
 }
@@ -123,7 +133,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
         const normalizedLanguage = savedLanguage.toLowerCase() as Language;
         setLanguage(normalizedLanguage);
         applyLanguage(normalizedLanguage);
-        localStorage.setItem(LANGUAGE_KEY, normalizedLanguage);
+        saveLanguage(normalizedLanguage);
       }
     };
 
@@ -151,7 +161,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     const nextTheme: Theme =
       theme === "system" ? "light" : theme === "light" ? "dark" : "system";
     setTheme(nextTheme);
-    localStorage.setItem(THEME_KEY, nextTheme);
+    saveTheme(nextTheme);
     applyTheme(nextTheme);
     emitPreferenceChange();
   };
@@ -159,7 +169,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
   const toggleLanguage = () => {
     const nextLanguage: Language = language === "en" ? "bn" : "en";
     setLanguage(nextLanguage);
-    localStorage.setItem(LANGUAGE_KEY, nextLanguage);
+    saveLanguage(nextLanguage);
     applyLanguage(nextLanguage);
     emitPreferenceChange();
   };
@@ -207,8 +217,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     setContrast(defaultContrast);
     setMotion(defaultMotion);
 
-    localStorage.setItem(THEME_KEY, defaultTheme);
-    localStorage.setItem(LANGUAGE_KEY, defaultLanguage);
+    saveTheme(defaultTheme);
+    saveLanguage(defaultLanguage);
     localStorage.setItem(TEXT_SIZE_KEY, defaultTextSize);
     localStorage.setItem(CONTRAST_KEY, defaultContrast);
     localStorage.setItem(MOTION_KEY, defaultMotion);
@@ -270,8 +280,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
       setContrast(defaultContrast);
       setMotion(defaultMotion);
 
-      localStorage.setItem(THEME_KEY, defaultTheme);
-      localStorage.setItem(LANGUAGE_KEY, defaultLanguage);
+      saveTheme(defaultTheme);
+      saveLanguage(defaultLanguage);
       localStorage.setItem(TEXT_SIZE_KEY, defaultTextSize);
       localStorage.setItem(CONTRAST_KEY, defaultContrast);
       localStorage.setItem(MOTION_KEY, defaultMotion);
@@ -299,8 +309,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
       setContrast(nextContrast);
       setMotion(nextMotion);
 
-      localStorage.setItem(THEME_KEY, nextTheme);
-      localStorage.setItem(LANGUAGE_KEY, nextLanguage);
+      saveTheme(nextTheme);
+      saveLanguage(nextLanguage);
       localStorage.setItem(TEXT_SIZE_KEY, nextTextSize);
       localStorage.setItem(CONTRAST_KEY, nextContrast);
       localStorage.setItem(MOTION_KEY, nextMotion);
@@ -327,8 +337,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     setContrast(nextContrast);
     setMotion(nextMotion);
 
-    localStorage.setItem(THEME_KEY, nextTheme);
-    localStorage.setItem(LANGUAGE_KEY, nextLanguage);
+    saveTheme(nextTheme);
+    saveLanguage(nextLanguage);
     localStorage.setItem(TEXT_SIZE_KEY, nextTextSize);
     localStorage.setItem(CONTRAST_KEY, nextContrast);
     localStorage.setItem(MOTION_KEY, nextMotion);

@@ -40,7 +40,7 @@ export default function Header({
   useEffect(() => {
     const syncPreferences = () => {
       const savedLang = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
-      const savedTheme = localStorage.getItem("clothfy-theme") || "system";
+      const savedTheme = localStorage.getItem("clothfy-theme") || localStorage.getItem("clothify-theme") || "system";
 
       if (savedLang === "en" || savedLang === "bn") {
         setUiLang(savedLang);
@@ -50,6 +50,7 @@ export default function Header({
         setUiLang(normalized);
         document.documentElement.lang = normalized;
         localStorage.setItem("clothfy-lang", normalized);
+        localStorage.setItem("clothify-language", normalized);
       }
 
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -74,6 +75,7 @@ export default function Header({
     const nextLang: "en" | "bn" = uiLang === "bn" ? "en" : "bn";
     setUiLang(nextLang);
     localStorage.setItem("clothfy-lang", nextLang);
+    localStorage.setItem("clothify-language", nextLang);
     document.documentElement.lang = nextLang;
     window.dispatchEvent(new Event("clothfy-preferences-change"));
   };
@@ -82,6 +84,7 @@ export default function Header({
     const nextDark = !isDarkMode;
     setIsDarkMode(nextDark);
     localStorage.setItem("clothfy-theme", nextDark ? "dark" : "light");
+    localStorage.setItem("clothify-theme", nextDark ? "dark" : "light");
     document.documentElement.classList.toggle("dark-theme", nextDark);
     window.dispatchEvent(new Event("clothfy-preferences-change"));
   };

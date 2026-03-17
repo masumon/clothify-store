@@ -41,7 +41,7 @@ export default function HomeHero({
 
   useEffect(() => {
     const syncLang = () => {
-      const saved = localStorage.getItem("clothfy-lang");
+      const saved = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
       if (saved === "en" || saved === "bn") {
         setLang(saved);
       }
