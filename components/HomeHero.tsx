@@ -8,6 +8,21 @@ type Props = {
   whatsappNumber?: string;
 };
 
+type Countdown = { days: number; hours: number; minutes: number; seconds: number };
+
+const EID_DATE = new Date("2026-03-30T00:00:00+06:00");
+
+function calcCountdown(target: Date): Countdown {
+  const diff = target.getTime() - Date.now();
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  return {
+    days: Math.floor(diff / 864e5),
+    hours: Math.floor((diff % 864e5) / 36e5),
+    minutes: Math.floor((diff % 36e5) / 6e4),
+    seconds: Math.floor((diff % 6e4) / 1e3),
+  };
+}
+
 function normalizeBangladeshWhatsAppNumber(phone: string) {
   const digits = phone.replace(/\D/g, "");
   if (!digits) return "8801811314262";
