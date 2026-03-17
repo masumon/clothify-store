@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/", icon: "🏠", label: "হোম", external: false },
+  { href: "/categories", icon: "🧭", label: "ক্যাটাগরি", external: false },
+  { href: "/offers", icon: "🏷️", label: "অফার", external: false },
   { href: "/cart", icon: "🛒", label: "কার্ট", external: false },
-  { href: "/checkout", icon: "✅", label: "অর্ডার", external: false },
-  { href: "/payment", icon: "💳", label: "পেমেন্ট", external: false },
-  { href: "https://wa.me/8801811314262", icon: "💬", label: "সাপোর্ট", external: true },
+  { href: "/profile", icon: "👤", label: "প্রোফাইল", external: false },
+  { href: "/help", icon: "💬", label: "হেল্প", external: false },
 ];
 
 export default function MobileStickyBar() {
@@ -16,7 +17,7 @@ export default function MobileStickyBar() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">
-      <div className="grid grid-cols-5 gap-1 px-1 py-1.5">
+      <div className="grid grid-cols-6 gap-1 px-1 py-1.5">
         {items.map((item) => {
           const active =
             !item.external &&

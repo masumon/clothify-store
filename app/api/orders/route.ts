@@ -66,7 +66,7 @@ const OrderSchema = z.object({
     .enum(["Home Delivery", "Pickup", "Store Pickup"] as const)
     .transform((v) => (v === "Store Pickup" ? "Pickup" : v)),
   courier_name: z.enum(allowedCouriers).optional().default("Pathao"),
-  payment_method: z.enum(["bKash", "Cash on Delivery"] as const).default("bKash"),
+  payment_method: z.enum(["bKash", "Nagad", "Cash on Delivery"] as const).default("bKash"),
   total_amount: z
     .number()
     .positive("Total amount must be positive")
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
         ? `COD-${Date.now().toString(36).toUpperCase()}`
         : normalizedTrx;
 
-    if (payment_method === "bKash" && !TRX_RE.test(normalizedTrx)) {
+    if ((payment_method === "bKash" || payment_method === "Nagad") && !TRX_RE.test(normalizedTrx)) {
       return NextResponse.json(
         { error: "Transaction ID must be 6-20 alphanumeric characters" },
         { status: 400 }
@@ -130,9 +130,17 @@ export async function POST(req: Request) {
       }
     }
 
-    const supabase = getSupabaseAdminClient();
+    let supabase;
+    try {
+      supabase = getSupabaseAdminClient();
+    } catch {
+      return NextResponse.json(
+        { error: "Order service is temporarily unavailable. Please try again later." },
+        { status: 503 }
+      );
+    }
 
-    if (payment_method === "bKash") {
+    if (payment_method === "bKash" || payment_method === "Nagad") {
       const { data: existingTrx } = await supabase
         .from("orders")
         .select("id")
@@ -170,8 +178,10 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ id: data?.id }, { status: 201 });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unexpected error";
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: "Unable to place order right now. Please try again." },
+      { status: 500 }
+    );
   }
 }

@@ -110,6 +110,18 @@ export default function Header({
       color: "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100",
     },
     {
+      href: "/categories",
+      label: isBn ? "ক্যাটাগরি" : "Categories",
+      icon: "🧭",
+      color: "border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
+    },
+    {
+      href: "/offers",
+      label: isBn ? "অফার" : "Offers",
+      icon: "🏷️",
+      color: "border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100",
+    },
+    {
       href: "/cart",
       label: isBn ? "কার্ট" : "Cart",
       icon: "🛒",
@@ -122,10 +134,22 @@ export default function Header({
       color: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
     },
     {
-      href: "/admin/login",
-      label: isBn ? "অ্যাডমিন" : "Admin",
-      icon: "🔒",
-      color: "border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200",
+      href: "/profile",
+      label: isBn ? "প্রোফাইল" : "Profile",
+      icon: "👤",
+      color: "border-indigo-200 bg-indigo-50 text-indigo-900 hover:bg-indigo-100",
+    },
+    {
+      href: "/help",
+      label: isBn ? "হেল্প" : "Help",
+      icon: "💬",
+      color: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
+    },
+    {
+      href: "/size-guide",
+      label: isBn ? "সাইজ গাইড" : "Size Guide",
+      icon: "📏",
+      color: "border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100",
     },
     {
       href: "/settings",

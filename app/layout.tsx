@@ -5,6 +5,7 @@ import TrafficTracker from "@/components/TrafficTracker";
 import SumonixAIWidget from "@/components/SumonixAIWidget";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PreferenceSync from "@/components/PreferenceSync";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -90,6 +91,7 @@ export default function RootLayout({
         <TrafficTracker />
         <SumonixAIWidget />
         <PWAInstallPrompt />
+        <FloatingWhatsApp />
         {children}
       </body>
     </html>

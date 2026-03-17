@@ -1,20 +1,7 @@
 import Header from "@/components/Header";
-import ProductCard from "@/components/ProductCard";
 import Footer from "@/components/Footer";
-import SearchAndFilter from "@/components/SearchAndFilter";
-import HomeHero from "@/components/HomeHero";
-import HomeCategoryBar from "@/components/HomeCategoryBar";
-import HomeHighlights from "@/components/HomeHighlights";
-import SectionHeader from "@/components/SectionHeader";
-import HomeQuickActions from "@/components/HomeQuickActions";
-import FindYourFitSection from "@/components/FindYourFitSection";
 import MobileStickyBar from "@/components/MobileStickyBar";
-import HomePromoStrip from "@/components/HomePromoStrip";
-import FeaturedCollection from "@/components/FeaturedCollection";
-import HomeSectionDivider from "@/components/HomeSectionDivider";
-import BestSellerStrip from "@/components/BestSellerStrip";
-import TrustBadges from "@/components/TrustBadges";
-import EidCampaignSection from "@/components/EidCampaignSection";
+import UpazilaHomepageV2 from "@/components/UpazilaHomepageV2";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const revalidate = 60;
@@ -44,68 +31,13 @@ export default async function Home({
       />
 
       <section className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
-        <HomeHero
-          storeName={settings?.store_name || "Clothify"}
-          slogan={settings?.slogan || "Find Your Fit"}
+        <UpazilaHomepageV2
+          products={products}
+          categories={categories}
+          activeCategory={activeCategory}
+          activeSearch={activeSearch}
           whatsappNumber={settings?.whatsapp_number || "8801811314262"}
         />
-
-        <HomeQuickActions whatsapp={settings?.whatsapp_number || ""} />
-
-        <FindYourFitSection />
-
-        <EidCampaignSection />
-
-        <HomePromoStrip />
-
-        <FeaturedCollection />
-
-        <BestSellerStrip />
-
-        <HomeSectionDivider />
-
-        <TrustBadges />
-
-        <HomeHighlights />
-
-        <div className="surface-card p-4 sm:p-5">
-          <SearchAndFilter categories={categories} />
-          <HomeCategoryBar
-            categories={categories}
-            activeCategory={activeCategory}
-            activeSearch={activeSearch}
-          />
-        </div>
-
-        <div id="products" className="mt-10">
-          <SectionHeader
-            icon="🧥"
-            title="Latest Products"
-            subtitle="Explore your collection with better browsing, category shortcuts, and a polished shopping experience."
-            rightText={`${products.length} item(s) found`}
-          />
-
-          {products.length === 0 ? (
-            <div className="surface-card p-10 text-center">
-              <h4 className="text-lg font-bold text-slate-900">
-                No products found
-              </h4>
-              <p className="mt-2 text-sm text-slate-500">
-                Try another search term or category.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-              {products.map((product: any) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  whatsappNumber={settings?.whatsapp_number || "8801811314262"}
-                />
-              ))}
-            </div>
-          )}
-        </div>
       </section>
 
       <Footer

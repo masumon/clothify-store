@@ -1,0 +1,31 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
+type Props = {
+  phone?: string;
+};
+
+export default function FloatingWhatsApp({ phone = "8801811314262" }: Props) {
+  const pathname = usePathname();
+
+  const hiddenRoutes = ["/help", "/admin/login"];
+  if (hiddenRoutes.some((r) => pathname.startsWith(r))) return null;
+
+  const message = encodeURIComponent("ভাই, একটা product নিয়ে help লাগবে।");
+  const link = `https://wa.me/${phone}?text=${message}`;
+
+  return (
+    <a
+      href={link}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="WhatsApp Help"
+      className={`fixed right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-xl text-white shadow-lg transition hover:bg-emerald-700 ${
+        pathname.startsWith("/checkout") ? "bottom-28" : "bottom-20 md:bottom-6"
+      }`}
+    >
+      💬
+    </a>
+  );
+}

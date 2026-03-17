@@ -4,15 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
-  { href: "/", icon: "🏠", label: "Shop", external: false },
+  { href: "/", icon: "🏠", label: "হোম", external: false },
+  { href: "/categories", icon: "🧭", label: "ক্যাটাগরি", external: false },
+  { href: "/offers", icon: "🏷️", label: "অফার", external: false },
   { href: "/cart", icon: "🛒", label: "Cart", external: false },
-  { href: "/checkout", icon: "✅", label: "Checkout", external: false },
-  { href: "/settings", icon: "⚙️", label: "Settings", external: false },
+  { href: "/profile", icon: "👤", label: "প্রোফাইল", external: false },
   {
-    href: "https://wa.me/8801811314262",
+    href: "/help",
     icon: "💬",
-    label: "Support",
-    external: true,
+    label: "হেল্প",
+    external: false,
   },
 ];
 
@@ -21,7 +22,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white md:hidden">
-      <div className="flex gap-1 overflow-x-auto px-1 py-1.5">
+      <div className="grid grid-cols-6 gap-1 px-1 py-1.5">
         {items.map((item) => {
           const active =
             !item.external &&

@@ -5,6 +5,8 @@ import { clearCart, getCart } from "@/lib/cart";
 import { CartItem } from "@/types";
 
 const INVOICE_STORAGE_KEY = "clothify-latest-invoice";
+const PROFILE_STORAGE_KEY = "clothify-profile";
+const CHECKOUT_DRAFT_KEY = "clothify-checkout-draft";
 
 type CheckoutFormProps = {
   storeName?: string;
@@ -22,11 +24,55 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
   const [submitting, setSubmitting] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [startedAt, setStartedAt] = useState(Date.now());
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     setCart(getCart());
     setStartedAt(Date.now());
+
+    try {
+      const rawProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
+      if (rawProfile) {
+        const profile = JSON.parse(rawProfile);
+        setCustomerName(profile.name || "");
+        setPhone(profile.phone || "");
+        setAddress(profile.address || "");
+      }
+    } catch {
+      // Ignore invalid profile cache.
+    }
+
+    try {
+      const rawDraft = localStorage.getItem(CHECKOUT_DRAFT_KEY);
+      if (rawDraft) {
+        const d = JSON.parse(rawDraft);
+        setCustomerName(d.customerName || "");
+        setPhone(d.phone || "");
+        setAddress(d.address || "");
+        setDeliveryMethod(d.deliveryMethod || "Home Delivery");
+        setCourierName(d.courierName || "Pathao");
+        setPaymentMethod(d.paymentMethod || "bKash");
+        setTrxId(d.trxId || "");
+      }
+    } catch {
+      // Ignore invalid draft.
+    }
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const draft = {
+      customerName,
+      phone,
+      address,
+      deliveryMethod,
+      courierName,
+      paymentMethod,
+      trxId,
+      updatedAt: Date.now(),
+    };
+    localStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(draft));
+  }, [customerName, phone, address, deliveryMethod, courierName, paymentMethod, trxId]);
 
   const total = useMemo(() => {
     return cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
@@ -40,8 +86,8 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       return;
     }
 
-    if (paymentMethod === "bKash" && !trxId.trim()) {
-      alert("Please provide your bKash Transaction ID");
+    if ((paymentMethod === "bKash" || paymentMethod === "Nagad") && !trxId.trim()) {
+      alert("Please provide your payment Transaction ID");
       return;
     }
 
@@ -52,12 +98,17 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
 
     try {
       setSubmitting(true);
+      setSubmitError("");
+
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 20000);
 
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           customer_name: customerName,
           phone,
@@ -71,6 +122,7 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
           client_started_at: startedAt,
         }),
       });
+      window.clearTimeout(timeoutId);
 
       const result = await response.json();
       if (!response.ok) {
@@ -98,10 +150,13 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       }
 
       clearCart();
+      localStorage.removeItem(CHECKOUT_DRAFT_KEY);
       window.location.href = "/order-success";
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Failed to place order";
-      alert(message);
+      setSubmitError(message.includes("aborted")
+        ? "Network timeout. Connection slow হতে পারে, আবার চেষ্টা করুন।"
+        : message);
     } finally {
       setSubmitting(false);
     }
@@ -111,16 +166,17 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
     <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Full Name"
-        value={customerName}
-        onChange={(e) => setCustomerName(e.target.value)}
+        placeholder="Phone Number *"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+        inputMode="numeric"
       />
       <input
         type="text"
-        placeholder="Phone Number"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Full Name *"
+        value={customerName}
+        onChange={(e) => setCustomerName(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
       />
       <textarea
@@ -165,22 +221,27 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
       >
         <option value="bKash">bKash</option>
+        <option value="Nagad">Nagad</option>
         <option value="Cash on Delivery">Cash on Delivery</option>
       </select>
 
-      {paymentMethod === "bKash" ? (
+      {paymentMethod === "bKash" || paymentMethod === "Nagad" ? (
         <input
           type="text"
-          placeholder="bKash Transaction ID"
+          placeholder={`${paymentMethod} Transaction ID`}
           value={trxId}
           onChange={(e) => setTrxId(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
         />
       ) : (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-          Cash on Delivery selected. Pay to courier at delivery time.
+          COD selected. Product receive করার সময় courier-কে payment করুন।
         </div>
       )}
+
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+        ✅ COD Available • 💳 bKash/Nagad supported • 🔁 7 days exchange support
+      </div>
 
       <input
         type="text"
@@ -204,6 +265,19 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       >
         {submitting ? "Placing Order..." : "Place Order"}
       </button>
+
+      {submitting ? (
+        <p className="text-xs font-medium text-slate-500">
+          Payment/Order processing... দয়া করে page close করবেন না।
+        </p>
+      ) : null}
+
+      {submitError ? (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+          {submitError}
+          <p className="mt-1 text-xs">Retry করুন বা WhatsApp support নিন।</p>
+        </div>
+      ) : null}
     </form>
   );
 }
