@@ -13,6 +13,7 @@ export default function CheckoutForm() {
   const [trxId, setTrxId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cart, setCart] = useState<any[]>([]);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
     setCart(getCart());
@@ -21,6 +22,7 @@ export default function CheckoutForm() {
       setCustomerName(profile.name);
       setPhone(profile.phone);
       setAddress(profile.address);
+      setProfileLoaded(true);
     }
   }, []);
 
@@ -64,6 +66,14 @@ export default function CheckoutForm() {
 
   return (
     <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+      {profileLoaded && (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          Pre-filled from your saved profile.{" "}
+          <a href="/profile" className="font-medium text-slate-900 underline">
+            Edit profile →
+          </a>
+        </div>
+      )}
       <input
         type="text"
         placeholder="Full Name"
