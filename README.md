@@ -6,8 +6,25 @@ Features
 
 - Dynamic products
 - Checkout with bKash
-- Admin dashboard
+- **Secure Admin Dashboard with Authentication**
 - Supabase database
+- Multiple authentication methods (Username/Password, Google OAuth, OTP)
+
+## Admin Login Setup
+
+The admin panel is protected with comprehensive authentication. To get started:
+
+1. Copy `.env.example` to `.env.local`
+2. Set your admin credentials:
+   ```env
+   ADMIN_USERNAME=your_username
+   ADMIN_PASSWORD=your_secure_password
+   ```
+3. Restart the development server
+4. Access the admin panel at `/admin` - you'll be redirected to the login page
+5. Login with your credentials
+
+For complete documentation on admin authentication, see [ADMIN_LOGIN_GUIDE.md](./ADMIN_LOGIN_GUIDE.md)
 
 ## Migration (Required for Draft + Persistent Analytics)
 
