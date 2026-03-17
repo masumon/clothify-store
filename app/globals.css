@@ -59,6 +59,29 @@ html.dark-theme .bg-white\/95 {
    are NOT overridden here because they're used intentionally on dark gradient backgrounds
    with white text for proper contrast. Only solid or mostly-opaque white backgrounds are darkened. */
 
+/* Fix gradient stops that produce light/white backgrounds in dark mode.
+   HomePromoStrip uses from-emerald-50 to-white; FindYourFitSection uses from-white to-slate-50. */
+html.dark-theme .from-emerald-50 {
+  --tw-gradient-from: #1e293b;
+}
+
+html.dark-theme .from-white {
+  --tw-gradient-from: #0f172a;
+}
+
+html.dark-theme .to-white {
+  --tw-gradient-to: #0f172a;
+}
+
+html.dark-theme .to-slate-50 {
+  --tw-gradient-to: #1e293b;
+}
+
+/* Fix text-black used on buttons whose bg-white background is darkened in dark mode */
+html.dark-theme .text-black {
+  color: #e5e7eb !important;
+}
+
 html.dark-theme .text-slate-900,
 html.dark-theme .text-slate-800,
 html.dark-theme .text-slate-700,

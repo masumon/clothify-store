@@ -16,7 +16,7 @@ export default function BestSellerStrip() {
 
         <a
           href="#products"
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black transition hover:bg-slate-100"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-white dark:bg-slate-700 px-6 py-3 text-sm font-bold text-black dark:text-white transition hover:bg-slate-100 dark:hover:bg-slate-600"
         >
           🛍️ সব পণ্য দেখুন
         </a>

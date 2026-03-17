@@ -1,6 +1,6 @@
 export default function HomePromoStrip() {
   return (
-    <section className="mb-8 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white px-4 py-4 shadow-sm">
+    <section className="mb-8 rounded-2xl border border-emerald-200 dark:border-slate-700 bg-gradient-to-r from-emerald-50 to-white dark:from-slate-800 dark:to-slate-900 px-4 py-4 shadow-sm">
       <div className="flex flex-col gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
         <div>
           <h3 className="text-lg font-bold text-slate-900">
@@ -8,7 +8,7 @@ export default function HomePromoStrip() {
           </h3>
           <p className="mt-1 text-sm text-slate-600">
             Special Eid discounts, premium fashion, and fast bKash payment.{" "}
-            <span className="font-semibold text-emerald-700">Limited stock available!</span>
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Limited stock available!</span>
           </p>
         </div>
 

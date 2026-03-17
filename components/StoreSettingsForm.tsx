@@ -22,7 +22,7 @@ export default function StoreSettingsForm({ initialData }: Props) {
   const router = useRouter();
   const [storeName, setStoreName] = useState(initialData?.store_name || "");
   const [slogan, setSlogan] = useState(initialData?.slogan || "");
-  const [address, setAddress] = useState(initialData?.address || "https://maps.app.goo.gl/MMsDaaqabapaidU57");
+  const [address, setAddress] = useState(initialData?.address || "https://maps.app.goo.gl/L6T5PWURWudN89wR8?g_st=awb");
   const [contactPhone, setContactPhone] = useState(initialData?.contact_phone || "");
   const [whatsappNumber, setWhatsappNumber] = useState(initialData?.whatsapp_number || "");
   const [bkashNumber, setBkashNumber] = useState(initialData?.bkash_number || "");
