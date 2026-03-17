@@ -6,9 +6,7 @@ import { usePathname } from "next/navigation";
 const items = [
   { href: "/", icon: "🏠", label: "Shop", external: false },
   { href: "/cart", icon: "🛒", label: "Cart", external: false },
-  { href: "/fb", icon: "📣", label: "Landing", external: false },
   { href: "/checkout", icon: "✅", label: "Checkout", external: false },
-  { href: "/payment", icon: "💳", label: "Payment", external: false },
   { href: "/settings", icon: "⚙️", label: "Settings", external: false },
   {
     href: "https://wa.me/8801811314262",

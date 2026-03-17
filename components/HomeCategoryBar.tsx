@@ -29,6 +29,7 @@ export default function HomeCategoryBar({
       <div className="flex min-w-max gap-3 pb-2">
         <Link
           href={createUrl("All")}
+          scroll={false}
           className={`rounded-full px-4 py-2 text-sm font-medium transition ${
             !activeCategory || activeCategory === "All"
               ? "bg-[#0F172A] text-white"
@@ -45,6 +46,7 @@ export default function HomeCategoryBar({
             <Link
               key={category}
               href={createUrl(category)}
+              scroll={false}
               className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                 isActive
                   ? "bg-[#0F172A] text-white"

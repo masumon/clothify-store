@@ -56,9 +56,21 @@ export default function DeveloperCredit({
 }: Props) {
   const [showMap, setShowMap] = useState(false);
   const locationText = (storeAddress || address).trim();
-  const mapsQuery = encodeURIComponent(locationText);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
-  const mapsEmbedUrl = `https://www.google.com/maps?q=${mapsQuery}&output=embed`;
+
+  // Check if the location is already a Google Maps link
+  const isGoogleMapsLink = locationText.startsWith('http') &&
+    (locationText.includes('maps.google.com') ||
+     locationText.includes('maps.app.goo.gl') ||
+     locationText.includes('goo.gl/maps'));
+
+  // If it's a Google Maps link, use it directly, otherwise encode as a search query
+  const mapsUrl = isGoogleMapsLink ? locationText : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}`;
+
+  // For embedding, we need to extract location or use a placeholder
+  // Google Maps shortened links don't work well in iframes, so we keep the original encoding for non-link addresses
+  const mapsEmbedUrl = isGoogleMapsLink
+    ? locationText.replace('maps.app.goo.gl', 'www.google.com/maps/embed')
+    : `https://www.google.com/maps?q=${encodeURIComponent(locationText)}&output=embed`;
 
   return (
     <div className="mt-10 border-t border-white/10 pt-6">
