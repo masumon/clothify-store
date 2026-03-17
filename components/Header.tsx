@@ -122,18 +122,6 @@ export default function Header({
       color: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
     },
     {
-      href: "/payment",
-      label: isBn ? "পেমেন্ট" : "Payment",
-      icon: "💳",
-      color: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
-    },
-    {
-      href: "/fb",
-      label: isBn ? "ল্যান্ডিং" : "Landing",
-      icon: "📣",
-      color: "border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
-    },
-    {
       href: "/admin",
       label: isBn ? "অ্যাডমিন" : "Admin",
       icon: "🔒",
@@ -144,12 +132,6 @@ export default function Header({
       label: isBn ? "সেটিংস" : "Settings",
       icon: "⚙️",
       color: "border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100",
-    },
-    {
-      href: "/about",
-      label: isBn ? "আমাদের সম্পর্কে" : "About Us",
-      icon: "ℹ️",
-      color: "border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100",
     },
   ];
 
