@@ -15,7 +15,7 @@ export default function WishlistPage() {
   useEffect(() => {
     const refresh = () => setItems(getWishlist());
     const syncLang = () => {
-      const saved = localStorage.getItem("clothfy-lang");
+      const saved = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
       if (saved === "en" || saved === "bn") setLang(saved);
     };
 
