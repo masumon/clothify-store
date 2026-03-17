@@ -19,11 +19,7 @@ type Props = {
 
 function FacebookIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-4 w-4 fill-current"
-    >
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-current">
       <path d="M13.5 21v-7h2.4l.4-3h-2.8V9.3c0-.9.2-1.5 1.5-1.5h1.4V5.1c-.2 0-1-.1-2-.1-2 0-3.4 1.2-3.4 3.6V11H9v3h2v7h2.5z" />
     </svg>
   );
@@ -31,12 +27,25 @@ function FacebookIcon() {
 
 function MapPinIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-4 w-4 fill-current"
-    >
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-current">
       <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <polyline points="22,6 12,13 2,6"/>
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
     </svg>
   );
 }
@@ -57,117 +66,119 @@ export default function DeveloperCredit({
   const [showMap, setShowMap] = useState(false);
   const locationText = (storeAddress || address).trim();
 
-  // Check if the location is already a Google Maps link
-  const isGoogleMapsLink = locationText.startsWith('http') &&
-    (locationText.includes('maps.google.com') ||
-     locationText.includes('maps.app.goo.gl') ||
-     locationText.includes('goo.gl/maps'));
+  const isGoogleMapsLink = (() => {
+    try {
+      const url = new URL(locationText);
+      const { hostname } = url;
+      return (
+        hostname === "maps.google.com" ||
+        hostname === "maps.app.goo.gl" ||
+        hostname === "goo.gl"
+      );
+    } catch {
+      return false;
+    }
+  })();
 
-  // If it's a Google Maps link, use it directly, otherwise encode as a search query
-  const mapsUrl = isGoogleMapsLink ? locationText : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}`;
+  const mapsUrl = isGoogleMapsLink
+    ? locationText
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}`;
 
-  // For embedding, we need to extract location or use a placeholder
-  // Google Maps shortened links don't work well in iframes, so we keep the original encoding for non-link addresses
   const mapsEmbedUrl = isGoogleMapsLink
-    ? locationText.replace('maps.app.goo.gl', 'www.google.com/maps/embed')
+    ? locationText.replace("maps.app.goo.gl", "www.google.com/maps/embed")
     : `https://www.google.com/maps?q=${encodeURIComponent(locationText)}&output=embed`;
 
   return (
-    <div className="mt-10 border-t border-white/10 pt-6">
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
-            Developed & Managed By
+    <div className="mt-8 border-t border-white/10 pt-6">
+      <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+        Developed & Managed By
+      </p>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {/* Developer card */}
+        <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur">
+          <Image
+            src="/abo-logo.png"
+            alt="ABO Enterprise"
+            width={44}
+            height={44}
+            className="h-11 w-11 shrink-0 rounded-xl border border-white/20 object-cover"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold text-white">{name}</p>
+            <p className="truncate text-[11px] text-slate-400">{role}</p>
+            <p className="mt-0.5 text-[11px] font-semibold text-emerald-400">{business}</p>
+
+          <p className="mt-2 space-y-0.5 text-[10px] text-slate-500">
+            <span className="flex items-center gap-1 truncate"><MailIcon />{email1}</span>
+            <span className="flex items-center gap-1 truncate"><PhoneIcon />WhatsApp: {whatsapp}</span>
           </p>
 
-          <div className="mt-3 flex items-start gap-3">
-            <Image
-              src="/abo-logo.png"
-              alt="ABO Enterprise"
-              width={56}
-              height={56}
-              className="h-14 w-14 rounded-xl border border-white/20 object-cover shadow"
-            />
-
-            <div>
-              <h4 className="text-sm font-bold text-white">{name}</h4>
-              <p className="mt-0.5 text-xs text-slate-300">{role}</p>
-              <p className="mt-1 text-[11px] font-semibold tracking-wide text-emerald-300">
-                {business}
-              </p>
-            </div>
+            <a
+              href={developerFacebook}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-blue-300/30 bg-blue-500/10 px-2.5 py-1.5 text-[10px] font-semibold text-blue-200 transition hover:bg-blue-500/20"
+            >
+              <FacebookIcon />
+              Facebook
+            </a>
           </div>
-
-          <div className="mt-3 space-y-1 text-[11px] text-slate-400">
-            <p>{email1}</p>
-            <p>{email2}</p>
-            <p>WhatsApp: {whatsapp}</p>
-            <p>Phone: {phone}</p>
-          </div>
-
-          <a
-            href={developerFacebook}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-blue-300/40 bg-blue-500/15 px-4 py-2.5 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/30 sm:w-auto"
-          >
-            <FacebookIcon />
-            Developer Facebook
-          </a>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
-            Live Store Location
+        {/* Store location card */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur">
+          <p className="mb-1.5 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+            Store Location
           </p>
-          <p className="mt-2 text-xs leading-5 text-slate-300">{locationText}</p>
+          <p className="line-clamp-2 text-[11px] leading-5 text-slate-400">{locationText}</p>
 
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="mt-2 flex flex-wrap gap-1.5">
             <a
               href={mapsUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300/50 bg-emerald-400/15 px-4 py-2.5 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-400/30 sm:w-auto"
+              className="inline-flex items-center gap-1 rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-2.5 py-1.5 text-[10px] font-semibold text-emerald-200 transition hover:bg-emerald-400/20"
             >
               <MapPinIcon />
-              Google Maps Location
+              Maps
             </a>
-
             <a
               href={storeFacebook}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-blue-300/40 bg-blue-500/15 px-4 py-2.5 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/30 sm:w-auto"
+              className="inline-flex items-center gap-1 rounded-lg border border-blue-300/30 bg-blue-500/10 px-2.5 py-1.5 text-[10px] font-semibold text-blue-200 transition hover:bg-blue-500/20"
             >
               <FacebookIcon />
-              Shop Facebook Page
+              Shop Page
             </a>
+            {!showMap && (
+              <button
+                type="button"
+                onClick={() => setShowMap(true)}
+                className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300 transition hover:bg-white/5"
+              >
+                🗺️ Mini Map
+              </button>
+            )}
           </div>
 
-          {showMap ? (
-            <div className="mt-3 overflow-hidden rounded-xl border border-white/10">
+          {showMap && (
+            <div className="mt-2 overflow-hidden rounded-xl border border-white/10">
               <iframe
-                title="Store live location map"
+                title="Store location map"
                 src={mapsEmbedUrl}
                 width="100%"
-                height="170"
+                height="140"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="block"
               />
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowMap(true)}
-              className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
-            >
-              🗺️ Load Mini Map
-            </button>
           )}
         </div>
       </div>
     </div>
-
   );
 }
+

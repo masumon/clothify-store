@@ -122,7 +122,7 @@ export default function Header({
       color: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
     },
     {
-      href: "/admin",
+      href: "/admin/login",
       label: isBn ? "অ্যাডমিন" : "Admin",
       icon: "🔒",
       color: "border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200",
