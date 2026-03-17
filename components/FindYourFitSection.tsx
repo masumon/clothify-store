@@ -40,9 +40,9 @@ export default function FindYourFitSection() {
         {profiles.map((profile, index) => (
           <article
             key={profile.name}
-            className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4"
+            className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-4"
           >
-            <p className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-amber-700">
+            <p className="inline-flex rounded-full bg-amber-100 dark:bg-amber-900/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-amber-700 dark:text-amber-300">
               {profile.badge}
             </p>
             <h4 className="mt-3 text-xl font-extrabold text-slate-900">{profile.name}</h4>

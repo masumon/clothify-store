@@ -13,22 +13,22 @@ export default function HomeQuickActions({ whatsapp }: Props) {
     {
       href: "/",
       label: "🏠 হোম",
-      className: "bg-blue-50 border-blue-200 text-blue-900",
+      className: "bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300",
     },
     {
       href: "/cart",
       label: "🛒 কার্ট",
-      className: "bg-orange-50 border-orange-200 text-orange-900",
+      className: "bg-orange-50 border-orange-200 text-orange-900 dark:bg-orange-950/40 dark:border-orange-800/60 dark:text-orange-300",
     },
     {
       href: "/checkout",
       label: "✅ অর্ডার",
-      className: "bg-green-50 border-green-200 text-green-900",
+      className: "bg-green-50 border-green-200 text-green-900 dark:bg-green-950/40 dark:border-green-800/60 dark:text-green-300",
     },
     {
       href: waLink,
       label: "💬 সাপোর্ট",
-      className: "bg-emerald-50 border-emerald-200 text-emerald-900",
+      className: "bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800/60 dark:text-emerald-300",
       external: true,
     },
   ];

@@ -84,9 +84,20 @@ export default function DeveloperCredit({
     ? locationText
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}`;
 
-  const mapsEmbedUrl = isGoogleMapsLink
-    ? locationText.replace("maps.app.goo.gl", "www.google.com/maps/embed")
-    : `https://www.google.com/maps?q=${encodeURIComponent(locationText)}&output=embed`;
+  function buildMapsEmbedUrl(location: string, isGoogleLink: boolean): string {
+    if (!isGoogleLink) {
+      return `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`;
+    }
+    // Short links (maps.app.goo.gl) cannot be converted to embed URLs by domain replacement.
+    // Pass the short URL as a search query so Maps shows the nearest result.
+    if (location.includes("maps.app.goo.gl")) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(location)}&output=embed&hl=bn&z=15`;
+    }
+    // Full Google Maps share links: swap host to the embed endpoint.
+    return location.replace("maps.app.goo.gl", "www.google.com/maps/embed");
+  }
+
+  const mapsEmbedUrl = buildMapsEmbedUrl(locationText, isGoogleMapsLink);
 
   return (
     <div className="mt-8 border-t border-white/10 pt-6">
