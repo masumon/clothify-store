@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getSavedCurrency, saveCurrency, type Currency } from "@/lib/currency";
 
 type Theme = "light" | "dark" | "system";
 type Language = "en" | "bn";
@@ -13,6 +14,7 @@ const LANGUAGE_KEY = "clothfy-lang";
 const TEXT_SIZE_KEY = "clothify-text-size";
 const CONTRAST_KEY = "clothify-contrast";
 const MOTION_KEY = "clothify-motion";
+const CURRENCY_KEY = "clothfy-currency";
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
@@ -54,6 +56,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
   const [textSize, setTextSize] = useState<TextSize>("normal");
   const [contrast, setContrast] = useState<Contrast>("normal");
   const [motion, setMotion] = useState<Motion>("normal");
+  const [currency, setCurrency] = useState<Currency>("BDT");
   const [toast, setToast] = useState("");
 
   useEffect(() => {
@@ -86,11 +89,14 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
         ? savedMotion
         : "normal";
 
+    const resolvedCurrency: Currency = localStorage.getItem(CURRENCY_KEY) === "USD" ? "USD" : "BDT";
+
     setTheme(resolvedTheme);
     setLanguage(resolvedLanguage);
     setTextSize(resolvedTextSize);
     setContrast(resolvedContrast);
     setMotion(resolvedMotion);
+    setCurrency(resolvedCurrency);
     applyTheme(resolvedTheme);
     applyLanguage(resolvedLanguage);
     applyTextSize(resolvedTextSize);
@@ -182,6 +188,12 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     emitPreferenceChange();
   };
 
+  const toggleCurrency = () => {
+    const next: Currency = currency === "BDT" ? "USD" : "BDT";
+    setCurrency(next);
+    saveCurrency(next);
+  };
+
   const resetAllPreferences = () => {
     const defaultTheme: Theme = "system";
     const defaultLanguage: Language = "bn";
@@ -240,6 +252,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
   const motionLabel = isBn ? "মোশন" : "Motion";
   const motionValue =
     motion === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "কম" : "Reduced";
+  const currencyLabel = isBn ? "মুদ্রা" : "Currency";
+  const currencyValue = currency === "USD" ? "$ USD" : "৳ BDT";
   const resetLabel = isBn ? "সব সেটিংস রিসেট" : "Reset All Preferences";
 
   const applyPreset = (preset: "default" | "focus" | "readable") => {
@@ -338,7 +352,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
           </p>
         </div>
 
-        <div className="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+        <div className="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-10">
           <button
             type="button"
             onClick={() => applyPreset("default")}
@@ -381,6 +395,18 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
             className="rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
           >
             🌐 {languageLabel}: {languageValue}
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleCurrency}
+            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+              currency === "USD"
+                ? "border-emerald-300 bg-emerald-100 text-emerald-900 hover:bg-emerald-200"
+                : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
+            }`}
+          >
+            💱 {currencyLabel}: {currencyValue}
           </button>
 
           <button
