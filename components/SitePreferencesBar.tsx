@@ -352,105 +352,125 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
           </p>
         </div>
 
-        <div className="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-10">
+        <div className="grid w-full grid-cols-5 gap-2 sm:grid-cols-10">
           <button
             type="button"
             onClick={() => applyPreset("default")}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-slate-50 text-base transition hover:bg-slate-100"
+            aria-label={isBn ? "ডিফল্ট প্রিসেট" : "Default preset"}
+            title={isBn ? "ডিফল্ট প্রিসেট" : "Default preset"}
           >
-            🎯 {isBn ? "ডিফল্ট" : "Default"}
+            🎯
           </button>
 
           <button
             type="button"
             onClick={() => applyPreset("focus")}
-            className="rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-800 transition hover:bg-indigo-100"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-300 bg-indigo-50 text-base text-indigo-800 transition hover:bg-indigo-100"
+            aria-label={isBn ? "ফোকাস প্রিসেট" : "Focus preset"}
+            title={isBn ? "ফোকাস প্রিসেট" : "Focus preset"}
           >
-            🌙 {isBn ? "ফোকাস" : "Focus"}
+            🌙
           </button>
 
           <button
             type="button"
             onClick={() => applyPreset("readable")}
-            className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-300 bg-amber-50 text-base text-amber-800 transition hover:bg-amber-100"
+            aria-label={isBn ? "রিডেবল প্রিসেট" : "Readable preset"}
+            title={isBn ? "রিডেবল প্রিসেট" : "Readable preset"}
           >
-            🔎 {isBn ? "রিডেবল" : "Readable"}
+            🔎
           </button>
 
           <button
             type="button"
             onClick={toggleTheme}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
               theme === "dark"
                 ? "border-slate-700 bg-slate-800 text-white hover:bg-slate-700"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
+            aria-label={`${themeLabel}: ${themeValue}`}
+            title={`${themeLabel}: ${themeValue}`}
           >
-            {themeLabel}: {themeValue}
+            {theme === "dark" ? "🌙" : theme === "light" ? "☀️" : "🌓"}
           </button>
 
           <button
             type="button"
             onClick={toggleLanguage}
-            className="rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-slate-50 text-base text-slate-800 transition hover:bg-slate-100"
+            aria-label={`${languageLabel}: ${languageValue}`}
+            title={`${languageLabel}: ${languageValue}`}
           >
-            🌐 {languageLabel}: {languageValue}
+            🌐
           </button>
 
           <button
             type="button"
             onClick={toggleCurrency}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
               currency === "USD"
                 ? "border-emerald-300 bg-emerald-100 text-emerald-900 hover:bg-emerald-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
+            aria-label={`${currencyLabel}: ${currencyValue}`}
+            title={`${currencyLabel}: ${currencyValue}`}
           >
-            💱 {currencyLabel}: {currencyValue}
+            💱
           </button>
 
           <button
             type="button"
             onClick={toggleTextSize}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
               textSize === "large"
                 ? "border-indigo-300 bg-indigo-100 text-indigo-900 hover:bg-indigo-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
+            aria-label={`${textSizeLabel}: ${textSizeValue}`}
+            title={`${textSizeLabel}: ${textSizeValue}`}
           >
-            🔠 {textSizeLabel}: {textSizeValue}
+            🔠
           </button>
 
           <button
             type="button"
             onClick={toggleContrast}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
               contrast === "high"
                 ? "border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
+            aria-label={`${contrastLabel}: ${contrastValue}`}
+            title={`${contrastLabel}: ${contrastValue}`}
           >
-            🌓 {contrastLabel}: {contrastValue}
+            🌓
           </button>
 
           <button
             type="button"
             onClick={toggleMotion}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
               motion === "reduced"
                 ? "border-cyan-300 bg-cyan-100 text-cyan-900 hover:bg-cyan-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
+            aria-label={`${motionLabel}: ${motionValue}`}
+            title={`${motionLabel}: ${motionValue}`}
           >
-            🎞️ {motionLabel}: {motionValue}
+            🎞️
           </button>
 
           <button
             type="button"
             onClick={resetAllPreferences}
-            className="rounded-full border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 transition hover:bg-rose-100"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-300 bg-rose-50 text-base text-rose-800 transition hover:bg-rose-100"
+            aria-label={resetLabel}
+            title={resetLabel}
           >
-            ♻️ {resetLabel}
+            ♻️
           </button>
         </div>
       </div>
