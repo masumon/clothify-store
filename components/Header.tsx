@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getWishlistCount } from "@/lib/wishlist";
 
 type HeaderProps = {
   storeName?: string;
@@ -28,9 +29,13 @@ export default function Header({
   whatsappNumber = "8801811314262",
 }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [uiLang, setUiLang] = useState<"en" | "bn">("bn");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const syncPreferences = () => {
@@ -58,6 +63,13 @@ export default function Header({
     return () => window.removeEventListener("clothfy-preferences-change", syncPreferences);
   }, []);
 
+  useEffect(() => {
+    const updateCount = () => setWishlistCount(getWishlistCount());
+    updateCount();
+    window.addEventListener("clothfy-wishlist-change", updateCount);
+    return () => window.removeEventListener("clothfy-wishlist-change", updateCount);
+  }, []);
+
   const toggleLanguage = () => {
     const nextLang: "en" | "bn" = uiLang === "bn" ? "en" : "bn";
     setUiLang(nextLang);
@@ -72,6 +84,15 @@ export default function Header({
     localStorage.setItem("clothfy-theme", nextDark ? "dark" : "light");
     document.documentElement.classList.toggle("dark-theme", nextDark);
     window.dispatchEvent(new Event("clothfy-preferences-change"));
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    router.push(`/?search=${encodeURIComponent(q)}`);
+    setSearchOpen(false);
+    setSearchQuery("");
   };
 
   const whatsappLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}`;
@@ -121,6 +142,12 @@ export default function Header({
       icon: "⚙️",
       color: "border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100",
     },
+    {
+      href: "/about",
+      label: isBn ? "আমাদের সম্পর্কে" : "About Us",
+      icon: "ℹ️",
+      color: "border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100",
+    },
   ];
 
   const mobileMenuItems = navItems;
@@ -154,18 +181,37 @@ export default function Header({
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100"
-            aria-label="Toggle language"
-          >
-            {uiLang === "bn" ? "BN" : "EN"}
-          </button>
-
-          <button
-            type="button"
-            onClick={toggleTheme}
+          {/* Search */}
+          {searchOpen ? (
+            <form onSubmit={handleSearch} className="flex items-center gap-1.5">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={isBn ? "পণ্য খুঁজুন..." : "Search products..."}
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+                className="w-40 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+              />
+              <button
+                type="button"
+                onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-xs text-slate-600 transition hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100"
+              aria-label="Search products"
+              title="Search"
+            >
+              🔍
+            </button>
+          )}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100"
             aria-label="Toggle dark mode"
             title="Toggle dark mode"
