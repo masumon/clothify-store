@@ -1,7 +1,10 @@
 import Link from "next/link";
 import AdminTopbar from "@/components/AdminTopbar";
 import AdminStats from "@/components/AdminStats";
+import AdminObservabilityPanel from "@/components/AdminObservabilityPanel";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
+import { getAdminHealthSnapshot } from "@/lib/api/admin-health";
+import { getObservabilitySnapshot } from "@/lib/monitoring";
 import { getTrafficSnapshotFromDb } from "@/lib/traffic";
 import { Order } from "@/types";
 
@@ -51,18 +54,33 @@ function getBarHeightClass(ratio: number) {
   return "h-[16px]";
 }
 
+type DashboardOrderRow = Pick<
+  Order,
+  "id" | "status" | "total_amount" | "created_at" | "customer_name" | "address"
+>;
+
 async function getDashboardData(rangeDays: number) {
   try {
     const supabase = getSupabaseAdminClient();
 
     const { data: products } = await supabase.from("products").select("id,is_published");
-    const { data: orders } = await supabase
+    let ordersResponse = await supabase
       .from("orders")
-      .select("id,status,total_amount,created_at");
+      .select("id,customer_name,address,status,total_amount,created_at");
+    if (
+      ordersResponse.error &&
+      ordersResponse.error.message.toLowerCase().includes("created_at")
+    ) {
+      ordersResponse = await supabase
+        .from("orders")
+        .select("id,customer_name,address,status,total_amount");
+    }
+    if (ordersResponse.error) {
+      throw new Error(ordersResponse.error.message);
+    }
+    const orders = ordersResponse.data;
 
-    const allOrders = (orders || []) as Array<
-      Pick<Order, "status" | "total_amount" | "created_at">
-    >;
+    const allOrders = (orders || []) as DashboardOrderRow[];
 
     const now = Date.now();
     const currentStart = now - rangeDays * DAY_MS;
@@ -164,6 +182,10 @@ async function getDashboardData(rangeDays: number) {
       previousPeriodSales:
         previousPeriodOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0,
       dailySales,
+      recentTransactions: allOrders
+        .slice()
+        .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime())
+        .slice(0, 6),
     };
   } catch {
     return {
@@ -182,6 +204,7 @@ async function getDashboardData(rangeDays: number) {
       periodSales: 0,
       previousPeriodSales: 0,
       dailySales: [] as Array<{ date: string; amount: number }>,
+      recentTransactions: [] as DashboardOrderRow[],
     };
   }
 }
@@ -211,8 +234,11 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
     periodSales,
     previousPeriodSales,
     dailySales,
+    recentTransactions,
   } = await getDashboardData(activeRange.days);
   const traffic = await getTrafficSnapshotFromDb(activeRange.days, 7);
+  const observability = await getObservabilitySnapshot();
+  const healthSnapshot = await getAdminHealthSnapshot();
 
   const returnedChange = computePercentChange(currentReturned, previousReturned);
   const cancelledChange = computePercentChange(currentCancelled, previousCancelled);
@@ -254,6 +280,7 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
         totalProducts={totalProducts}
         totalOrders={totalOrders}
         totalPending={totalPending}
+        totalRevenue={totalRevenue}
       />
 
       <div className="mb-8 grid gap-4 md:grid-cols-4">
@@ -402,6 +429,91 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
           <li>{totalReturned > 0 ? `↩️ ${totalReturned} orders marked as returned.` : "✅ No returned orders."}</li>
           <li>{totalCancelled > 0 ? `⚠️ ${totalCancelled} orders cancelled.` : "✅ No cancelled orders."}</li>
         </ul>
+      </div>
+
+      <AdminObservabilityPanel snapshot={{ ...observability, healthSnapshot }} />
+
+      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_-28px_rgba(2,6,23,0.4)]">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h3 className="text-lg font-bold text-slate-900">Recent Transactions</h3>
+          <Link
+            href="/admin/orders"
+            className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+          >
+            View All
+          </Link>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-[780px] w-full">
+            <thead>
+              <tr className="border-b border-slate-200 text-left text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+                <th className="px-3 py-3">Order ID</th>
+                <th className="px-3 py-3">Customer Info</th>
+                <th className="px-3 py-3">Amount</th>
+                <th className="px-3 py-3">Status</th>
+                <th className="px-3 py-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentTransactions.length === 0 ? (
+                <tr>
+                  <td className="px-3 py-6 text-sm text-slate-500" colSpan={5}>
+                    No recent transactions found.
+                  </td>
+                </tr>
+              ) : (
+                recentTransactions.map((order) => {
+                  const statusTone =
+                    order.status === "Delivered" || order.status === "Completed"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : order.status === "Pending"
+                        ? "bg-amber-100 text-amber-700"
+                        : order.status === "Cancelled" || order.status === "Returned"
+                          ? "bg-rose-100 text-rose-700"
+                          : "bg-slate-100 text-slate-700";
+
+                  return (
+                    <tr key={order.id} className="border-b border-slate-100 text-sm text-slate-700">
+                      <td className="px-3 py-3 font-semibold text-slate-900">#{order.id?.slice(0, 8) || "ORD"}</td>
+                      <td className="px-3 py-3">
+                        <p className="font-semibold text-slate-900">{order.customer_name || "Customer"}</p>
+                        <p className="text-xs text-slate-500">{order.address || "Address not set"}</p>
+                      </td>
+                      <td className="px-3 py-3 font-bold text-slate-900">৳{Number(order.total_amount || 0)}</td>
+                      <td className="px-3 py-3">
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusTone}`}>
+                          {order.status || "Pending"}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <Link
+                          href="/admin/orders"
+                          className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                        >
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="customers" className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 className="text-lg font-bold text-slate-900">Customers</h3>
+        <p className="mt-2 text-sm text-slate-600">
+          Use order table and profile/address records to monitor high-value and repeat customers.
+        </p>
+      </div>
+
+      <div id="analytics" className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 className="text-lg font-bold text-slate-900">Analytics</h3>
+        <p className="mt-2 text-sm text-slate-600">
+          Live visitors, traffic sources, drop-off insights, and conversion actions are available above.
+        </p>
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">

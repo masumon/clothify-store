@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -70,7 +70,8 @@ export default function AdminLoginPage() {
     rawNextPath.startsWith("/") && !rawNextPath.startsWith("//")
       ? rawNextPath
       : "/admin";
-  const supabaseFlowEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN_SUPABASE_AUTH === "true";
+  const supabaseFlowEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_ADMIN_SUPABASE_AUTH === "true" && Boolean(supabase);
 
   const [tab, setTab] = useState<AuthTab>("login");
 
@@ -100,6 +101,67 @@ export default function AdminLoginPage() {
     setError("");
     setSuccess("");
   };
+
+  const exchangeSupabaseSessionForAdmin = async (accessToken: string) => {
+    const res = await fetch("/api/admin/auth/supabase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ access_token: accessToken }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(
+        (data as { error?: string }).error || "Supabase admin sign-in failed."
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (!supabaseFlowEnabled || !supabase) return;
+
+    let cancelled = false;
+
+    const bridgeSession = async (accessToken?: string) => {
+      const token = accessToken?.trim() || "";
+      if (!token || cancelled) return;
+
+      try {
+        setLoading(true);
+        setError("");
+        setSuccess("");
+        await exchangeSupabaseSessionForAdmin(token);
+        if (!cancelled) {
+          router.push(nextPath);
+        }
+      } catch (bridgeError: unknown) {
+        if (!cancelled) {
+          const message =
+            bridgeError instanceof Error
+              ? bridgeError.message
+              : "Supabase admin session bridge failed.";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void supabase.auth.getSession().then(({ data }) => {
+      void bridgeSession(data.session?.access_token);
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      void bridgeSession(session?.access_token);
+    });
+
+    return () => {
+      cancelled = true;
+      authListener.subscription.unsubscribe();
+    };
+  }, [nextPath, router, supabaseFlowEnabled]);
 
   // ── Login with username/password ──────────────────────────────────────────
   const handleLogin = async (e: React.FormEvent) => {
@@ -134,9 +196,10 @@ export default function AdminLoginPage() {
       return;
     }
     clearMessages();
+    const redirectTo = `${window.location.origin}/admin/login?next=${encodeURIComponent(nextPath)}`;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}${nextPath}` },
+      options: { redirectTo },
     });
     if (oauthError) setError(oauthError.message);
   };
@@ -184,7 +247,22 @@ export default function AdminLoginPage() {
     if (verifyError) {
       setError(verifyError.message);
     } else {
-      router.push(nextPath);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token || "";
+      if (!accessToken) {
+        setError("OTP verified, but no active Supabase session found.");
+      } else {
+        try {
+          await exchangeSupabaseSessionForAdmin(accessToken);
+          router.push(nextPath);
+        } catch (bridgeError: unknown) {
+          setError(
+            bridgeError instanceof Error
+              ? bridgeError.message
+              : "Unable to complete admin sign-in."
+          );
+        }
+      }
     }
     setLoading(false);
   };
@@ -404,8 +482,9 @@ export default function AdminLoginPage() {
                   </>
                 ) : (
                   <p className="mt-4 rounded-xl border border-slate-600 bg-slate-900/50 px-4 py-3 text-xs text-slate-300">
-                    Username/password admin login is active. Supabase auth methods are disabled.
-                    Set <code className="ml-1">NEXT_PUBLIC_ENABLE_ADMIN_SUPABASE_AUTH=true</code> to enable extra methods.
+                    Username/password admin login is active. Supabase auth methods are disabled or not fully configured.
+                    To enable, set <code className="ml-1">NEXT_PUBLIC_ENABLE_ADMIN_SUPABASE_AUTH=true</code> and configure
+                    <code className="ml-1">ADMIN_SUPABASE_ALLOWED_EMAILS</code>.
                   </p>
                 )}
               </div>

@@ -81,6 +81,7 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     const defaults: SitePreferences = {
       theme: "system",
       language: "bn",
+      uiMode: "default",
       textSize: "normal",
       contrast: "normal",
       motion: "normal",

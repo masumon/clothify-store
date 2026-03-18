@@ -1,6 +1,27 @@
 import { CartItem } from "@/types";
 
 export const CART_KEY = "clothify-cart";
+export const CART_UPDATED_EVENT = "clothfy-cart-updated";
+export const CART_ITEM_ADDED_EVENT = "clothfy-cart-item-added";
+
+function emitCartUpdated() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(CART_UPDATED_EVENT));
+}
+
+function emitCartItemAdded(item: CartItem) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent(CART_ITEM_ADDED_EVENT, {
+      detail: {
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        selectedSize: item.selectedSize,
+      },
+    })
+  );
+}
 
 export function getCart(): CartItem[] {
   if (typeof window === "undefined") return [];
@@ -19,6 +40,7 @@ export function getCart(): CartItem[] {
 export function saveCart(cart: CartItem[]) {
   if (typeof window === "undefined") return;
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  emitCartUpdated();
 }
 
 export function addToCart(item: CartItem) {
@@ -35,11 +57,13 @@ export function addToCart(item: CartItem) {
   }
 
   saveCart(cart);
+  emitCartItemAdded(item);
 }
 
 export function clearCart() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(CART_KEY);
+  emitCartUpdated();
 }
 
 export function removeCartItem(index: number) {

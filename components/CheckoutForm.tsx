@@ -16,6 +16,8 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("Sylhet");
+  const [postalCode, setPostalCode] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("Home Delivery");
   const [courierName, setCourierName] = useState("Pathao");
   const [paymentMethod, setPaymentMethod] = useState("bKash");
@@ -49,6 +51,8 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
         setCustomerName(d.customerName || "");
         setPhone(d.phone || "");
         setAddress(d.address || "");
+        setCity(d.city || "Sylhet");
+        setPostalCode(d.postalCode || "");
         setDeliveryMethod(d.deliveryMethod || "Home Delivery");
         setCourierName(d.courierName || "Pathao");
         setPaymentMethod(d.paymentMethod || "bKash");
@@ -65,6 +69,8 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       customerName,
       phone,
       address,
+      city,
+      postalCode,
       deliveryMethod,
       courierName,
       paymentMethod,
@@ -72,7 +78,7 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       updatedAt: Date.now(),
     };
     localStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(draft));
-  }, [customerName, phone, address, deliveryMethod, courierName, paymentMethod, trxId]);
+  }, [customerName, phone, address, city, postalCode, deliveryMethod, courierName, paymentMethod, trxId]);
 
   const total = useMemo(() => {
     return cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
@@ -96,6 +102,10 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       return;
     }
 
+    const fullAddress = [address.trim(), city.trim(), postalCode.trim() ? `Postal: ${postalCode.trim()}` : ""]
+      .filter(Boolean)
+      .join(", ");
+
     try {
       setSubmitting(true);
       setSubmitError("");
@@ -112,7 +122,7 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
         body: JSON.stringify({
           customer_name: customerName,
           phone,
-          address,
+          address: fullAddress,
           delivery_method: deliveryMethod,
           courier_name: courierName,
           payment_method: paymentMethod,
@@ -145,7 +155,9 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
                 : "",
             customerName,
             phone,
-            address,
+            address: fullAddress,
+            city,
+            postalCode,
             deliveryMethod,
             courierName,
             paymentMethod,
@@ -197,6 +209,31 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
         onChange={(e) => setAddress(e.target.value)}
         className="min-h-[120px] w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
       />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <select
+          aria-label="City"
+          title="City"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+        >
+          <option value="Sylhet">Sylhet</option>
+          <option value="Dhaka">Dhaka</option>
+          <option value="Chattogram">Chattogram</option>
+          <option value="Rajshahi">Rajshahi</option>
+          <option value="Khulna">Khulna</option>
+          <option value="Barishal">Barishal</option>
+          <option value="Mymensingh">Mymensingh</option>
+          <option value="Rangpur">Rangpur</option>
+        </select>
+        <input
+          type="text"
+          placeholder="Postal Code"
+          value={postalCode}
+          onChange={(e) => setPostalCode(e.target.value)}
+          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
+        />
+      </div>
       <select
         aria-label="Delivery Method"
         title="Delivery Method"
@@ -271,6 +308,7 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       </div>
 
       <button
+        id="checkout-submit"
         type="submit"
         disabled={submitting}
         className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white disabled:opacity-60"

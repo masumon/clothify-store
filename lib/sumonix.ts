@@ -625,23 +625,36 @@ function uniqueCategoriesFromProducts(products: Product[]) {
 
 async function getPublishedProducts() {
   if (!hasSupabasePublicConfig() || !supabase) return [] as Product[];
+  const client = supabase;
 
-  let query = supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .eq("is_published", true)
-    .limit(120);
+  let usePublishedFilter = true;
+  let orderField: "created_at" | "id" | null = "created_at";
 
-  let { data, error } = await query;
-  if (error && error.message.toLowerCase().includes("is_published")) {
-    const fallback = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(120);
-    data = fallback.data;
-    error = fallback.error;
+  const runQuery = async () => {
+    let query = client.from("products").select("*").limit(120);
+    if (usePublishedFilter) {
+      query = query.eq("is_published", true);
+    }
+    if (orderField) {
+      query = query.order(orderField, { ascending: false });
+    }
+    return query;
+  };
+
+  let { data, error } = await runQuery();
+  if (error && error.message.toLowerCase().includes("is_published") && usePublishedFilter) {
+    usePublishedFilter = false;
+    ({ data, error } = await runQuery());
+  }
+
+  if (error && error.message.toLowerCase().includes("created_at") && orderField === "created_at") {
+    orderField = "id";
+    ({ data, error } = await runQuery());
+  }
+
+  if (error && error.message.toLowerCase().includes("id") && orderField === "id") {
+    orderField = null;
+    ({ data, error } = await runQuery());
   }
 
   if (error) return [];
@@ -1287,14 +1300,61 @@ function mergeConfidence(
 
 async function getOrderItemsSafe(supabaseClient: ReturnType<typeof getSupabaseAdminClient>) {
   try {
-    const { data, error } = await supabaseClient
+    const primary = await supabaseClient
       .from("order_items")
       .select("order_id,product_id,quantity,line_total,created_at")
       .order("created_at", { ascending: false })
       .limit(8000);
 
-    if (error) return [] as OrderItemRecord[];
-    return (data || []) as OrderItemRecord[];
+    if (!primary.error) {
+      return (primary.data || []) as OrderItemRecord[];
+    }
+
+    const primaryErrorText = primary.error.message.toLowerCase();
+
+    if (primaryErrorText.includes("created_at")) {
+      const withoutCreatedAt = await supabaseClient
+        .from("order_items")
+        .select("order_id,product_id,quantity,line_total")
+        .limit(8000);
+
+      if (!withoutCreatedAt.error) {
+        return (withoutCreatedAt.data || []).map((item) => ({
+          ...(item as Omit<OrderItemRecord, "created_at">),
+          created_at: null,
+        })) as OrderItemRecord[];
+      }
+    }
+
+    if (primaryErrorText.includes("line_total")) {
+      const legacy = await supabaseClient
+        .from("order_items")
+        .select("order_id,product_id,quantity,unit_price,created_at")
+        .limit(8000);
+
+      if (!legacy.error) {
+        return (legacy.data || []).map((item) => {
+          const row = item as {
+            order_id: string;
+            product_id: string;
+            quantity: number;
+            unit_price?: number | null;
+            created_at?: string | null;
+          };
+          const qty = Number(row.quantity || 0);
+          const unitPrice = Number(row.unit_price || 0);
+          return {
+            order_id: row.order_id,
+            product_id: row.product_id,
+            quantity: qty,
+            line_total: qty * unitPrice,
+            created_at: row.created_at || null,
+          };
+        });
+      }
+    }
+
+    return [] as OrderItemRecord[];
   } catch {
     return [] as OrderItemRecord[];
   }

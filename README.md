@@ -36,6 +36,7 @@ The admin panel is protected with comprehensive authentication. To get started:
 For complete documentation on admin authentication, see [ADMIN_LOGIN_GUIDE.md](./ADMIN_LOGIN_GUIDE.md)
 
 বাংলায় ready-to-use setup checklist: [READY_TO_USE_SETUP_BN.md](./READY_TO_USE_SETUP_BN.md)
+Production env checklist (বাংলা): [PRODUCTION_ENV_CHECKLIST_BN.md](./PRODUCTION_ENV_CHECKLIST_BN.md)
 ক্লায়েন্ট ওয়েবসাইট ইউজার গাইড (বাংলা): [WEBSITE_USER_GUIDE_BN.md](./WEBSITE_USER_GUIDE_BN.md)
 এডমিন প্যানেল গাইড (বাংলা): [ADMIN_PANEL_GUIDE_BN.md](./ADMIN_PANEL_GUIDE_BN.md)
 
@@ -67,6 +68,44 @@ Without `OPENAI_API_KEY`, assistant public translation endpoint fallback ব্�
 Sylheti behavior:
 
 - user যদি Sylheti tone/keyword এ প্রশ্ন করে, SUMONIX Sylheti ঢঙে উত্তর দেয়।
+
+## Production Monitoring + Multi-Instance Rate Limit
+
+The project now supports:
+
+- Upstash Redis backed shared rate limiting for admin auth, orders, and SUMONIX APIs
+- Admin dashboard monitoring panel for API latency, webhook logs, and recent failures
+- Sentry-ready browser/server error capture
+
+Recommended production env:
+
+```env
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
+SENTRY_DSN=https://...
+NEXT_PUBLIC_SENTRY_DSN=https://...
+SENTRY_ENVIRONMENT=production
+NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0.2
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.2
+WHATSAPP_NOTIFY_TIMEOUT_MS=10000
+```
+
+If `UPSTASH_REDIS_REST_URL` এবং `UPSTASH_REDIS_REST_TOKEN` না দেন, system safe memory fallback mode-এ চলবে, কিন্তু serverless multi-instance consistency পাওয়া যাবে না।
+
+## Integration Tests
+
+Run real route-level integration tests with:
+
+```bash
+npm run test:integration
+```
+
+Covered flows:
+
+- order validation and successful order creation path
+- Supabase admin auth bridge session issuance
+- public/admin SUMONIX API behavior
 
 ## Migration (Required for Draft + Persistent Analytics)
 

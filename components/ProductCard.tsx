@@ -42,10 +42,12 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
   const [hovered, setHovered] = useState(false);
   const [zoomActive, setZoomActive] = useState(false);
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
+  const [imageSrc, setImageSrc] = useState(product.image_url || "/hero-modern-fashion.svg");
 
   useEffect(() => {
     setWishlisted(isInWishlist(product.id));
     setCurrency(getSavedCurrency());
+    setImageSrc(product.image_url || "/hero-modern-fashion.svg");
     const onPrefs = () => setCurrency(getSavedCurrency());
     const onWishlist = () => setWishlisted(isInWishlist(product.id));
     window.addEventListener("clothfy-preferences-change", onPrefs);
@@ -54,7 +56,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
       window.removeEventListener("clothfy-preferences-change", onPrefs);
       window.removeEventListener("clothfy-wishlist-change", onWishlist);
     };
-  }, [product.id]);
+  }, [product.id, product.image_url]);
 
   const discount =
     product.original_price && product.original_price > product.price
@@ -108,7 +110,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
   return (
     <>
       <div
-        className="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 shadow-[0_12px_32px_-24px_rgba(2,6,23,0.6)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgba(2,6,23,0.45)]"
+        className="product-card group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 shadow-[0_12px_32px_-24px_rgba(2,6,23,0.6)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgba(2,6,23,0.45)]"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -126,12 +128,13 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
         >
           <Link href={`/product/${product.id}`}>
             <Image
-              src={product.image_url}
+              src={imageSrc}
               alt={product.name}
               width={400}
               height={288}
               sizes="(max-width: 640px) 48vw, (max-width: 1024px) 32vw, 24vw"
               className="h-52 w-full object-cover sm:h-56"
+              onError={() => setImageSrc("/hero-modern-fashion.svg")}
               style={{
                 transformOrigin: zoomOrigin,
                 transform: zoomActive ? "scale(1.25)" : "scale(1)",
@@ -208,6 +211,10 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
             {product.name}
           </h3>
 
+          <p className="mt-1 text-xs font-semibold text-amber-500">
+            ★★★★☆ <span className="text-slate-500">(4.8)</span>
+          </p>
+
           {/* Pricing row */}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="text-xl font-extrabold text-teal-700 sm:text-2xl">
@@ -234,7 +241,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
           </p>
 
           {/* Action row */}
-          <div className="mt-3 grid grid-cols-2 gap-1.5 sm:gap-2">
+          <div className="product-card-actions mt-3 grid grid-cols-2 gap-2 transition-opacity md:opacity-0 md:group-hover:opacity-100">
             <button
               type="button"
               disabled={isOutOfStock}
@@ -248,17 +255,23 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
                   quantity: 1,
                 })
               }
-              className="rounded-full border border-slate-200 bg-slate-50 px-2 py-2 text-center text-[11px] font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:py-2.5 sm:text-sm"
+              className="rounded-full border border-slate-200 bg-gradient-to-r from-white to-slate-100 px-2 py-2.5 text-center text-[11px] font-semibold text-slate-700 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:from-teal-50 hover:to-cyan-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:text-sm"
             >
-              🛒 Cart
+              <span className="inline-flex items-center gap-1">
+                <span>🛒</span>
+                <span>Cart</span>
+              </span>
             </button>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="rounded-full bg-emerald-600 px-2 py-2 text-center text-[11px] font-bold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 sm:px-3 sm:py-2.5 sm:text-sm"
+              className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-2 py-2.5 text-center text-[11px] font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-700 sm:px-3 sm:text-sm"
             >
-              💬 WhatsApp
+              <span className="inline-flex items-center gap-1">
+                <span>💬</span>
+                <span>WhatsApp</span>
+              </span>
             </a>
           </div>
 

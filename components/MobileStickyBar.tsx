@@ -7,14 +7,20 @@ import {
   type Language,
   PREFERENCE_EVENT,
   readSitePreferences,
+  type UiMode,
 } from "@/lib/site-preferences";
 
 export default function MobileStickyBar() {
   const pathname = usePathname();
   const [lang, setLang] = useState<Language>("bn");
+  const [uiMode, setUiMode] = useState<UiMode>("default");
 
   useEffect(() => {
-    const sync = () => setLang(readSitePreferences().language);
+    const sync = () => {
+      const prefs = readSitePreferences();
+      setLang(prefs.language);
+      setUiMode(prefs.uiMode);
+    };
     sync();
     window.addEventListener(PREFERENCE_EVENT, sync);
     return () => window.removeEventListener(PREFERENCE_EVENT, sync);
@@ -38,7 +44,13 @@ export default function MobileStickyBar() {
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur md:hidden ${
+        uiMode === "abo"
+          ? "border-slate-900 bg-slate-900/95 text-white"
+          : "border-slate-200 bg-white/95"
+      }`}
+    >
       <div className="grid grid-cols-6 gap-1 px-1 py-1.5">
         {items.map((item) => {
           const active =
@@ -47,7 +59,13 @@ export default function MobileStickyBar() {
               (item.href !== "/" && pathname.startsWith(item.href)));
 
           const cls = `flex min-w-0 flex-col items-center gap-0.5 rounded-xl px-1 py-2 text-center transition ${
-            active ? "text-green-700" : "text-slate-400"
+            uiMode === "abo"
+              ? active
+                ? "bg-white/10 text-amber-300"
+                : "text-slate-400"
+              : active
+                ? "text-green-700"
+                : "text-slate-400"
           }`;
 
           return item.external ? (

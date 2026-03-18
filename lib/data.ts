@@ -60,6 +60,70 @@ async function getOrSetPending<T>(key: string, load: () => Promise<T>) {
   return pendingPromise;
 }
 
+type ProductFilterInput = {
+  search?: string;
+  category?: string;
+};
+
+async function fetchProductsWithFallback(
+  client: NonNullable<typeof supabase>,
+  filters: ProductFilterInput = {},
+  options?: { publishedOnly?: boolean }
+) {
+  const normalizedSearch = filters.search?.trim() || "";
+  const normalizedCategory =
+    filters.category && filters.category !== "All" ? filters.category : "";
+  let usePublishedFilter = options?.publishedOnly === true;
+  let orderField: "created_at" | "id" | null = "created_at";
+
+  const runQuery = async () => {
+    let query = client.from("products").select("*");
+
+    if (usePublishedFilter) {
+      query = query.eq("is_published", true);
+    }
+
+    if (normalizedSearch) {
+      query = query.ilike("name", `%${normalizedSearch}%`);
+    }
+
+    if (normalizedCategory) {
+      query = query.eq("category", normalizedCategory);
+    }
+
+    if (orderField) {
+      query = query.order(orderField, { ascending: false });
+    }
+
+    return query;
+  };
+
+  let { data, error } = await runQuery();
+
+  const firstError = (error?.message || "").toLowerCase();
+  if (error && firstError.includes("is_published") && usePublishedFilter) {
+    usePublishedFilter = false;
+    ({ data, error } = await runQuery());
+  }
+
+  const secondError = (error?.message || "").toLowerCase();
+  if (error && secondError.includes("created_at") && orderField === "created_at") {
+    orderField = "id";
+    ({ data, error } = await runQuery());
+  }
+
+  const thirdError = (error?.message || "").toLowerCase();
+  if (error && thirdError.includes("id") && orderField === "id") {
+    orderField = null;
+    ({ data, error } = await runQuery());
+  }
+
+  return {
+    data: data || [],
+    error,
+  };
+}
+
 export async function getStoreSettings() {
   const client = supabase;
   if (!hasSupabasePublicConfig() || !client) {
@@ -109,22 +173,11 @@ export async function getProducts(filters?: {
     }
 
     return getOrSetPending("products-all", async () => {
-      let query = client
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .eq("is_published", true);
-
-      let { data, error } = await query;
-
-      if (error && error.message.toLowerCase().includes("is_published")) {
-        const fallback = await client
-          .from("products")
-          .select("*")
-          .order("created_at", { ascending: false });
-        data = fallback.data;
-        error = fallback.error;
-      }
+      const { data, error } = await fetchProductsWithFallback(
+        client,
+        {},
+        { publishedOnly: true }
+      );
 
       if (error) {
         console.error("Products fetch error:", error.message);
@@ -137,35 +190,11 @@ export async function getProducts(filters?: {
     });
   }
 
-  let query = client.from("products").select("*").order("created_at", { ascending: false });
-
-  query = query.eq("is_published", true);
-
-  if (filters?.search) {
-    query = query.ilike("name", `%${filters.search}%`);
-  }
-
-  if (filters?.category && filters.category !== "All") {
-    query = query.eq("category", filters.category);
-  }
-
-  let { data, error } = await query;
-
-  if (error && error.message.toLowerCase().includes("is_published")) {
-    let fallback = client.from("products").select("*").order("created_at", { ascending: false });
-
-    if (filters?.search) {
-      fallback = fallback.ilike("name", `%${filters.search}%`);
-    }
-
-    if (filters?.category && filters.category !== "All") {
-      fallback = fallback.eq("category", filters.category);
-    }
-
-    const retry = await fallback;
-    data = retry.data;
-    error = retry.error;
-  }
+  const { data, error } = await fetchProductsWithFallback(
+    client,
+    filters || {},
+    { publishedOnly: true }
+  );
 
   if (error) {
     console.error("Products fetch error:", error.message);

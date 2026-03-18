@@ -5,80 +5,33 @@ import {
   createAdminSessionToken,
   setAdminSessionCookie,
 } from "@/lib/admin-auth";
+import { withMonitoredRoute } from "@/lib/monitoring";
+import {
+  clearLockoutFailures,
+  getClientIp,
+  getLockoutState,
+  registerLockoutFailure,
+} from "@/lib/rate-limit";
 import { sendWhatsAppNotification } from "@/lib/whatsapp-notify";
 
-type RateBucket = {
-  failedAttempts: number;
-  windowResetAt: number;
-  blockedUntil: number;
+const authLockoutPolicy = {
+  namespace: "admin-password-auth",
+  maxFailures: 8,
+  windowMs: 10 * 60 * 1000,
+  blockDurationMs: 15 * 60 * 1000,
+} as const;
+
+type AdminAuthDeps = {
+  createSessionToken?: typeof createAdminSessionToken;
+  setSessionCookie?: typeof setAdminSessionCookie;
+  clearFailures?: (key: string) => Promise<void>;
+  getBlockState?: (key: string) => ReturnType<typeof getLockoutState>;
+  registerFailure?: (key: string) => ReturnType<typeof registerLockoutFailure>;
+  notify?: typeof sendWhatsAppNotification;
 };
-
-const ATTEMPT_WINDOW_MS = 10 * 60 * 1000;
-const MAX_FAILED_ATTEMPTS = 8;
-const BLOCK_DURATION_MS = 15 * 60 * 1000;
-
-const globalAuthRateState = globalThis as unknown as {
-  __clothifyAdminAuthRateStore?: Map<string, RateBucket>;
-};
-
-if (!globalAuthRateState.__clothifyAdminAuthRateStore) {
-  globalAuthRateState.__clothifyAdminAuthRateStore = new Map<string, RateBucket>();
-}
-
-function getClientIp(request: Request) {
-  const forwarded = request.headers.get("x-forwarded-for") || "";
-  const fromForwarded = forwarded.split(",")[0]?.trim();
-  return fromForwarded || request.headers.get("x-real-ip") || "unknown";
-}
 
 function buildRateKey(request: Request, username: string) {
   return `${getClientIp(request)}:${username.toLowerCase().trim() || "unknown-user"}`;
-}
-
-function readRateBucket(key: string) {
-  const now = Date.now();
-  const store = globalAuthRateState.__clothifyAdminAuthRateStore!;
-  const current = store.get(key);
-
-  if (!current || now > current.windowResetAt) {
-    const fresh: RateBucket = {
-      failedAttempts: 0,
-      windowResetAt: now + ATTEMPT_WINDOW_MS,
-      blockedUntil: 0,
-    };
-    store.set(key, fresh);
-    return fresh;
-  }
-
-  return current;
-}
-
-function getBlockRemainingMs(bucket: RateBucket) {
-  const now = Date.now();
-  return bucket.blockedUntil > now ? bucket.blockedUntil - now : 0;
-}
-
-function registerAuthFailure(key: string) {
-  const bucket = readRateBucket(key);
-  const store = globalAuthRateState.__clothifyAdminAuthRateStore!;
-  bucket.failedAttempts += 1;
-  let blocked = false;
-  if (bucket.failedAttempts >= MAX_FAILED_ATTEMPTS) {
-    bucket.blockedUntil = Date.now() + BLOCK_DURATION_MS;
-    bucket.failedAttempts = 0;
-    bucket.windowResetAt = Date.now() + ATTEMPT_WINDOW_MS;
-    blocked = true;
-  }
-  store.set(key, bucket);
-  return {
-    blocked,
-    blockedUntil: bucket.blockedUntil,
-  };
-}
-
-function clearAuthFailures(key: string) {
-  const store = globalAuthRateState.__clothifyAdminAuthRateStore!;
-  store.delete(key);
 }
 
 function safeCompare(left: string, right: string) {
@@ -90,7 +43,29 @@ function safeCompare(left: string, right: string) {
   return diff === 0;
 }
 
-export async function POST(request: Request) {
+async function defaultGetBlockState(key: string) {
+  return getLockoutState(authLockoutPolicy, key);
+}
+
+async function defaultRegisterFailure(key: string) {
+  return registerLockoutFailure(authLockoutPolicy, key);
+}
+
+async function defaultClearFailures(key: string) {
+  await clearLockoutFailures(authLockoutPolicy, key);
+}
+
+async function handleAdminPasswordAuth(
+  request: Request,
+  deps: AdminAuthDeps = {}
+) {
+  const createSessionToken = deps.createSessionToken || createAdminSessionToken;
+  const applySessionCookie = deps.setSessionCookie || setAdminSessionCookie;
+  const clearFailures = deps.clearFailures || defaultClearFailures;
+  const getBlockState = deps.getBlockState || defaultGetBlockState;
+  const registerFailure = deps.registerFailure || defaultRegisterFailure;
+  const notify = deps.notify || sendWhatsAppNotification;
+
   try {
     const body = await request.json();
     const { username, password } = body as { username?: string; password?: string };
@@ -103,13 +78,12 @@ export async function POST(request: Request) {
     }
 
     const rateKey = buildRateKey(request, username);
-    const bucket = readRateBucket(rateKey);
-    const blockRemainingMs = getBlockRemainingMs(bucket);
-    if (blockRemainingMs > 0) {
+    const blockState = await getBlockState(rateKey);
+    if (blockState.blocked) {
       return NextResponse.json(
         {
           error: "Too many failed login attempts. Please wait and try again.",
-          retry_after_seconds: Math.ceil(blockRemainingMs / 1000),
+          retry_after_seconds: Math.ceil(blockState.retryAfterMs / 1000),
         },
         { status: 429 }
       );
@@ -126,11 +100,11 @@ export async function POST(request: Request) {
     }
 
     if (!safeCompare(username, adminUser) || !safeCompare(password, adminPass)) {
-      const failure = registerAuthFailure(rateKey);
+      const failure = await registerFailure(rateKey);
       if (failure.blocked) {
         const clientIp = getClientIp(request);
-        const retryAfter = Math.max(1, Math.ceil((failure.blockedUntil - Date.now()) / 1000));
-        void sendWhatsAppNotification({
+        const retryAfter = Math.max(1, Math.ceil(failure.retryAfterMs / 1000));
+        void notify({
           type: "security_alert",
           title: "🚨 Security Alert: Admin Login Lockout",
           message: `Multiple failed admin login attempts detected for user "${username}" from IP ${clientIp}. Lock active for ~${retryAfter}s.`,
@@ -141,23 +115,31 @@ export async function POST(request: Request) {
           },
         });
       }
+
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    clearAuthFailures(rateKey);
-    const sessionValue = await createAdminSessionToken(adminUser, ADMIN_SESSION_TTL_SECONDS);
+    await clearFailures(rateKey);
+    const sessionValue = await createSessionToken(adminUser, ADMIN_SESSION_TTL_SECONDS);
 
     const response = NextResponse.json({ success: true });
-    setAdminSessionCookie(response, sessionValue, ADMIN_SESSION_TTL_SECONDS);
-
+    applySessionCookie(response, sessionValue, ADMIN_SESSION_TTL_SECONDS);
     return response;
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 }
 
-export async function DELETE() {
+async function handleAdminLogout() {
   const response = NextResponse.json({ success: true });
   clearAdminSessionCookie(response);
   return response;
 }
+
+export const POST = withMonitoredRoute("api.admin.auth.password", (request) =>
+  handleAdminPasswordAuth(request)
+);
+
+export const DELETE = withMonitoredRoute("api.admin.auth.logout", async () =>
+  handleAdminLogout()
+);

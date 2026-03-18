@@ -71,6 +71,7 @@ function renderRichText(text: string) {
       return;
     }
 
+    rawUrlRegex.lastIndex = 0;
     let urlLastIndex = 0;
     let urlMatch: RegExpExecArray | null;
     while ((urlMatch = rawUrlRegex.exec(part.text)) !== null) {
@@ -211,18 +212,31 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => ({} as Record<string, unknown>));
+      const resultMessage =
+        typeof (result as { message?: unknown }).message === "string"
+          ? ((result as { message: string }).message || "").trim()
+          : "";
+
       if (!response.ok) {
-        throw new Error(result.error || "SUMONIX AI request failed");
+        const apiError =
+          typeof (result as { error?: unknown }).error === "string"
+            ? (result as { error: string }).error
+            : "SUMONIX AI request failed";
+        throw new Error(apiError);
       }
 
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: result.message || "কোনো উত্তর পাওয়া যায়নি।",
-          products: Array.isArray(result.products) ? result.products : [],
-          actions: Array.isArray(result.actions) ? result.actions : [],
+          text: resultMessage || "আমি এই প্রশ্নের জন্য concise response তৈরি করতে পারিনি, আবার একটু বিস্তারিত লিখে দিন।",
+          products: Array.isArray((result as { products?: unknown }).products)
+            ? ((result as { products: SuggestedProduct[] }).products || [])
+            : [],
+          actions: Array.isArray((result as { actions?: unknown }).actions)
+            ? ((result as { actions: string[] }).actions || [])
+            : [],
         },
       ]);
     } catch (error: unknown) {

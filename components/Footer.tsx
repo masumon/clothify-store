@@ -8,6 +8,7 @@ import {
   type Language,
   PREFERENCE_EVENT,
   readSitePreferences,
+  type UiMode,
 } from "@/lib/site-preferences";
 
 type Props = {
@@ -37,10 +38,15 @@ export default function Footer({
   phone = "",
 }: Props) {
   const [lang, setLang] = useState<Language>("bn");
+  const [uiMode, setUiMode] = useState<UiMode>("default");
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    const sync = () => setLang(readSitePreferences().language);
+    const sync = () => {
+      const prefs = readSitePreferences();
+      setLang(prefs.language);
+      setUiMode(prefs.uiMode);
+    };
     sync();
     window.addEventListener(PREFERENCE_EVENT, sync);
     return () => window.removeEventListener(PREFERENCE_EVENT, sync);
@@ -107,17 +113,28 @@ export default function Footer({
                 href="https://www.facebook.com/share/18u2zHzb6N/"
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold transition hover:bg-white/20"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm transition hover:bg-white/20"
+                aria-label="Facebook"
               >
-                Facebook
+                <i className="fa-brands fa-facebook-f" aria-hidden="true" />
               </a>
               <a
                 href="https://wa.me/8801811314262"
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-full border border-emerald-500/40 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/30"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/20 text-sm text-emerald-100 transition hover:bg-emerald-500/30"
+                aria-label="WhatsApp"
               >
-                WhatsApp
+                <i className="fa-brands fa-whatsapp" aria-hidden="true" />
+              </a>
+              <a
+                href="https://www.instagram.com"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm transition hover:bg-white/20"
+                aria-label="Instagram"
+              >
+                <i className="fa-brands fa-instagram" aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -135,13 +152,13 @@ export default function Footer({
           </div>
 
           <div>
-            <h4 className="text-base font-bold">{isBn ? "পলিসি ও লাইসেন্স" : "Policy & License"}</h4>
+            <h4 className="text-base font-bold">{isBn ? "কাস্টমার সার্ভিস" : "Customer Service"}</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-300">
+              <li><Link href="/legal#shipping" className="transition hover:text-white">{isBn ? "Shipping & Delivery" : "Shipping & Delivery"}</Link></li>
+              <li><Link href="/legal#refund" className="transition hover:text-white">{isBn ? "Returns & Exchanges" : "Returns & Exchanges"}</Link></li>
               <li><Link href="/legal#privacy" className="transition hover:text-white">{isBn ? "Privacy Policy" : "Privacy Policy"}</Link></li>
-              <li><Link href="/legal#terms" className="transition hover:text-white">{isBn ? "Terms & Conditions" : "Terms & Conditions"}</Link></li>
-              <li><Link href="/legal#shipping" className="transition hover:text-white">{isBn ? "Shipping Policy" : "Shipping Policy"}</Link></li>
-              <li><Link href="/legal#refund" className="transition hover:text-white">{isBn ? "Return & Refund Policy" : "Return & Refund Policy"}</Link></li>
-              <li><Link href="/legal#license" className="transition hover:text-white">{isBn ? "Usage License" : "Usage License"}</Link></li>
+              <li><Link href="/legal#terms" className="transition hover:text-white">{isBn ? "Terms of Service" : "Terms of Service"}</Link></li>
+              <li><Link href="/size-guide" className="transition hover:text-white">{isBn ? "Size Guide" : "Size Guide"}</Link></li>
             </ul>
           </div>
 
@@ -212,7 +229,9 @@ export default function Footer({
         ) : null}
 
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-slate-400">
-          © {new Date().getFullYear()} {storeName}. {isBn ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}
+          {uiMode === "abo"
+            ? "Designed & Developed by Sumon (Mumain Ahmed) | Powered by ABO Enterprise © 2026"
+            : `© ${new Date().getFullYear()} ${storeName}. ${isBn ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}`}
         </div>
       </div>
     </footer>

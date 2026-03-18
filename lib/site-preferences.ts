@@ -3,6 +3,7 @@ export type Language = "en" | "bn";
 export type TextSize = "normal" | "large";
 export type Contrast = "normal" | "high";
 export type Motion = "normal" | "reduced";
+export type UiMode = "default" | "abo";
 
 export const PREFERENCE_EVENT = "clothfy-preferences-change";
 export const PREFERENCE_KEYS = {
@@ -10,6 +11,7 @@ export const PREFERENCE_KEYS = {
   themeLegacy: "clothify-theme",
   languagePrimary: "clothfy-lang",
   languageLegacy: "clothify-language",
+  uiMode: "clothfy-ui-mode",
   textSize: "clothify-text-size",
   contrast: "clothify-contrast",
   motion: "clothify-motion",
@@ -18,6 +20,7 @@ export const PREFERENCE_KEYS = {
 export type SitePreferences = {
   theme: Theme;
   language: Language;
+  uiMode: UiMode;
   textSize: TextSize;
   contrast: Contrast;
   motion: Motion;
@@ -26,6 +29,7 @@ export type SitePreferences = {
 export const DEFAULT_SITE_PREFERENCES: SitePreferences = {
   theme: "system",
   language: "bn",
+  uiMode: "default",
   textSize: "normal",
   contrast: "normal",
   motion: "normal",
@@ -39,6 +43,10 @@ function normalizeLanguage(value: string | null | undefined): Language {
 function normalizeTheme(value: string | null | undefined): Theme {
   if (value === "light" || value === "dark" || value === "system") return value;
   return "system";
+}
+
+function normalizeUiMode(value: string | null | undefined): UiMode {
+  return value === "abo" ? "abo" : "default";
 }
 
 function normalizeTextSize(value: string | null | undefined): TextSize {
@@ -71,6 +79,7 @@ export function readSitePreferences(): SitePreferences {
     language: normalizeLanguage(
       getStoredValue(PREFERENCE_KEYS.languagePrimary, PREFERENCE_KEYS.languageLegacy)
     ),
+    uiMode: normalizeUiMode(getStoredValue(PREFERENCE_KEYS.uiMode)),
     textSize: normalizeTextSize(getStoredValue(PREFERENCE_KEYS.textSize)),
     contrast: normalizeContrast(getStoredValue(PREFERENCE_KEYS.contrast)),
     motion: normalizeMotion(getStoredValue(PREFERENCE_KEYS.motion)),
@@ -96,11 +105,13 @@ export function persistSitePreferences(preferences: SitePreferences) {
   localStorage.setItem(PREFERENCE_KEYS.themeLegacy, preferences.theme);
   localStorage.setItem(PREFERENCE_KEYS.languagePrimary, preferences.language);
   localStorage.setItem(PREFERENCE_KEYS.languageLegacy, preferences.language);
+  localStorage.setItem(PREFERENCE_KEYS.uiMode, preferences.uiMode);
   localStorage.setItem(PREFERENCE_KEYS.textSize, preferences.textSize);
   localStorage.setItem(PREFERENCE_KEYS.contrast, preferences.contrast);
   localStorage.setItem(PREFERENCE_KEYS.motion, preferences.motion);
   document.cookie = `clothfy-lang=${preferences.language}; path=/; max-age=31536000; samesite=lax`;
   document.cookie = `clothfy-theme=${preferences.theme}; path=/; max-age=31536000; samesite=lax`;
+  document.cookie = `clothfy-ui-mode=${preferences.uiMode}; path=/; max-age=31536000; samesite=lax`;
 }
 
 export function applySitePreferencesToDom(preferences: SitePreferences) {
@@ -112,6 +123,7 @@ export function applySitePreferencesToDom(preferences: SitePreferences) {
   root.setAttribute("data-theme", preferences.theme);
   root.classList.toggle("dark-theme", resolvedTheme === "dark");
   root.classList.toggle("dark", resolvedTheme === "dark");
+  root.classList.toggle("abo-premium", preferences.uiMode === "abo");
   root.classList.toggle("text-size-large", preferences.textSize === "large");
   root.classList.toggle("high-contrast", preferences.contrast === "high");
   root.classList.toggle("reduce-motion", preferences.motion === "reduced");
@@ -128,6 +140,7 @@ export function updateSitePreferences(partial: Partial<SitePreferences>) {
   const next: SitePreferences = {
     theme: normalizeTheme(partial.theme ?? current.theme),
     language: normalizeLanguage(partial.language ?? current.language),
+    uiMode: normalizeUiMode(partial.uiMode ?? current.uiMode),
     textSize: normalizeTextSize(partial.textSize ?? current.textSize),
     contrast: normalizeContrast(partial.contrast ?? current.contrast),
     motion: normalizeMotion(partial.motion ?? current.motion),

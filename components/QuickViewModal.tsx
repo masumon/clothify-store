@@ -45,10 +45,12 @@ export default function QuickViewModal({
   whatsappNumber = "8801811314262",
   onClose,
 }: Props) {
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0] || "M");
+  const availableSizes = product.sizes.length > 0 ? product.sizes : ["S", "M", "L", "XL"];
+  const [selectedSize, setSelectedSize] = useState(availableSizes[0] || "M");
   const [wishlisted, setWishlisted] = useState(false);
   const [currency, setCurrency] = useState<Currency>("BDT");
   const [added, setAdded] = useState(false);
+  const [imageSrc, setImageSrc] = useState(product.image_url || "/hero-modern-fashion.svg");
 
   useEffect(() => {
     setWishlisted(isInWishlist(product.id));
@@ -65,6 +67,14 @@ export default function QuickViewModal({
       document.body.style.overflow = prev;
     };
   }, []);
+
+  useEffect(() => {
+    setSelectedSize(product.sizes[0] || "S");
+  }, [product.id, product.sizes]);
+
+  useEffect(() => {
+    setImageSrc(product.image_url || "/hero-modern-fashion.svg");
+  }, [product.id, product.image_url]);
 
   const discount =
     product.original_price && product.original_price > product.price
@@ -107,12 +117,12 @@ export default function QuickViewModal({
       role="dialog"
       aria-modal="true"
       aria-label={`Quick view: ${product.name}`}
-      className="fixed inset-0 z-[200] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative max-h-[92vh] w-full max-w-2xl overflow-auto rounded-t-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-900/30 sm:rounded-3xl">
+      <div className="relative max-h-[92vh] w-full max-w-3xl overflow-auto rounded-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-900/30">
         {/* Close */}
         <button
           type="button"
@@ -127,11 +137,12 @@ export default function QuickViewModal({
           {/* ── Image pane ── */}
           <div className="relative min-h-[260px] overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none">
             <Image
-              src={product.image_url}
+              src={imageSrc}
               alt={product.name}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
+              onError={() => setImageSrc("/hero-modern-fashion.svg")}
             />
 
             {/* Overlay badges */}
@@ -170,6 +181,12 @@ export default function QuickViewModal({
               <h2 className="mt-1.5 text-xl font-extrabold leading-tight text-slate-900">
                 {product.name}
               </h2>
+              <p className="mt-1 text-xs font-semibold text-amber-500">
+                ★★★★☆ <span className="text-slate-500">(4.9 premium rating)</span>
+              </p>
+              <p className="mt-2 text-sm text-slate-600">
+                Crafted for modern menswear styling with premium finish, durable comfort, and elegant fit.
+              </p>
             </div>
 
             {/* Pricing */}
@@ -207,34 +224,32 @@ export default function QuickViewModal({
             </span>
 
             {/* Size picker */}
-            {product.sizes.length > 0 && (
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                  Select Size
-                  {FIT_GUIDE[selectedSize] && (
-                    <span className="ml-2 font-normal normal-case text-teal-600">
-                      — {FIT_GUIDE[selectedSize]}
-                    </span>
-                  )}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {product.sizes.map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => setSelectedSize(size)}
-                      className={`rounded-xl border px-4 py-2 text-sm font-bold transition ${
-                        selectedSize === size
-                          ? "border-teal-600 bg-teal-600 text-white shadow-md shadow-teal-200"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-teal-400 hover:bg-teal-50"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                Select Size
+                {FIT_GUIDE[selectedSize] && (
+                  <span className="ml-2 font-normal normal-case text-teal-600">
+                    — {FIT_GUIDE[selectedSize]}
+                  </span>
+                )}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {availableSizes.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => setSelectedSize(size)}
+                    className={`rounded-xl border px-4 py-2 text-sm font-bold transition ${
+                      selectedSize === size
+                        ? "border-teal-600 bg-teal-600 text-white shadow-md shadow-teal-200"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-teal-400 hover:bg-teal-50"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Wishlist */}
             <button

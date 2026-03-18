@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { trackVisit } from "@/lib/traffic";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
+import { withMonitoredRoute } from "@/lib/monitoring";
 
 type TrackPayload = {
   visitorId?: string;
@@ -8,9 +9,9 @@ type TrackPayload = {
   source?: string;
 };
 
-export async function POST(req: Request) {
+async function handleTrackVisit(request: Request) {
   try {
-    const body = (await req.json()) as TrackPayload;
+    const body = (await request.json()) as TrackPayload;
 
     const visitorId = typeof body.visitorId === "string" ? body.visitorId.trim() : "";
     const path = typeof body.path === "string" ? body.path.trim() : "/";
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid path" }, { status: 400 });
     }
 
-    const country = req.headers.get("x-vercel-ip-country") || "Unknown";
+    const country = request.headers.get("x-vercel-ip-country") || "Unknown";
 
     trackVisit({
       visitorId,
@@ -56,3 +57,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
+
+export const POST = withMonitoredRoute("api.track-visit", (request) =>
+  handleTrackVisit(request)
+);

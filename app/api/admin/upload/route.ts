@@ -10,8 +10,34 @@ const allowedMimeTypes = new Set([
 ]);
 const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
 
-function sanitizeSegment(value: string) {
-  return value.replace(/[^a-zA-Z0-9-_/]/g, "-").replace(/\s+/g, "-");
+function sanitizeFolderPath(value: string) {
+  const segments = value
+    .split(/[\\/]+/)
+    .map((segment) => segment.trim())
+    .filter((segment) => segment.length > 0 && segment !== "." && segment !== "..")
+    .map((segment) =>
+      segment
+        .replace(/[^a-zA-Z0-9-_]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "")
+    )
+    .filter(Boolean);
+
+  return segments.join("/") || "uploads";
+}
+
+function sanitizeFileName(value: string) {
+  const trimmed = value.trim().toLowerCase();
+  const dotIndex = trimmed.lastIndexOf(".");
+  const rawBaseName = dotIndex > -1 ? trimmed.slice(0, dotIndex) : trimmed;
+  const rawExtension = dotIndex > -1 ? trimmed.slice(dotIndex + 1) : "";
+  const baseName =
+    rawBaseName
+      .replace(/[^a-zA-Z0-9-_]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "") || "upload";
+  const extension = rawExtension.replace(/[^a-z0-9]/g, "");
+  return extension ? `${baseName}.${extension}` : baseName;
 }
 
 export async function POST(req: NextRequest) {
@@ -43,8 +69,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid storage bucket." }, { status: 400 });
     }
 
-    const safeFolder = sanitizeSegment(folder || "uploads");
-    const safeName = sanitizeSegment(file.name || "upload.bin");
+    const safeFolder = sanitizeFolderPath(folder || "uploads");
+    const safeName = sanitizeFileName(file.name || "upload.bin");
     const path = `${safeFolder}/${Date.now()}-${safeName}`;
 
     const supabase = getSupabaseAdminClient();

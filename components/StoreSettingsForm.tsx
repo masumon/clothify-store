@@ -44,7 +44,6 @@ export default function StoreSettingsForm({ initialData }: Props) {
 
     try {
       setLoading(true);
-      const filePath = `${folder}/${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
 
       const formData = new FormData();
       formData.append("file", file);

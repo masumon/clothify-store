@@ -88,6 +88,16 @@ const FALLBACK_COVERAGE = {
   courierBn: "Sundarban, Steadfast",
 };
 
+const DIVISION_ALIASES: Record<string, string> = {
+  Barishal: "Barisal",
+  Chittagong: "Chattogram",
+};
+
+function normalizeDivisionName(value: string) {
+  const key = value.trim();
+  return DIVISION_ALIASES[key] || key;
+}
+
 export default function DeliveryCheck({ compact = false }: Props) {
   const [district, setDistrict] = useState("");
   const [upazila, setUpazila] = useState("");
@@ -107,7 +117,7 @@ export default function DeliveryCheck({ compact = false }: Props) {
 
   const coverage = useMemo(() => {
     if (!district) return null;
-    const division = getDivisionOfDistrict(district) || "";
+    const division = normalizeDivisionName(getDivisionOfDistrict(district) || "");
     return DIVISION_COVERAGE[division] || FALLBACK_COVERAGE;
   }, [district]);
 
