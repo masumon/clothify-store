@@ -1,0 +1,518 @@
+ক্লথিফাই প্রজেক্টের বিস্তারিত বাংলা অডিট রিপোর্ট
+তারিখ: ২০২৬-০৩-১৯
+লোকেশন: e:\clothify-store-main\clothify-store-main
+রিপোর্টের ধরন: কোড, API, auth, database, deploy config, monitoring, UI runtime এবং security posture review
+
+==================================================
+১. রিপোর্টের উদ্দেশ্য
+==================================================
+এই রিপোর্টের উদ্দেশ্য হলো:
+
+১. প্রজেক্টে বর্তমানে কোন কোন সমস্যা আছে তা স্পষ্টভাবে দেখানো
+২. কোন কোন সমস্যা এখনই সমাধান করা সম্ভব তা আলাদা করে দেখানো
+৩. কোন কোন জায়গা আরও উন্নত করলে প্রজেক্ট enterprise-level মানে যাবে তা বোঝানো
+৪. কোন অংশগুলো ইতিমধ্যে ভালোভাবে কাজ করছে তা নিশ্চিত করা
+
+==================================================
+২. অডিটে যা যা পর্যালোচনা করা হয়েছে
+==================================================
+এই অডিটে নিম্নের অংশগুলো পর্যালোচনা করা হয়েছে:
+
+- Frontend layout, shared UI shell, browser storage usage
+- Admin login, session, auth protection, brute-force protection
+- Order API, total calculation, stock update, invoice generation
+- Admin product/settings/order status update flow
+- File upload system
+- Supabase integration
+- Monitoring, Sentry, WhatsApp notify, health-check
+- Next.js config, Vercel config, PWA artifact behavior
+- Test, build, lint, dependency posture
+
+==================================================
+৩. সামগ্রিক রায়
+==================================================
+বর্তমান অবস্থা:
+
+- Critical সমস্যা: নেই
+- High সমস্যা: নেই
+- Medium সমস্যা: ৩টি
+- Low সমস্যা: ২টি
+- Informational / Operational note: ২টি
+
+সংক্ষিপ্ত রায়:
+
+প্রজেক্টটি এখন usable, deployable, এবং core business logic-এর দিক থেকে আগের তুলনায় অনেক বেশি শক্ত।
+বিশেষ করে order tampering, admin brute-force, signed session, upload validation, monitoring readiness এবং integration coverage ভালোভাবে বসানো হয়েছে।
+
+তবে এখনো কয়েকটি গুরুত্বপূর্ণ hardening gap আছে। এগুলো fix করলে project অনেক বেশি secure, maintainable এবং production-grade হবে।
+
+==================================================
+৪. বর্তমানে ভালোভাবে কাজ করছে যেগুলো
+==================================================
+
+৪.১ Order amount এখন server-side verify হয়
+- Client-এর total blindly trust করা হচ্ছে না
+- Product DB থেকে refetch করা হচ্ছে
+- Server-side total calculate করা হচ্ছে
+- Mismatch হলে order reject হচ্ছে
+
+Evidence:
+- lib/api/orders.ts:233
+- lib/api/orders.ts:287
+
+৪.২ Stock এবং unpublished product server-side check হচ্ছে
+- Hidden/unpublished product order করা যাচ্ছে না
+- Stock কম থাকলে order reject হচ্ছে
+
+Evidence:
+- lib/api/orders.ts:267
+- lib/api/orders.ts:274
+
+৪.৩ Order flow-এ anti-bot এবং anti-abuse ব্যবস্থা আছে
+- IP rate limit আছে
+- honeypot field আছে
+- suspicious form timing reject হয়
+
+Evidence:
+- lib/api/orders.ts:133
+- lib/api/orders.ts:197
+
+৪.৪ Admin password login-এ brute-force lockout আছে
+- Multiple failed attempt হলে block হয়
+- Security alert trigger করার hook আছে
+
+Evidence:
+- app/api/admin/auth/route.ts:17
+- app/api/admin/auth/route.ts:80
+- app/api/admin/auth/route.ts:102
+
+৪.৫ Admin session signed token দিয়ে চালানো হচ্ছে
+- Session token signed
+- httpOnly cookie
+- production-এ secure cookie
+- sameSite=lax
+
+Evidence:
+- lib/admin-auth.ts:114
+- lib/admin-auth.ts:155
+
+৪.৬ Upload endpoint এখন অনেক বেশি নিরাপদ
+- Bucket allowlist আছে
+- MIME type allowlist আছে
+- Max size limit আছে
+- Folder/file name sanitize করা হয়
+
+Evidence:
+- app/api/admin/upload/route.ts:4
+- app/api/admin/upload/route.ts:61
+- app/api/admin/upload/route.ts:68
+- app/api/admin/upload/route.ts:72
+
+৪.৭ Monitoring ও health-check foundation আছে
+- Admin health endpoint আছে
+- Sentry integration optional
+- Webhook delivery tracking আছে
+- Redis/memory runtime store abstraction আছে
+
+Evidence:
+- app/api/admin/health/route.ts:1
+- lib/api/admin-health.ts:269
+- lib/sentry.ts:37
+- lib/whatsapp-notify.ts:48
+
+==================================================
+৫. বর্তমানে যে সমস্যাগুলো আছে
+==================================================
+
+------------------------------------------
+সমস্যা ১: Admin mutation route-এ explicit CSRF / Origin validation নেই
+Severity: Medium
+------------------------------------------
+
+সমস্যার ব্যাখ্যা:
+Admin panel-এর যেসব route data change করে, যেমন:
+- product add/update/delete
+- settings update
+- upload
+- order status change
+
+সেগুলো session cookie ও proxy guard-এর মাধ্যমে protected হলেও route-level explicit `Origin`, `Referer`, বা CSRF token check করা হচ্ছে না।
+
+অর্থাৎ:
+- Auth আছে
+- Session আছে
+- SameSite=Lax আছে
+- কিন্তু defense-in-depth হিসেবে CSRF hardening সম্পূর্ণ না
+
+Evidence:
+- proxy.ts:28
+- proxy.ts:33
+- app/api/admin/products/route.ts:29
+- app/api/admin/settings/route.ts:19
+- app/api/admin/upload/route.ts:43
+- app/api/admin/orders/[id]/status/route.ts:14
+
+প্রভাব:
+- এখনই catastrophic exploit না
+- কিন্তু future browser behavior, same-site edge case, browser extension, বা custom admin tooling-এর ক্ষেত্রে risk থেকে যায়
+
+সমাধান করা যাবে কি?
+- হ্যাঁ, পুরোপুরি সমাধানযোগ্য
+
+কিভাবে সমাধান করা যায়:
+১. Shared helper দিয়ে trusted origin verify করা
+২. Admin mutation request-এ custom CSRF header enforce করা
+৩. POST/PUT/PATCH/DELETE route-এ centralized protection বসানো
+
+প্রাধান্য:
+- খুব গুরুত্বপূর্ণ
+- next hardening pass-এ প্রথমেই করা উচিত
+
+------------------------------------------
+সমস্যা ২: Admin auth এখনো shared static username/password model-এ নির্ভরশীল
+Severity: Medium
+------------------------------------------
+
+সমস্যার ব্যাখ্যা:
+Admin access এখনো মূলত env-based shared credentials দিয়ে চলছে।
+তার সাথে backward compatibility-এর জন্য HTTP Basic fallback রাখা আছে।
+
+Evidence:
+- proxy.ts:19
+- proxy.ts:33
+- lib/admin-auth.ts:44
+- lib/admin-auth.ts:51
+- lib/admin-auth.ts:179
+- app/api/admin/auth/route.ts:92
+
+প্রভাব:
+- Shared credential মানে accountability কম
+- Password rotate/manual share করা operationally risky
+- HTTP Basic fallback production posture দুর্বল করে
+- `ADMIN_SESSION_SECRET` না থাকলে credential-derived fallback secret ব্যবহার হয়
+
+ভালো দিক:
+- Constant-time compare আছে
+- Lockout আছে
+- Signed session আছে
+- Supabase bridge path আছে
+
+সমাধান করা যাবে কি?
+- হ্যাঁ, ধাপে ধাপে পুরোপুরি উন্নত করা যাবে
+
+কিভাবে সমাধান করা যায়:
+১. Production-এ HTTP Basic fallback off করা
+২. `ADMIN_SESSION_SECRET` mandatory করা
+৩. Shared env login থেকে per-user Supabase admin login-এ যাওয়া
+৪. Admin action audit trail করা
+
+প্রাধান্য:
+- গুরুত্বপূর্ণ
+- CSRF hardening-এর পর এটিই next priority হওয়া উচিত
+
+------------------------------------------
+সমস্যা ৩: Repo-level CSP ও browser security headers নেই
+Severity: Medium
+------------------------------------------
+
+সমস্যার ব্যাখ্যা:
+Project config-এ explicit browser security header define করা নেই।
+যেমন:
+- Content-Security-Policy
+- X-Content-Type-Options
+- Referrer-Policy
+- frame-ancestors / clickjacking protection
+
+একই সাথে root layout-এ:
+- external CDN stylesheet load হচ্ছে
+- inline bootstrap script আছে
+
+Evidence:
+- next.config.js:23
+- vercel.json:1
+- app/layout.tsx:93
+- app/layout.tsx:100
+
+প্রভাব:
+- XSS defense-in-depth দুর্বল
+- future CSP rollout কঠিন হয়
+- external asset trust surface বড় হয়
+- security policy platform default-এর উপর নির্ভরশীল হয়ে যায়
+
+সমাধান করা যাবে কি?
+- হ্যাঁ, সমাধানযোগ্য
+
+কিভাবে সমাধান করা যায়:
+১. Next config বা edge config-এ explicit security header যোগ করা
+২. Inline script-কে nonce/hash-based model-এ নেওয়া
+৩. CDN dependency কমানো
+৪. CSP allowlist carefully define করা
+
+প্রাধান্য:
+- গুরুত্বপূর্ণ
+- medium-term hardening-এর জন্য দরকার
+
+------------------------------------------
+সমস্যা ৪: Invoice popup-এ raw HTML string render করা হচ্ছে
+Severity: Low
+------------------------------------------
+
+সমস্যার ব্যাখ্যা:
+Invoice HTML string interpolation দিয়ে বানানো হচ্ছে, তারপর `popup.document.write(html)` দিয়ে browser popup-এ render করা হচ্ছে।
+
+Dynamic field:
+- customerName
+- address
+- item name
+- store name
+- store address
+- store phone
+
+Evidence:
+- components/InvoiceAutoDownload.tsx:90
+- components/InvoiceAutoDownload.tsx:203
+- components/InvoiceAutoDownload.tsx:309
+- components/InvoiceAutoDownload.tsx:346
+
+প্রভাব:
+- Direct global exploit না
+- কিন্তু self-XSS / rendering injection pattern হিসেবে ideal না
+- future reuse হলে risk বাড়তে পারে
+
+সমাধান করা যাবে কি?
+- হ্যাঁ, সহজেই করা যাবে
+
+কিভাবে সমাধান করা যায়:
+১. HTML escape function ব্যবহার করা
+২. Printable route/component দিয়ে render করা
+৩. `document.write` বাদ দেওয়া
+
+প্রাধান্য:
+- low, কিন্তু clean-up হিসেবে করা উচিত
+
+------------------------------------------
+সমস্যা ৫: External Font Awesome stylesheet integrity pinning ছাড়া লোড হচ্ছে
+Severity: Low
+------------------------------------------
+
+Evidence:
+- app/layout.tsx:93
+
+প্রভাব:
+- external CDN dependency
+- supply-chain trust surface বাড়ে
+- stronger CSP policy implement করা কঠিন হয়
+
+সমাধান করা যাবে কি?
+- হ্যাঁ
+
+কিভাবে সমাধান করা যায়:
+১. Font Awesome self-host করা
+২. integrity hash যোগ করা
+৩. local SVG icon system-এ migrate করা
+
+প্রাধান্য:
+- low
+
+==================================================
+৬. কোন কোন সমস্যা এখনই সমাধান করা সম্ভব
+==================================================
+
+এখনই সমাধানযোগ্য সমস্যা:
+
+১. Admin CSRF / Origin validation
+- খুবই feasible
+- shared middleware/helper দিয়ে করা যাবে
+
+২. HTTP Basic fallback disable
+- production condition দিয়ে safe toggle করা যাবে
+
+৩. `ADMIN_SESSION_SECRET` mandatory করা
+- startup validation যোগ করলেই হবে
+
+৪. Security headers / CSP introduce করা
+- ধাপে ধাপে করা যাবে
+- আগে report-only mode, পরে enforce mode
+
+৫. Invoice rendering sanitize করা
+- তুলনামূলক দ্রুত fix
+
+৬. CDN icon dependency কমানো
+- local icon approach নিলে clean হবে
+
+==================================================
+৭. কোন কোন উন্নয়ন করলে প্রজেক্ট আরও ভালো হবে
+==================================================
+
+এগুলো bug না, কিন্তু improvement হিসেবে খুব ভালো হবে:
+
+১. Per-admin identity system
+- Shared env login-এর বদলে আলাদা admin account
+- কে কি change করেছে তা track করা সহজ হবে
+
+২. Admin audit log
+- কোন admin কখন product edit করল
+- কে status change করল
+- কে settings update করল
+
+৩. Stronger deploy security policy
+- CSP
+- HSTS
+- Referrer policy
+- Frame protection
+
+৪. Invoice system premium + safer rendering
+- Server-side printable page
+- PDF generation service
+- Escaped template engine
+
+৫. Monitoring আরও mature করা
+- Sentry fully enabled
+- WhatsApp webhook fully configured
+- Upstash fully enabled
+- alert threshold setup
+
+৬. Runtime security visibility
+- suspicious admin login dashboard card
+- failed webhook trend
+- order abuse attempt counter
+
+৭. Better secret hygiene
+- startup env validation
+- missing env fail-fast
+- optional secret masking health panel
+
+৮. Release artifact policy
+- `public/sw.js` যদি tracked থাকে, CI/release policy নির্ধারণ করা দরকার
+
+==================================================
+৮. Database ও API সংক্রান্ত পর্যবেক্ষণ
+==================================================
+
+Database/API-এর দিক থেকে ভালো যেগুলো:
+
+- server-side order amount validation আছে
+- stock decrement server-side হয়
+- order item persistence path আছে
+- Supabase admin client centralized
+- health-check থেকে infra readiness দেখা যায়
+
+যেখানে উন্নতি করা দরকার:
+
+- admin mutation route-এ CSRF hardening
+- admin identity model উন্নত করা
+- production config enforcement আরও strict করা
+
+==================================================
+৯. Frontend ও UI runtime সংক্রান্ত পর্যবেক্ষণ
+==================================================
+
+ভালো দিক:
+- layout level preference sync আছে
+- theme/lang bootstrapping centralized
+- dangerous sink usage খুব সীমিত
+
+যেখানে সতর্ক হওয়া উচিত:
+- inline script আছে
+- external CDN stylesheet আছে
+- invoice popup raw HTML render করছে
+
+==================================================
+১০. Deploy ও config readiness note
+==================================================
+
+Repo-visible config:
+- next.config.js
+- vercel.json
+- layout boot logic
+
+বর্তমান অবস্থা:
+- Deploy config minimal
+- App কাজ করার মতো ready
+- Explicit browser security policy repo-তে define করা নেই
+
+Operational note:
+- `npm run build` চালালে `public/sw.js` regenerate হয়
+- তাই build run করলে working tree dirty হতে পারে
+
+এটি security issue নয়, কিন্তু release hygiene issue
+
+==================================================
+১১. যাচাইয়ের ফলাফল
+==================================================
+
+যে command গুলো run করা হয়েছে:
+
+১. `npm run lint`
+- ফলাফল: PASS
+
+২. `npm run test:integration`
+- ফলাফল: PASS
+
+৩. `npm run build`
+- ফলাফল: PASS
+
+৪. `npm audit --omit=dev --json`
+- ফলাফল: PASS
+- production vulnerability: ০
+
+অর্থাৎ:
+- Project broken না
+- Build fail করছে না
+- Dependency posture acceptable
+- Critical regression test pass করছে
+
+==================================================
+১২. অগ্রাধিকারভিত্তিক করণীয়
+==================================================
+
+প্রথম ধাপ:
+- Admin mutation route-এ CSRF / Origin validation যোগ করা
+
+দ্বিতীয় ধাপ:
+- HTTP Basic fallback production-এ বন্ধ করা
+- `ADMIN_SESSION_SECRET` mandatory করা
+
+তৃতীয় ধাপ:
+- Security headers + CSP যোগ করা
+
+চতুর্থ ধাপ:
+- Invoice rendering safer করা
+
+পঞ্চম ধাপ:
+- External icon/CDN dependency clean করা
+
+ষষ্ঠ ধাপ:
+- Admin audit log + per-user identity model আনা
+
+==================================================
+১৩. চূড়ান্ত উপসংহার
+==================================================
+
+এই project-এর বর্তমান অবস্থা ভালো।
+এটি এখন:
+- usable
+- deployable
+- business logic-wise অনেক বেশি mature
+- core flow-wise stable
+
+তবে এটিকে "fully hardened" বলা যাবে না, কারণ এখনো কিছু security hardening এবং architecture maturity কাজ বাকি আছে।
+
+সবচেয়ে গুরুত্বপূর্ণ খোলা সমস্যা ৩টি:
+
+১. Admin CSRF / origin validation নেই
+২. Shared static admin credential model এখনো আছে
+৩. Repo-level security header / CSP policy নেই
+
+যেগুলো low priority কিন্তু clean করা উচিত:
+
+১. Invoice popup raw HTML rendering
+২. External CDN stylesheet integrity/self-hosting issue
+
+চূড়ান্ত রায়:
+
+- Project production-ready: হ্যাঁ
+- Project fully hardened: এখনো না
+- বড় ভেঙে পড়ার মতো blocker: নেই
+- next hardening pass করা উচিত: অবশ্যই
+

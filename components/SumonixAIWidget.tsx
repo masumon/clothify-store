@@ -4,7 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import AppIcon from "@/components/AppIcon";
 import { addToCart, getCart } from "@/lib/cart";
+import { emitFloatingPanelState, isCriticalCommercePath } from "@/lib/floating-ui";
+import { getDictionary } from "@/lib/i18n";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
 
 type SuggestedProduct = {
   id: string;
@@ -126,23 +134,17 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [lang, setLang] = useState<Language>("bn");
 
   const isAdminRoute = pathname.startsWith("/admin");
+  const isCompactFlow =
+    mode === "public" &&
+    (isCriticalCommercePath(pathname) ||
+      pathname.startsWith("/product/") ||
+      pathname.startsWith("/cart"));
   const shouldHide = (mode === "public" && isAdminRoute) || (mode === "admin" && !isAdminRoute);
-  const quickPrompts =
-    mode === "admin"
-      ? [
-          "আজকের sales + pending report দিন",
-          "গত ৫ দিনের intent gap বলুন",
-          "কোথায় drop-off বেশি হচ্ছে?",
-          "restock alert দিন",
-        ]
-      : [
-          "কিভাবে অর্ডার করবো?",
-          "পেমেন্ট কিভাবে করবো?",
-          "ডেলিভারি কতো দিনে হবে?",
-          "আমি checkout এ আটকে গেছি",
-        ];
+  const dict = getDictionary(lang);
+  const quickPrompts = mode === "admin" ? dict.ai.promptsAdmin : dict.ai.promptsPublic;
 
   useEffect(() => {
     if (!open) return;
@@ -151,6 +153,18 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
     container.scrollTop = container.scrollHeight;
   }, [messages, loading, open]);
 
+  useEffect(() => {
+    const syncLanguage = () => setLang(readSitePreferences().language);
+    syncLanguage();
+    window.addEventListener(PREFERENCE_EVENT, syncLanguage);
+    return () => window.removeEventListener(PREFERENCE_EVENT, syncLanguage);
+  }, []);
+
+  useEffect(() => {
+    emitFloatingPanelState(open);
+    return () => emitFloatingPanelState(false);
+  }, [open]);
+
   if (shouldHide) {
     return null;
   }
@@ -158,7 +172,9 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   // Keep assistant above mobile sticky navigation on public pages.
   const floatingPositionClass =
     mode === "public"
-      ? "bottom-[8.4rem] left-4 sm:bottom-24 sm:left-5 md:bottom-24 md:left-6"
+      ? isCompactFlow
+        ? "bottom-24 right-4 sm:bottom-24 sm:right-5"
+        : "bottom-[8.4rem] left-4 sm:bottom-24 sm:left-5 md:bottom-24 md:left-6"
       : "bottom-5 right-5 md:bottom-6 md:right-6";
 
   const getUiLanguage = () => {
@@ -228,12 +244,12 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
 
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          text: resultMessage || "আমি এই প্রশ্নের জন্য concise response তৈরি করতে পারিনি, আবার একটু বিস্তারিত লিখে দিন।",
-          products: Array.isArray((result as { products?: unknown }).products)
-            ? ((result as { products: SuggestedProduct[] }).products || [])
-            : [],
+          {
+            role: "assistant",
+            text: resultMessage || dict.ai.emptyResponse,
+            products: Array.isArray((result as { products?: unknown }).products)
+              ? ((result as { products: SuggestedProduct[] }).products || [])
+              : [],
           actions: Array.isArray((result as { actions?: unknown }).actions)
             ? ((result as { actions: string[] }).actions || [])
             : [],
@@ -245,7 +261,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
         ...prev,
         {
           role: "assistant",
-          text: `দুঃখিত, এখন উত্তর দিতে পারছি না: ${message}`,
+          text: `${dict.ai.errorPrefix} ${message}`,
         },
       ]);
     } finally {
@@ -261,7 +277,11 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   return (
     <div className={`fixed z-[85] ${floatingPositionClass}`}>
       {open ? (
-        <div className="w-[min(90vw,312px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/25 ring-1 ring-slate-100">
+        <div
+          className={`overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/25 ring-1 ring-slate-100 ${
+            isCompactFlow ? "w-[min(88vw,296px)]" : "w-[min(90vw,312px)]"
+          }`}
+        >
           <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-4 py-3.5 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -272,7 +292,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                 onClick={() => setOpen(false)}
                 className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white"
               >
-                Close
+                {dict.ai.close}
               </button>
             </div>
           </div>
@@ -339,7 +359,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                                 ...prev,
                                 {
                                   role: "assistant",
-                                  text: `✅ ${product.name} কার্টে যোগ হয়েছে।`,
+                                  text: `${product.name} ${dict.ai.cartAdded}.`,
                                 },
                               ]);
                             }}
@@ -365,7 +385,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
 
             {loading ? (
               <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-800 shadow-sm">
-                <span className="font-semibold text-teal-700">SUMONIX AI typing......</span>
+                <span className="font-semibold text-teal-700">{dict.ai.typing}</span>
                 <span className="ml-2 inline-flex items-center gap-1 align-middle">
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-600 [animation-delay:0ms]" />
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-600 [animation-delay:120ms]" />
@@ -376,7 +396,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
           </div>
 
           <form onSubmit={sendQuestion} className="border-t border-slate-200 bg-white p-3">
-            <div className="mb-2 flex flex-wrap gap-2">
+            {!isCompactFlow ? <div className="mb-2 flex flex-wrap gap-2">
               {quickPrompts.map((prompt) => (
                 <button
                   key={prompt}
@@ -388,7 +408,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                   {prompt}
                 </button>
               ))}
-            </div>
+            </div> : null}
 
             <div className="flex gap-2">
               <input
@@ -396,16 +416,16 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder={
-                  mode === "admin" ? "Ask your admin question..." : "Ask your question..."
+                  mode === "admin" ? dict.ai.askAdminQuestion : dict.ai.askQuestion
                 }
                 className="flex-1 rounded-2xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-2xl bg-teal-700 px-3.5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-2xl bg-teal-700 px-3.5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
               >
-                {loading ? "Typing..." : "Send"}
+                {loading ? <AppIcon name="bot" className="h-4.5 w-4.5 animate-pulse" /> : dict.ai.send}
               </button>
             </div>
           </form>
@@ -416,11 +436,15 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="group rounded-full bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 px-4 py-2.5 text-xs font-bold text-white shadow-xl shadow-teal-900/25 transition hover:scale-[1.03] hover:shadow-2xl"
+          className={`group bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 text-xs font-bold text-white shadow-xl shadow-teal-900/25 transition hover:scale-[1.03] hover:shadow-2xl ${
+            isCompactFlow
+              ? "inline-flex h-12 w-12 items-center justify-center rounded-2xl"
+              : "rounded-full px-4 py-2.5"
+          }`}
         >
           <span className="flex items-center gap-2">
             <span className="inline-flex h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_0_3px_rgba(110,231,183,0.25)]" />
-            SUMONIX AI
+            {!isCompactFlow ? "SUMONIX AI" : <AppIcon name="bot" className="h-4.5 w-4.5" />}
           </span>
         </button>
       ) : null}

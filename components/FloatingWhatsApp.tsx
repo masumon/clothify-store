@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import AppIcon from "@/components/AppIcon";
+import {
+  FLOATING_PANEL_EVENT,
+  isLowPriorityFloatingHiddenPath,
+} from "@/lib/floating-ui";
 import { PREFERENCE_EVENT, readSitePreferences, type UiMode } from "@/lib/site-preferences";
 
 type Props = {
@@ -11,6 +16,7 @@ type Props = {
 export default function FloatingWhatsApp({ phone = "8801811314262" }: Props) {
   const pathname = usePathname();
   const [uiMode, setUiMode] = useState<UiMode>("default");
+  const [sumonixOpen, setSumonixOpen] = useState(false);
 
   useEffect(() => {
     const sync = () => setUiMode(readSitePreferences().uiMode);
@@ -19,8 +25,18 @@ export default function FloatingWhatsApp({ phone = "8801811314262" }: Props) {
     return () => window.removeEventListener(PREFERENCE_EVENT, sync);
   }, []);
 
-  const hiddenRoutes = ["/help", "/admin"];
-  if (hiddenRoutes.some((r) => pathname.startsWith(r))) return null;
+  useEffect(() => {
+    const syncPanelState = (event: Event) => {
+      const detail = (event as CustomEvent<{ sumonixOpen?: boolean }>).detail;
+      setSumonixOpen(Boolean(detail?.sumonixOpen));
+    };
+    window.addEventListener(FLOATING_PANEL_EVENT, syncPanelState as EventListener);
+    return () => window.removeEventListener(FLOATING_PANEL_EVENT, syncPanelState as EventListener);
+  }, []);
+
+  if (pathname.startsWith("/admin") || isLowPriorityFloatingHiddenPath(pathname) || sumonixOpen) {
+    return null;
+  }
 
   const message = encodeURIComponent("ভাই, একটা product নিয়ে help লাগবে।");
   const link = `https://wa.me/${phone}?text=${message}`;
@@ -39,7 +55,7 @@ export default function FloatingWhatsApp({ phone = "8801811314262" }: Props) {
         pathname.startsWith("/checkout") ? "bottom-28" : "bottom-20"
       }`}
     >
-      💬
+      <AppIcon name="whatsapp" className="h-5 w-5" />
     </a>
   );
 }

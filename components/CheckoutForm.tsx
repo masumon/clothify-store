@@ -2,6 +2,12 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { clearCart, getCart } from "@/lib/cart";
+import { getDictionary } from "@/lib/i18n";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
 import { CartItem } from "@/types";
 
 const INVOICE_STORAGE_KEY = "clothify-latest-invoice";
@@ -27,6 +33,7 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
   const [cart, setCart] = useState<CartItem[]>([]);
   const [startedAt, setStartedAt] = useState(Date.now());
   const [submitError, setSubmitError] = useState("");
+  const [lang, setLang] = useState<Language>("bn");
 
   useEffect(() => {
     setCart(getCart());
@@ -64,6 +71,13 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
   }, []);
 
   useEffect(() => {
+    const syncLanguage = () => setLang(readSitePreferences().language);
+    syncLanguage();
+    window.addEventListener(PREFERENCE_EVENT, syncLanguage);
+    return () => window.removeEventListener(PREFERENCE_EVENT, syncLanguage);
+  }, []);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
     const draft = {
       customerName,
@@ -83,22 +97,23 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
   const total = useMemo(() => {
     return cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
   }, [cart]);
+  const dict = getDictionary(lang);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!customerName || !phone || !address) {
-      alert("Please fill all fields");
+      alert(dict.checkout.allFieldsRequired);
       return;
     }
 
     if ((paymentMethod === "bKash" || paymentMethod === "Nagad") && !trxId.trim()) {
-      alert("Please provide your payment Transaction ID");
+      alert(dict.checkout.paymentTransactionRequired);
       return;
     }
 
     if (cart.length === 0) {
-      alert("Your cart is empty");
+      alert(dict.checkout.cartEmptyAlert);
       return;
     }
 
@@ -177,9 +192,9 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       localStorage.removeItem(CHECKOUT_DRAFT_KEY);
       window.location.href = "/order-success";
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to place order";
+      const message = error instanceof Error ? error.message : dict.checkout.failedOrder;
       setSubmitError(message.includes("aborted")
-        ? "Network timeout. Connection slow হতে পারে, আবার চেষ্টা করুন।"
+        ? dict.checkout.timeoutMessage
         : message);
     } finally {
       setSubmitting(false);
@@ -190,7 +205,7 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
     <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Phone Number *"
+        placeholder={dict.checkout.phoneNumber}
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -198,21 +213,21 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       />
       <input
         type="text"
-        placeholder="Full Name *"
+        placeholder={dict.checkout.fullName}
         value={customerName}
         onChange={(e) => setCustomerName(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
       />
       <textarea
-        placeholder="Address"
+        placeholder={dict.checkout.address}
         value={address}
         onChange={(e) => setAddress(e.target.value)}
         className="min-h-[120px] w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
       />
       <div className="grid gap-3 sm:grid-cols-2">
         <select
-          aria-label="City"
-          title="City"
+          aria-label={dict.checkout.city}
+          title={dict.checkout.city}
           value={city}
           onChange={(e) => setCity(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -228,15 +243,15 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
         </select>
         <input
           type="text"
-          placeholder="Postal Code"
+          placeholder={dict.checkout.postalCode}
           value={postalCode}
           onChange={(e) => setPostalCode(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
         />
       </div>
       <select
-        aria-label="Delivery Method"
-        title="Delivery Method"
+        aria-label={dict.checkout.deliveryMethod}
+        title={dict.checkout.deliveryMethod}
         value={deliveryMethod}
         onChange={(e) => setDeliveryMethod(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -246,9 +261,9 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       </select>
 
       {deliveryMethod === "Home Delivery" ? (
-        <select
-          aria-label="Courier Service"
-          title="Courier Service"
+      <select
+        aria-label={dict.checkout.courierService}
+        title={dict.checkout.courierService}
           value={courierName}
           onChange={(e) => setCourierName(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -263,8 +278,8 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       ) : null}
 
       <select
-        aria-label="Payment Method"
-        title="Payment Method"
+        aria-label={dict.checkout.paymentMethod}
+        title={dict.checkout.paymentMethod}
         value={paymentMethod}
         onChange={(e) => setPaymentMethod(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
@@ -277,19 +292,19 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       {paymentMethod === "bKash" || paymentMethod === "Nagad" ? (
         <input
           type="text"
-          placeholder={`${paymentMethod} Transaction ID`}
+          placeholder={`${paymentMethod} ${dict.checkout.transactionId}`}
           value={trxId}
           onChange={(e) => setTrxId(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
         />
       ) : (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-          COD selected. Product receive করার সময় courier-কে payment করুন।
+          {dict.checkout.codNotice}
         </div>
       )}
 
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
-        ✅ COD Available • 💳 bKash/Nagad supported • 🔁 7 days exchange support
+        {dict.checkout.trustLine}
       </div>
 
       <input
@@ -304,7 +319,7 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
       />
 
       <div className="rounded-xl bg-slate-50 p-4">
-        <p className="font-semibold text-slate-900">Order Total: ৳{total}</p>
+        <p className="font-semibold text-slate-900">{dict.checkout.orderTotal}: ৳{total}</p>
       </div>
 
       <button
@@ -313,19 +328,19 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
         disabled={submitting}
         className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white disabled:opacity-60"
       >
-        {submitting ? "Placing Order..." : "Place Order"}
+        {submitting ? dict.checkout.placingOrder : dict.checkout.placeOrder}
       </button>
 
       {submitting ? (
         <p className="text-xs font-medium text-slate-500">
-          Payment/Order processing... দয়া করে page close করবেন না।
+          {dict.checkout.processing}
         </p>
       ) : null}
 
       {submitError ? (
         <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
           {submitError}
-          <p className="mt-1 text-xs">Retry করুন বা WhatsApp support নিন।</p>
+          <p className="mt-1 text-xs">{dict.checkout.retryHint}</p>
         </div>
       ) : null}
     </form>

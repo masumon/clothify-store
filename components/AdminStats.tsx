@@ -1,3 +1,14 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import AppIcon from "@/components/AppIcon";
+import { getDictionary } from "@/lib/i18n";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
+
 type Props = {
   totalProducts: number;
   totalOrders: number;
@@ -11,32 +22,45 @@ export default function AdminStats({
   totalPending,
   totalRevenue,
 }: Props) {
-  const cards = [
-    {
-      label: "Monthly Revenue",
-      value: `৳${Math.round(totalRevenue).toLocaleString("en-BD")}`,
-      iconClass: "fa-solid fa-coins",
-      iconTone: "bg-amber-100 text-amber-700",
-    },
-    {
-      label: "Total Orders",
-      value: totalOrders.toLocaleString("en-BD"),
-      iconClass: "fa-solid fa-box-open",
-      iconTone: "bg-sky-100 text-sky-700",
-    },
-    {
-      label: "Pending Delivery",
-      value: totalPending.toLocaleString("en-BD"),
-      iconClass: "fa-solid fa-truck-fast",
-      iconTone: "bg-rose-100 text-rose-700",
-    },
-    {
-      label: "Products Catalog",
-      value: totalProducts.toLocaleString("en-BD"),
-      iconClass: "fa-solid fa-shirt",
-      iconTone: "bg-emerald-100 text-emerald-700",
-    },
-  ];
+  const [lang, setLang] = useState<Language>("bn");
+
+  useEffect(() => {
+    const syncLanguage = () => setLang(readSitePreferences().language);
+    syncLanguage();
+    window.addEventListener(PREFERENCE_EVENT, syncLanguage);
+    return () => window.removeEventListener(PREFERENCE_EVENT, syncLanguage);
+  }, []);
+
+  const dict = getDictionary(lang);
+  const cards = useMemo(
+    () => [
+      {
+        label: dict.admin.monthlyRevenue,
+        value: `৳${Math.round(totalRevenue).toLocaleString("en-BD")}`,
+        icon: "revenue" as const,
+        iconTone: "bg-amber-100 text-amber-700",
+      },
+      {
+        label: dict.admin.totalOrders,
+        value: totalOrders.toLocaleString("en-BD"),
+        icon: "packageOpen" as const,
+        iconTone: "bg-sky-100 text-sky-700",
+      },
+      {
+        label: dict.admin.pendingDelivery,
+        value: totalPending.toLocaleString("en-BD"),
+        icon: "truck" as const,
+        iconTone: "bg-rose-100 text-rose-700",
+      },
+      {
+        label: dict.admin.productCatalogShort,
+        value: totalProducts.toLocaleString("en-BD"),
+        icon: "shirt" as const,
+        iconTone: "bg-emerald-100 text-emerald-700",
+      },
+    ],
+    [dict.admin.monthlyRevenue, dict.admin.pendingDelivery, dict.admin.productCatalogShort, dict.admin.totalOrders, totalOrders, totalPending, totalProducts, totalRevenue]
+  );
 
   return (
     <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -51,7 +75,7 @@ export default function AdminStats({
               <h3 className="mt-2 text-2xl font-extrabold text-slate-900">{card.value}</h3>
             </div>
             <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${card.iconTone}`}>
-              <i className={card.iconClass} aria-hidden="true" />
+              <AppIcon name={card.icon} className="h-5 w-5" />
             </span>
           </div>
         </div>

@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import AppIcon from "@/components/AppIcon";
 import DeveloperCredit from "./DeveloperCredit";
+import { getDictionary } from "@/lib/i18n";
 import {
   type Language,
   PREFERENCE_EVENT,
@@ -20,7 +22,7 @@ type Props = {
 type PaymentMethod = {
   key: string;
   label: string;
-  logo: string;
+  badge: string;
   available: boolean;
   href?: string;
 };
@@ -58,27 +60,23 @@ export default function Footer({
     return () => window.clearTimeout(id);
   }, [toast]);
 
-  const isBn = lang === "bn";
+  const dict = getDictionary(lang);
   const addressParts = formatAddressParts(address || "");
   const paymentMethods: PaymentMethod[] = useMemo(
     () => [
-      { key: "bkash", label: "bKash", logo: "💳", available: true, href: "/payment" },
-      { key: "nagad", label: "Nagad", logo: "🧡", available: true, href: "/checkout" },
-      { key: "cod", label: isBn ? "Cash on Delivery" : "Cash on Delivery", logo: "📦", available: true, href: "/checkout" },
-      { key: "card", label: "Visa/Mastercard", logo: "💠", available: false },
-      { key: "paypal", label: "PayPal", logo: "🅿️", available: false },
-      { key: "stripe", label: "Stripe", logo: "💜", available: false },
+      { key: "bkash", label: "bKash", badge: "BK", available: true, href: "/payment" },
+      { key: "nagad", label: "Nagad", badge: "NG", available: true, href: "/checkout" },
+      { key: "cod", label: dict.checkout.cod, badge: "COD", available: true, href: "/checkout" },
+      { key: "card", label: "Visa/Mastercard", badge: "VM", available: false },
+      { key: "paypal", label: "PayPal", badge: "PP", available: false },
+      { key: "stripe", label: "Stripe", badge: "ST", available: false },
     ],
-    [isBn]
+    [dict.checkout.cod]
   );
 
   const handlePaymentMethodClick = (method: PaymentMethod) => {
     if (method.available || method.href) return;
-    setToast(
-      isBn
-        ? `${method.label} ফিচার শীঘ্রই যুক্ত হচ্ছে।`
-        : `${method.label} is coming soon.`
-    );
+    setToast(`${method.label} ${dict.common.comingSoon.toLowerCase()}.`);
   };
 
   return (
@@ -98,15 +96,13 @@ export default function Footer({
             </div>
 
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              {isBn
-                ? "প্রিমিয়াম পোশাক, নিরাপদ পেমেন্ট, দ্রুত ডেলিভারি এবং সহজ রিটার্ন সুবিধাসহ সম্পূর্ণ ই-কমার্স অভিজ্ঞতা।"
-                : "Premium apparel, secure payments, fast delivery, and easy returns in one ecommerce experience."}
+              {dict.footer.description}
             </p>
 
             <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              {isBn ? "যোগাযোগ" : "Contact"}
+              {dict.footer.contact}
             </p>
-            <p className="mt-1 text-sm text-slate-300">{phone || (isBn ? "ফোন নাম্বার যোগ করা হয়নি" : "Phone not added yet")}</p>
+            <p className="mt-1 text-sm text-slate-300">{phone || dict.footer.contactMissing}</p>
 
             <div className="mt-4 flex items-center gap-2">
               <a
@@ -116,7 +112,7 @@ export default function Footer({
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm transition hover:bg-white/20"
                 aria-label="Facebook"
               >
-                <i className="fa-brands fa-facebook-f" aria-hidden="true" />
+                <AppIcon name="facebook" className="h-4.5 w-4.5" />
               </a>
               <a
                 href="https://wa.me/8801811314262"
@@ -125,7 +121,7 @@ export default function Footer({
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/20 text-sm text-emerald-100 transition hover:bg-emerald-500/30"
                 aria-label="WhatsApp"
               >
-                <i className="fa-brands fa-whatsapp" aria-hidden="true" />
+                <AppIcon name="whatsapp" className="h-4.5 w-4.5" />
               </a>
               <a
                 href="https://www.instagram.com"
@@ -134,36 +130,36 @@ export default function Footer({
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm transition hover:bg-white/20"
                 aria-label="Instagram"
               >
-                <i className="fa-brands fa-instagram" aria-hidden="true" />
+                <AppIcon name="instagram" className="h-4.5 w-4.5" />
               </a>
             </div>
           </div>
 
           <div>
-            <h4 className="text-base font-bold">{isBn ? "দ্রুত লিংক" : "Quick Links"}</h4>
+            <h4 className="text-base font-bold">{dict.footer.quickLinks}</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-300">
-              <li><Link href="/" className="transition hover:text-white">{isBn ? "🏠 হোম" : "🏠 Home"}</Link></li>
-              <li><Link href="/fb" className="transition hover:text-white">{isBn ? "📣 ল্যান্ডিং পেজ" : "📣 Landing Page"}</Link></li>
-              <li><Link href="/categories" className="transition hover:text-white">{isBn ? "🧭 ক্যাটাগরি" : "🧭 Categories"}</Link></li>
-              <li><Link href="/offers" className="transition hover:text-white">{isBn ? "🏷️ অফার" : "🏷️ Offers"}</Link></li>
-              <li><Link href="/checkout" className="transition hover:text-white">{isBn ? "✅ চেকআউট" : "✅ Checkout"}</Link></li>
-              <li><Link href="/help" className="transition hover:text-white">{isBn ? "💬 সাপোর্ট" : "💬 Support"}</Link></li>
+              <li><Link href="/" className="inline-flex items-center gap-2 transition hover:text-white"><AppIcon name="home" className="h-4 w-4" />{dict.common.home}</Link></li>
+              <li><Link href="/fb" className="inline-flex items-center gap-2 transition hover:text-white"><AppIcon name="landing" className="h-4 w-4" />{dict.footer.landingPage}</Link></li>
+              <li><Link href="/categories" className="inline-flex items-center gap-2 transition hover:text-white"><AppIcon name="categories" className="h-4 w-4" />{dict.common.categories}</Link></li>
+              <li><Link href="/offers" className="inline-flex items-center gap-2 transition hover:text-white"><AppIcon name="offers" className="h-4 w-4" />{dict.common.offers}</Link></li>
+              <li><Link href="/checkout" className="inline-flex items-center gap-2 transition hover:text-white"><AppIcon name="payment" className="h-4 w-4" />{dict.header.checkout}</Link></li>
+              <li><Link href="/help" className="inline-flex items-center gap-2 transition hover:text-white"><AppIcon name="support" className="h-4 w-4" />{dict.common.support}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-base font-bold">{isBn ? "কাস্টমার সার্ভিস" : "Customer Service"}</h4>
+            <h4 className="text-base font-bold">{dict.footer.customerService}</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-300">
-              <li><Link href="/legal#shipping" className="transition hover:text-white">{isBn ? "Shipping & Delivery" : "Shipping & Delivery"}</Link></li>
-              <li><Link href="/legal#refund" className="transition hover:text-white">{isBn ? "Returns & Exchanges" : "Returns & Exchanges"}</Link></li>
-              <li><Link href="/legal#privacy" className="transition hover:text-white">{isBn ? "Privacy Policy" : "Privacy Policy"}</Link></li>
-              <li><Link href="/legal#terms" className="transition hover:text-white">{isBn ? "Terms of Service" : "Terms of Service"}</Link></li>
-              <li><Link href="/size-guide" className="transition hover:text-white">{isBn ? "Size Guide" : "Size Guide"}</Link></li>
+              <li><Link href="/legal#shipping" className="transition hover:text-white">{dict.footer.shipping}</Link></li>
+              <li><Link href="/legal#refund" className="transition hover:text-white">{dict.footer.returns}</Link></li>
+              <li><Link href="/legal#privacy" className="transition hover:text-white">{dict.footer.privacy}</Link></li>
+              <li><Link href="/legal#terms" className="transition hover:text-white">{dict.footer.terms}</Link></li>
+              <li><Link href="/size-guide" className="transition hover:text-white">{dict.header.sizeGuide}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-base font-bold">{isBn ? "পেমেন্ট মেথড" : "Payment Methods"}</h4>
+            <h4 className="text-base font-bold">{dict.footer.paymentMethods}</h4>
             <div className="mt-3 grid grid-cols-2 gap-2">
               {paymentMethods.map((method) =>
                 method.href ? (
@@ -175,9 +171,11 @@ export default function Footer({
                         ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20"
                         : "border-white/15 bg-white/5 text-slate-200 hover:bg-white/10"
                     }`}
-                    title={method.available ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "শীঘ্রই আসছে" : "Coming soon")}
+                    title={method.available ? dict.common.active : dict.common.comingSoon}
                   >
-                    <span className="mr-1">{method.logo}</span>
+                    <span className="mr-2 inline-flex rounded-full border border-white/15 bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]">
+                      {method.badge}
+                    </span>
                     {method.label}
                   </Link>
                 ) : (
@@ -186,18 +184,18 @@ export default function Footer({
                     type="button"
                     onClick={() => handlePaymentMethodClick(method)}
                     className="rounded-xl border border-white/15 bg-white/5 px-2.5 py-2 text-left text-xs font-semibold text-slate-200 transition hover:bg-white/10"
-                    title={isBn ? "শীঘ্রই আসছে" : "Coming soon"}
+                    title={dict.common.comingSoon}
                   >
-                    <span className="mr-1">{method.logo}</span>
+                    <span className="mr-2 inline-flex rounded-full border border-white/15 bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]">
+                      {method.badge}
+                    </span>
                     {method.label}
                   </button>
                 )
               )}
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              {isBn
-                ? "যে পেমেন্ট এখন চালু নেই, ক্লিক করলে 'শীঘ্রই আসছে' দেখাবে।"
-                : "Unavailable methods show a coming soon message on click."}
+              {dict.footer.paymentHint}
             </p>
           </div>
         </div>
@@ -205,7 +203,7 @@ export default function Footer({
         {addressParts.length > 0 ? (
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              {isBn ? "স্টোর লোকেশন" : "Store Location"}
+              {dict.footer.storeLocation}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {addressParts.map((part, index) => (
@@ -231,7 +229,7 @@ export default function Footer({
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-slate-400">
           {uiMode === "abo"
             ? "Designed & Developed by Sumon (Mumain Ahmed) | Powered by ABO Enterprise © 2026"
-            : `© ${new Date().getFullYear()} ${storeName}. ${isBn ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}`}
+            : `© ${new Date().getFullYear()} ${storeName}. ${dict.footer.rightsReserved}`}
         </div>
       </div>
     </footer>

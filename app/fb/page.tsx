@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import AppIcon from "@/components/AppIcon";
 import {
   type Language,
   PREFERENCE_EVENT,
@@ -79,7 +80,8 @@ export default function FacebookLandingPage() {
             href="/"
             className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
           >
-            ← {isBn ? "ড্যাশবোর্ডে ফিরুন" : "Back to Dashboard"}
+            <AppIcon name="back" className="h-4 w-4" />
+            {isBn ? "ড্যাশবোর্ডে ফিরুন" : "Back to Dashboard"}
           </Link>
         </div>
         <div className="flex items-center gap-2">
@@ -89,7 +91,7 @@ export default function FacebookLandingPage() {
             aria-label="Toggle language"
             title={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
           >
-            🌐
+            <AppIcon name="globe" className="h-4.5 w-4.5" />
           </button>
           <button
             onClick={toggleTheme}
@@ -97,7 +99,7 @@ export default function FacebookLandingPage() {
             aria-label="Toggle dark mode"
             title="Toggle dark mode"
           >
-            <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
+            <AppIcon name={isDarkMode ? "sun" : "moon"} className="h-4.5 w-4.5" />
           </button>
         </div>
       </div>

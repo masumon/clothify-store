@@ -133,8 +133,8 @@ function checkAdminAuth(): AdminHealthCheck {
     return {
       id: "admin-auth",
       label: "Admin Auth",
-      status: "warn",
-      detail: "ADMIN_SESSION_SECRET missing. Session secret credentials fallback ব্যবহার করবে.",
+      status: "error",
+      detail: "ADMIN_SESSION_SECRET missing. Signed admin session boot will fail until it is set.",
     };
   }
 

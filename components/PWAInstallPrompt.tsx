@@ -2,6 +2,11 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  FLOATING_PANEL_EVENT,
+  isLowPriorityFloatingHiddenPath,
+} from "@/lib/floating-ui";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -9,8 +14,10 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 export default function PWAInstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [hidden, setHidden] = useState(false);
+  const [sumonixOpen, setSumonixOpen] = useState(false);
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -32,6 +39,15 @@ export default function PWAInstallPrompt() {
     };
   }, []);
 
+  useEffect(() => {
+    const syncPanelState = (event: Event) => {
+      const detail = (event as CustomEvent<{ sumonixOpen?: boolean }>).detail;
+      setSumonixOpen(Boolean(detail?.sumonixOpen));
+    };
+    window.addEventListener(FLOATING_PANEL_EVENT, syncPanelState as EventListener);
+    return () => window.removeEventListener(FLOATING_PANEL_EVENT, syncPanelState as EventListener);
+  }, []);
+
   const installApp = async () => {
     if (!deferredPrompt) return;
 
@@ -45,7 +61,7 @@ export default function PWAInstallPrompt() {
     setDeferredPrompt(null);
   };
 
-  if (hidden || !deferredPrompt) return null;
+  if (hidden || !deferredPrompt || isLowPriorityFloatingHiddenPath(pathname) || sumonixOpen) return null;
 
   return (
     <div className="fixed inset-x-3 bottom-3 z-[95] mx-auto w-[min(700px,calc(100%-1.5rem))] rounded-2xl border border-slate-200/90 bg-white/95 p-3 shadow-2xl shadow-slate-900/20 backdrop-blur md:inset-x-auto md:right-4 md:w-[430px]">

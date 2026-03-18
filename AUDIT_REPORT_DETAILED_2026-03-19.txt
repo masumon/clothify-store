@@ -1,0 +1,476 @@
+Clothify Detailed Audit Report
+Date: 2026-03-19 02:51:01 +06:00
+Workspace: e:\clothify-store-main\clothify-store-main
+Audit Type: Full-stack static review + build/test verification + deployment/readiness posture review
+
+================================================================
+1. Scope
+================================================================
+এই audit-এ নিম্নের layer-গুলো review করা হয়েছে:
+
+- Frontend UI shell, shared layout, client storage, popup/DOM rendering path
+- Admin auth, admin API protection, session handling, rate limit, lockout behavior
+- Public order flow, pricing validation, stock update, invoice generation
+- Upload flow, Supabase integration, monitoring hooks, optional observability stack
+- Build, lint, integration test, dependency audit, repo/deploy config surface
+
+Code surface summary:
+- app files: 45
+- components files: 50
+- lib files: 22
+- tests files: 5
+- API route files: 15
+- Supabase-related files: 3
+
+================================================================
+2. Methodology
+================================================================
+এই audit-এ নিম্নের approach নেওয়া হয়েছে:
+
+1. Manual line-by-line review on auth, order, upload, settings, invoice, layout, runtime store, monitoring paths
+2. Repo-wide targeted search for:
+   - auth/env/session usage
+   - raw HTML sinks
+   - upload/webhook/storage paths
+   - fetch/redirect/browser navigation points
+   - origin/referer/csrf checks
+3. Build and quality verification:
+   - npm run lint
+   - npm run test:integration
+   - npm run build
+   - npm audit --omit=dev --json
+4. Config review:
+   - next.config.js
+   - vercel.json
+   - root layout boot script / external asset loading
+
+================================================================
+3. Executive Verdict
+================================================================
+Current unresolved verdict:
+
+- Critical: 0
+- High: 0
+- Medium: 3
+- Low: 2
+- Informational / Operational: 2
+
+Overall assessment:
+
+এই codebase-এ বর্তমানে আগে থাকা কয়েকটি বড় risk already addressed হয়েছে, বিশেষ করে:
+- admin auth lockout
+- signed session token
+- order server-side total verification
+- order_items persistence support
+- Redis-ready rate limiting fallback
+- monitoring/health endpoints
+- integration test coverage for critical flows
+
+অর্থাৎ project টি production-capable এবং current state-এ "broken by design" নয়। তবে এখনো কিছু defense-in-depth gap আছে, যেগুলো fix করলে security posture আরও অনেক mature হবে।
+
+================================================================
+4. Verified Strengths
+================================================================
+4.1 Server-side order verification is now correctly enforced
+Evidence:
+- lib/api/orders.ts:233-297
+
+What is good:
+- Client-provided total amount blindly trust করা হচ্ছে না
+- Product IDs DB থেকে refetch করা হচ্ছে
+- unpublished product reject হচ্ছে
+- stock availability server-side যাচাই হচ্ছে
+- server-computed total mismatch হলে order reject হচ্ছে
+
+4.2 Anti-automation controls exist on checkout/order path
+Evidence:
+- lib/api/orders.ts:133-160
+- lib/api/orders.ts:197-205
+
+What is good:
+- IP-based rate limit আছে
+- honeypot field আছে
+- form-fill timing validation আছে
+
+4.3 Admin password auth now has brute-force lockout and alerting
+Evidence:
+- app/api/admin/auth/route.ts:17-22
+- app/api/admin/auth/route.ts:80-127
+
+What is good:
+- failed attempts tracked
+- lockout window exists
+- security alert webhook hook exists
+
+4.4 Admin session tokens are signed and httpOnly
+Evidence:
+- lib/admin-auth.ts:114-167
+
+What is good:
+- signed token
+- httpOnly cookie
+- maxAge set
+- secure in production
+- sameSite=lax
+
+4.5 Upload endpoint has bucket allowlist + MIME allowlist + path sanitization
+Evidence:
+- app/api/admin/upload/route.ts:4-91
+
+What is good:
+- arbitrary bucket usage blocked
+- max upload size enforced
+- MIME allowlist exists
+- filename/folder traversal cleaned
+
+4.6 Runtime store design supports serverless-safe scaling when Upstash is configured
+Evidence:
+- lib/runtime-store.ts:31-43
+- lib/runtime-store.ts:76-220
+- lib/rate-limit.ts:62-122
+
+What is good:
+- Upstash support ready
+- safe memory fallback exists
+- rate-limit abstraction reusable
+
+4.7 Observability and health-check infrastructure exists
+Evidence:
+- app/api/admin/health/route.ts:1-10
+- lib/api/admin-health.ts:32-286
+- lib/sentry.ts:37-43
+- lib/whatsapp-notify.ts:48-164
+
+What is good:
+- health snapshot endpoint
+- optional Sentry integration
+- webhook delivery logging
+- environment readiness classification
+
+4.8 Dangerous dynamic execution usage is very limited
+Evidence from repo-wide sink scan:
+- app/layout.tsx:100
+- components/InvoiceAutoDownload.tsx:309
+- components/InvoiceAutoDownload.tsx:346
+
+What is good:
+- no eval() found in app/components/lib scan
+- no new Function() found in app/components/lib scan
+- no generic innerHTML sink spread across the codebase
+
+================================================================
+5. Detailed Findings
+================================================================
+
+------------------------------------------------------------
+[MEDIUM-01] Admin mutation routes do not perform explicit CSRF / Origin validation
+------------------------------------------------------------
+Evidence:
+- proxy.ts:28-45
+- lib/admin-auth.ts:160-165
+- app/api/admin/products/route.ts:29-82
+- app/api/admin/products/route.ts:89-160
+- app/api/admin/settings/route.ts:19-51
+- app/api/admin/upload/route.ts:43-91
+- app/api/admin/orders/[id]/status/route.ts:14-38
+- Repo-wide search for "origin|referer|csrf" across app/api/admin and app/api/orders returned no explicit handler-level checks
+
+Why this matters:
+- Admin mutations are protected mainly by session cookie + proxy auth gate
+- Session cookie uses SameSite=Lax, which reduces common cross-site abuse
+- কিন্তু explicit Origin / Referer / anti-CSRF token verification না থাকায় protection entirely browser cookie policy-র উপর নির্ভর করছে
+- Defense-in-depth হিসেবে authenticated admin POST/PATCH/PUT/DELETE route-এ explicit origin validation থাকা উচিত
+
+Practical risk:
+- Real-world exposure is lower than a fully unprotected cookie-auth app because sameSite=lax is present
+- তবুও এটি still an unresolved hardening gap, especially for future browser edge-cases, browser extensions, internal tooling, or same-site subdomain scenarios
+
+Recommended remediation:
+1. Shared helper বানিয়ে state-changing admin route-এ trusted origin check enforce করুন
+2. Optionally `x-clothify-admin-csrf` custom header + double-submit token add করুন
+3. Proxy/auth layer-এ mutation method (`POST`, `PUT`, `PATCH`, `DELETE`) special handling যোগ করুন
+
+Status:
+- Open
+
+------------------------------------------------------------
+[MEDIUM-02] Admin authentication still supports shared static credentials and HTTP Basic fallback
+------------------------------------------------------------
+Evidence:
+- proxy.ts:19-20
+- proxy.ts:33-35
+- lib/admin-auth.ts:44-56
+- lib/admin-auth.ts:179-201
+- lib/admin-auth.ts:213-218
+- app/api/admin/auth/route.ts:92-127
+- lib/api/admin-health.ts:132-146
+
+Why this matters:
+- Entire admin surface still depends on one shared env username/password pair
+- HTTP Basic fallback remains valid for admin paths/APIs
+- Browser/client/tooling may cache Authorization header
+- If `ADMIN_SESSION_SECRET` is missing, session secret can fall back to `username:password` derivation (`lib/admin-auth.ts:51-56`)
+
+Current mitigation already present:
+- constant-time compare
+- lockout on password auth
+- signed session cookie
+- optional Supabase bridge path exists
+
+Remaining concern:
+- Shared admin identity weakens accountability
+- Static credential model makes rotation/manual sharing operationally risky
+- Basic auth is useful for backward compatibility, but security posture would be stronger if it were disabled by default in production
+
+Recommended remediation:
+1. Disable HTTP Basic fallback in production unless a concrete machine-client use-case requires it
+2. Make `ADMIN_SESSION_SECRET` mandatory at startup instead of optional fallback
+3. Prefer per-user Supabase admin identities and authorized email allowlist for long-term admin access
+4. Add admin action audit trail keyed to user identity, not a single shared env user
+
+Status:
+- Open, partially mitigated
+
+------------------------------------------------------------
+[MEDIUM-03] No explicit CSP / browser security headers are defined in repo-level app config
+------------------------------------------------------------
+Evidence:
+- next.config.js:23-45
+- vercel.json:1-3
+- app/layout.tsx:93-101
+
+Why this matters:
+- Root layout loads external CDN stylesheet and an inline bootstrap script
+- Repo-level Next.js config does not define `headers()`
+- Vercel config does not define browser security headers either
+- This weakens defense-in-depth for XSS, asset injection, MIME confusion, clickjacking, and policy governance
+
+Specific posture observations:
+- No visible CSP in app config
+- No visible `X-Content-Type-Options: nosniff` rule in repo config
+- No visible `Referrer-Policy` rule in repo config
+- No visible `frame-ancestors` / clickjacking policy in repo config
+- Inline script in root layout will make future strict CSP harder unless moved to nonce/hash-based model
+
+Recommended remediation:
+1. Add security headers in Next config or edge config
+2. Prefer a CSP strategy that supports:
+   - self assets by default
+   - explicit font/image/script allowlist
+   - frame-ancestors restriction
+3. Move inline bootstrap logic to a nonce-backed or hashed script strategy
+4. Self-host Font Awesome or replace with local SVG/icon pipeline
+
+Status:
+- Open
+
+------------------------------------------------------------
+[LOW-01] Invoice popup writes raw HTML assembled from dynamic order/store fields
+------------------------------------------------------------
+Evidence:
+- components/InvoiceAutoDownload.tsx:90-110
+- components/InvoiceAutoDownload.tsx:112-256
+- components/InvoiceAutoDownload.tsx:203-214
+- components/InvoiceAutoDownload.tsx:305-309
+- components/InvoiceAutoDownload.tsx:343-347
+
+Why this matters:
+- `customerName`, `address`, `item.name`, `storeName`, `storeAddress`, `storePhone` ইত্যাদি HTML string interpolation-এর মাধ্যমে সরাসরি printable markup-এ ঢুকছে
+- এরপর `popup.document.write(html)` দিয়ে render করা হচ্ছে
+- এটি avoidable self-XSS / DOM injection pattern
+
+Practical impact:
+- Current exposure likely limited mostly to the customer’s own browser session in the order-success / invoice flow
+- তবে unsafe string-to-HTML pattern future reuse হলে stored rendering issue-তেও রূপ নিতে পারে
+
+Recommended remediation:
+1. Interpolated text HTML-escape করুন
+2. Prefer a dedicated printable route/component instead of raw `document.write`
+3. PDF/invoice generation path-এ template escaping centralize করুন
+
+Status:
+- Open
+
+------------------------------------------------------------
+[LOW-02] External Font Awesome stylesheet is loaded from CDN without integrity pinning
+------------------------------------------------------------
+Evidence:
+- app/layout.tsx:93-97
+
+Why this matters:
+- External CDN asset adds supply-chain dependency
+- No Subresource Integrity hash is present
+- This also complicates stronger CSP policy rollout
+
+Recommended remediation:
+1. Self-host the icon asset, or
+2. Pin with integrity hash if the CDN choice must remain
+3. Long-term, prefer local SVG/icon components
+
+Status:
+- Open
+
+================================================================
+6. Informational / Operational Observations
+================================================================
+
+------------------------------------------------------------
+[INFO-01] Build currently regenerates tracked service worker artifact
+------------------------------------------------------------
+Evidence:
+- git diff --stat -- public/sw.js
+- Result: public/sw.js | 2 +-
+
+Meaning:
+- `npm run build` service worker output regenerate করছে
+- Repo যদি generated SW file track করে, তবে local verification/build run করলেই working tree dirty হতে পারে
+
+Impact:
+- Security issue নয়
+- কিন্তু release hygiene, diff noise, and accidental commit risk বাড়ায়
+
+Suggested decision:
+- Either commit generated SW intentionally as release artifact
+- অথবা CI-generated artifact হিসেবে handle করুন
+
+------------------------------------------------------------
+[INFO-02] Optional production integrations are safe but partially config-dependent
+------------------------------------------------------------
+Evidence:
+- lib/api/admin-health.ts:73-116
+- lib/api/admin-health.ts:149-207
+- lib/api/admin-health.ts:209-267
+- lib/runtime-store.ts:31-43
+- lib/whatsapp-notify.ts:20-63
+
+Meaning:
+- Upstash missing হলে app memory fallback-এ চলে
+- Sentry DSN missing হলে app চলে, শুধু monitoring কমে
+- WhatsApp webhook missing হলে alerting skip/warn mode-এ থাকে
+- OpenAI key missing হলে SUMONIX fallback translation mode-এ থাকে
+
+Impact:
+- Availability blocker নয়
+- But observability / consistency / alerting maturity কমে যায়
+
+================================================================
+7. Database / API / Business Logic Review Notes
+================================================================
+Database interaction posture:
+- Supabase service role usage is centralized
+- Order placement now recalculates totals server-side
+- Stock decrement is server-side after order creation
+- `order_items` insert path exists with fallback logging if table-related issue occurs
+
+API posture:
+- Public order route includes validation, throttling, and anti-bot signals
+- Admin routes are behind proxy auth gate
+- Monitoring-wrapped critical routes improve operational visibility
+
+Remaining architectural note:
+- Admin mutation routes should move from "authenticated only" to "authenticated + origin-verified"
+
+================================================================
+8. Frontend / UI / Browser Runtime Review Notes
+================================================================
+Verified positives:
+- Root layout centralizes preference/theme/language bootstrap
+- No widespread unsafe DOM injection primitives were found
+- Browser preference sync appears consolidated at layout level
+
+Open frontend hardening notes:
+- Root layout uses inline script
+- Root layout uses external stylesheet from CDN
+- Invoice print flow uses dynamic HTML string rendering
+
+================================================================
+9. Deployment / Config Readiness Notes
+================================================================
+Repo-visible config files reviewed:
+- next.config.js
+- vercel.json
+- root app layout
+
+Findings:
+- Deploy config is minimal and clean
+- No repo-visible header/CSP policy exists
+- Security policy likely relies on platform defaults rather than explicit app policy
+
+Recommendation:
+- Introduce explicit application-level security headers so deployment posture is deterministic
+
+================================================================
+10. Verification Results
+================================================================
+Commands executed:
+
+- npm run lint
+  Result: PASS
+
+- npm run test:integration
+  Result: PASS (9/9)
+
+- npm run build
+  Result: PASS
+
+- npm audit --omit=dev --json
+  Result: PASS (0 production vulnerabilities)
+
+Additional scan results:
+- Raw sink scan found only:
+  - app/layout.tsx:100
+  - components/InvoiceAutoDownload.tsx:309
+  - components/InvoiceAutoDownload.tsx:346
+- No eval() found in app/components/lib scan
+- No new Function() found in app/components/lib scan
+- No explicit origin/referer/csrf checks found in admin/order route scan
+
+================================================================
+11. Priority Fix Plan
+================================================================
+Recommended order of next improvements:
+
+Priority 1:
+- Add shared CSRF / Origin validation helper for all admin mutation endpoints
+
+Priority 2:
+- Disable HTTP Basic fallback in production and require ADMIN_SESSION_SECRET at boot
+
+Priority 3:
+- Add explicit CSP and other browser security headers
+
+Priority 4:
+- Refactor invoice rendering away from `document.write`
+
+Priority 5:
+- Replace CDN Font Awesome dependency with self-hosted/local icon strategy
+
+Priority 6:
+- Decide release policy for generated `public/sw.js`
+
+================================================================
+12. Final Conclusion
+================================================================
+Bottom line:
+
+এই project এখন production-usable এবং core flow-এর দিক থেকে আগের তুলনায় অনেক বেশি secure/stable:
+- order tampering protection আছে
+- admin lockout আছে
+- signed session আছে
+- upload validation আছে
+- runtime monitoring scaffold আছে
+- integration coverage আছে
+
+কিন্তু এটিকে "security hardened / enterprise strict" level-এ নিতে এখনো 3টি medium এবং 2টি low finding address করা জরুরি:
+- admin CSRF/origin hardening
+- shared static admin auth model cleanup
+- CSP/security headers
+- invoice popup HTML escaping
+- external CDN asset hardening
+
+Final verdict:
+- Production-ready: Yes
+- Fully hardened: Not yet
+- Immediate blocker: None
+- Next hardening pass recommended: Yes
+

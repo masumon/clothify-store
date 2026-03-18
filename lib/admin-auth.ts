@@ -49,11 +49,9 @@ function getAdminCredentials() {
 }
 
 function getSessionSecret() {
-  const creds = getAdminCredentials();
-  if (!creds) return "";
   const configuredSecret = process.env.ADMIN_SESSION_SECRET?.trim();
   if (configuredSecret) return configuredSecret;
-  return `${creds.username}:${creds.password}`;
+  return "";
 }
 
 function safeCompare(left: string, right: string) {
@@ -177,6 +175,10 @@ export function clearAdminSessionCookie(response: NextResponse) {
 }
 
 export function isAdminAuthorized(req: NextRequest) {
+  if (!isLegacyBasicAuthEnabled()) {
+    return false;
+  }
+
   const creds = getAdminCredentials();
   if (!creds) {
     return false;
@@ -210,11 +212,20 @@ export async function isSessionAuthorized(req: NextRequest) {
   return isAdminSessionTokenValid(sessionCookie.value);
 }
 
+export function isLegacyBasicAuthEnabled() {
+  return process.env.NODE_ENV !== "production";
+}
+
 export function unauthorizedResponse(message = "Unauthorized") {
+  const headers =
+    process.env.NODE_ENV !== "production"
+      ? {
+          "WWW-Authenticate": 'Basic realm="Clothify Admin"',
+        }
+      : undefined;
+
   return new NextResponse(message, {
     status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="Clothify Admin"',
-    },
+    headers,
   });
 }

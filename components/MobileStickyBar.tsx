@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import type { ComponentProps } from "react";
+import AppIcon from "@/components/AppIcon";
+import { getDictionary } from "@/lib/i18n";
 import {
   type Language,
   PREFERENCE_EVENT,
@@ -26,21 +29,22 @@ export default function MobileStickyBar() {
     return () => window.removeEventListener(PREFERENCE_EVENT, sync);
   }, []);
 
+  const dict = getDictionary(lang);
   const items = useMemo(
     () => [
-      { href: "/", icon: "🏠", label: lang === "bn" ? "হোম" : "Home", external: false },
+      { href: "/", icon: "home", label: dict.common.home, external: false },
       {
         href: "/categories",
-        icon: "🧭",
-        label: lang === "bn" ? "ক্যাটাগরি" : "Categories",
+        icon: "categories",
+        label: dict.common.categories,
         external: false,
       },
-      { href: "/offers", icon: "🏷️", label: lang === "bn" ? "অফার" : "Offers", external: false },
-      { href: "/cart", icon: "🛒", label: lang === "bn" ? "কার্ট" : "Cart", external: false },
-      { href: "/profile", icon: "👤", label: lang === "bn" ? "প্রোফাইল" : "Profile", external: false },
-      { href: "/fb", icon: "📣", label: lang === "bn" ? "ল্যান্ডিং" : "Landing", external: false },
+      { href: "/offers", icon: "offers", label: dict.common.offers, external: false },
+      { href: "/cart", icon: "cart", label: dict.common.cart, external: false },
+      { href: "/profile", icon: "profile", label: dict.common.profile, external: false },
+      { href: "/fb", icon: "landing", label: dict.common.landing, external: false },
     ],
-    [lang]
+    [dict.common.cart, dict.common.categories, dict.common.home, dict.common.landing, dict.common.offers, dict.common.profile]
   );
 
   return (
@@ -76,12 +80,12 @@ export default function MobileStickyBar() {
               rel="noreferrer"
               className={cls}
             >
-              <span className="text-xl leading-none">{item.icon}</span>
+              <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-5 w-5" />
               <span className="text-[10px] font-semibold">{item.label}</span>
             </a>
           ) : (
             <Link key={item.href} href={item.href} className={cls}>
-              <span className="text-xl leading-none">{item.icon}</span>
+              <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-5 w-5" />
               <span className="text-[10px] font-semibold">{item.label}</span>
             </Link>
           );

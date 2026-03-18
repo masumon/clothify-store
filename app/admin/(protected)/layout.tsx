@@ -3,26 +3,23 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { ComponentProps } from "react";
+import AppIcon from "@/components/AppIcon";
 import SumonixAIWidget from "@/components/SumonixAIWidget";
+import { getDictionary } from "@/lib/i18n";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
 
 type AdminNavItem = {
   href: string;
   label: string;
-  iconClass: string;
+  icon: ComponentProps<typeof AppIcon>["name"];
   badge?: string;
 };
-
-const adminNavItems: AdminNavItem[] = [
-  { href: "/admin", iconClass: "fa-solid fa-gauge-high", label: "Dashboard" },
-  { href: "/admin/products", iconClass: "fa-solid fa-shirt", label: "Products Catalog" },
-  { href: "/admin/orders", iconClass: "fa-solid fa-box", label: "Orders", badge: "New" },
-  { href: "/admin#customers", iconClass: "fa-solid fa-users", label: "Customers" },
-  { href: "/admin#analytics", iconClass: "fa-solid fa-chart-pie", label: "Analytics" },
-  { href: "/admin/settings", iconClass: "fa-solid fa-sliders", label: "Store Settings" },
-  { href: "/admin#ai", iconClass: "fa-solid fa-robot", label: "SUMONIX AI" },
-  { href: "/admin#pos", iconClass: "fa-solid fa-cash-register", label: "POS" },
-];
 
 function navItemClass(active: boolean) {
   return `group relative flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
@@ -32,16 +29,28 @@ function navItemClass(active: boolean) {
   }`;
 }
 
-function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function SidebarContent({
+  pathname,
+  onNavigate,
+  items,
+  premiumConsoleLabel,
+  liveSiteLabel,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+  items: AdminNavItem[];
+  premiumConsoleLabel: string;
+  liveSiteLabel: string;
+}) {
   return (
     <>
       <div className="flex items-center gap-2.5">
         <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300">
-          <i className="fa-solid fa-chart-line" aria-hidden="true" />
+          <AppIcon name="chart" className="h-5 w-5" />
         </div>
         <div>
           <h2 className="text-xl font-extrabold tracking-tight text-white">ABO Admin</h2>
-          <p className="text-xs text-slate-400">Premium operations console</p>
+          <p className="text-xs text-slate-400">{premiumConsoleLabel}</p>
         </div>
       </div>
 
@@ -50,16 +59,16 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
         onClick={onNavigate}
         className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-300/50 bg-amber-400/10 px-4 py-2 text-sm font-semibold text-amber-200 transition hover:bg-amber-400/20"
       >
-        <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
-        View Live Site
+        <AppIcon name="external" className="h-4.5 w-4.5" />
+        {liveSiteLabel}
       </Link>
 
       <nav className="mt-5 space-y-2">
-        {adminNavItems.map((item) => {
+        {items.map((item) => {
           const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href.split("#")[0]));
           return (
             <Link key={item.href} href={item.href} onClick={onNavigate} className={navItemClass(active)}>
-              <i className={`${item.iconClass} w-4 text-center`} aria-hidden="true" />
+              <AppIcon name={item.icon} className="h-4.5 w-4.5" />
               <span>{item.label}</span>
               {item.badge ? (
                 <span className="ml-auto rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-200">
@@ -82,13 +91,38 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [lang, setLang] = useState<Language>("bn");
+
+  useEffect(() => {
+    const syncLanguage = () => setLang(readSitePreferences().language);
+    syncLanguage();
+    window.addEventListener(PREFERENCE_EVENT, syncLanguage);
+    return () => window.removeEventListener(PREFERENCE_EVENT, syncLanguage);
+  }, []);
+
+  const dict = getDictionary(lang);
+  const adminNavItems: AdminNavItem[] = [
+    { href: "/admin", icon: "dashboard", label: dict.admin.dashboard },
+    { href: "/admin/products", icon: "shirt", label: dict.admin.productsCatalog },
+    { href: "/admin/orders", icon: "package", label: dict.admin.orders, badge: "New" },
+    { href: "/admin#customers", icon: "users", label: dict.admin.customers },
+    { href: "/admin#analytics", icon: "pieChart", label: dict.admin.analytics },
+    { href: "/admin/settings", icon: "sliders", label: dict.admin.storeSettings },
+    { href: "/admin#ai", icon: "bot", label: dict.admin.sumonixZone },
+    { href: "/admin#pos", icon: "pos", label: dict.admin.pos },
+  ];
 
   return (
     <div className="admin-shell min-h-screen overflow-x-hidden text-slate-100">
       <SumonixAIWidget mode="admin" />
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
         <aside className="admin-sidebar hidden border-r border-slate-800/80 bg-slate-950/95 p-5 backdrop-blur lg:block">
-          <SidebarContent pathname={pathname} />
+          <SidebarContent
+            pathname={pathname}
+            items={adminNavItems}
+            premiumConsoleLabel={dict.admin.premiumConsole}
+            liveSiteLabel={dict.admin.viewLiveSite}
+          />
         </aside>
 
         <div className="min-w-0">
@@ -111,7 +145,7 @@ export default function AdminLayout({
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-200"
                 aria-label="Open sidebar"
               >
-                <i className="fa-solid fa-bars" aria-hidden="true" />
+                <AppIcon name="menu" className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -132,10 +166,16 @@ export default function AdminLayout({
                     className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-200"
                     aria-label="Close sidebar"
                   >
-                    <i className="fa-solid fa-xmark" aria-hidden="true" />
+                    <AppIcon name="close" className="h-5 w-5" />
                   </button>
                 </div>
-                <SidebarContent pathname={pathname} onNavigate={() => setMobileSidebarOpen(false)} />
+                <SidebarContent
+                  pathname={pathname}
+                  onNavigate={() => setMobileSidebarOpen(false)}
+                  items={adminNavItems}
+                  premiumConsoleLabel={dict.admin.premiumConsole}
+                  liveSiteLabel={dict.admin.viewLiveSite}
+                />
               </aside>
             </div>
           ) : null}

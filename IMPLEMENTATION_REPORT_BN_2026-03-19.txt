@@ -1,0 +1,118 @@
+Clothify নিরাপত্তা ও UI/UX বাস্তবায়ন রিপোর্ট
+তারিখ: 2026-03-19
+
+সারাংশ
+এই pass-এ দুইটি বড় phase সম্পন্ন করা হয়েছে:
+1. Security Hardening
+2. UI/UX Consistency + Premium Polish
+
+গুরুত্বপূর্ণ নোট
+- কোনো git commit, GitHub push, বা Vercel deploy করা হয়নি
+- build চালানোর কারণে public/sw.js নতুন করে regenerate হয়েছে
+- package.json এবং package-lock.json এ lucide-react যোগ হয়েছে icon hardening-এর জন্য
+
+Phase 1: Security Hardening
+1. Admin mutation CSRF/Origin protection
+- নতুন shared guard file: lib/admin-mutation-guard.ts
+- proxy.ts এ /api/admin/* mutation request-এর জন্য trusted Origin/Referer validation যোগ করা হয়েছে
+- effect: cross-site forged admin mutation request এখন explicit validation ছাড়া pass করবে না
+
+2. Admin auth hardening
+- lib/admin-auth.ts এ ADMIN_SESSION_SECRET fallback সরানো হয়েছে
+- production-এ legacy HTTP Basic auth fallback disable করা হয়েছে
+- next.config.js startup validation এ ADMIN_SESSION_SECRET, ADMIN_USERNAME, ADMIN_PASSWORD required করা হয়েছে
+- lib/api/admin-health.ts এ missing secret এখন warning নয়, error হিসেবে report হয়
+
+3. Browser security headers
+- next.config.js এ CSP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-Frame-Options যোগ করা হয়েছে
+- app/layout.tsx থেকে external Font Awesome CDN link সরানো হয়েছে
+- inline preference bootstrap script external file public/preference-bootstrap.js এ নেওয়া হয়েছে
+
+4. Invoice sanitization
+- components/InvoiceAutoDownload.tsx raw HTML string interpolation এবং document.write() flow থেকে safe React-rendered popup invoice এ refactor করা হয়েছে
+- popup head/body reset এখন replaceChildren() দিয়ে হচ্ছে
+
+5. External icon dependency removal
+- নতুন local icon wrapper: components/AppIcon.tsx
+- lucide-react ভিত্তিক icon system বসানো হয়েছে
+- Font Awesome usage codebase থেকে remove করা হয়েছে
+
+Phase 2: UI/UX Polish + Consistency
+1. Shared language dictionary
+- নতুন file: lib/i18n.ts
+- checkout, footer, admin topbar, admin stats, search, AI widget, bottom nav, mobile sticky bar এ shared dictionary integrate করা হয়েছে
+
+2. Header/Search consistency
+- components/Header.tsx update করা হয়েছে
+- header search এখন /search?search=... pattern follow করে
+- app/search/page.tsx এখন search এবং legacy q দুটোই handle করে
+- components/SearchAndFilter.tsx এখন একই route/query model follow করে
+
+3. Footer polish
+- components/Footer.tsx এ emoji-heavy links replace করে premium icon system বসানো হয়েছে
+- payment methods badge-based presentation করা হয়েছে
+- language switch support dictionary-driven করা হয়েছে
+
+4. Checkout consistency
+- app/checkout/page.tsx, components/CheckoutForm.tsx, components/CheckoutSummaryCard.tsx এ bilingual dictionary-driven labels বসানো হয়েছে
+- checkout header, payment card, summary card, CTA iconography সব unified করা হয়েছে
+
+5. Admin panel consistency
+- app/admin/(protected)/layout.tsx এ sidebar iconography replace করা হয়েছে
+- components/AdminTopbar.tsx এবং components/AdminStats.tsx dictionary-driven ও icon-consistent করা হয়েছে
+- admin sidebar এখন same local icon set use করে
+
+6. Mobile decluttering
+- নতুন helper: lib/floating-ui.ts
+- components/SumonixAIWidget.tsx এখন page-aware compact mode support করে
+- AI open থাকলে low-priority floating elements hide হতে পারে
+- components/FloatingWhatsApp.tsx এবং components/PWAInstallPrompt.tsx critical commerce flow-এ auto-hide logic পেয়েছে
+
+7. Landing/top control consistency
+- app/fb/page.tsx top control bar icon style shared system-এ আনা হয়েছে
+
+Modified / Added Files
+Added:
+- components/AppIcon.tsx
+- lib/admin-mutation-guard.ts
+- lib/floating-ui.ts
+- lib/i18n.ts
+- public/preference-bootstrap.js
+
+Modified:
+- proxy.ts
+- lib/admin-auth.ts
+- lib/api/admin-health.ts
+- next.config.js
+- app/layout.tsx
+- app/search/page.tsx
+- app/checkout/page.tsx
+- app/fb/page.tsx
+- app/admin/(protected)/layout.tsx
+- components/Header.tsx
+- components/Footer.tsx
+- components/SearchAndFilter.tsx
+- components/CheckoutForm.tsx
+- components/CheckoutSummaryCard.tsx
+- components/AdminTopbar.tsx
+- components/AdminStats.tsx
+- components/BottomNav.tsx
+- components/MobileStickyBar.tsx
+- components/FloatingWhatsApp.tsx
+- components/PWAInstallPrompt.tsx
+- components/SumonixAIWidget.tsx
+- components/InvoiceAutoDownload.tsx
+- package.json
+- package-lock.json
+- public/sw.js
+
+Verification
+- npm run lint : PASS
+- npm run test:integration : PASS (9/9)
+- npm run build : PASS
+- npm audit --omit=dev --json : PASS (0 production vulnerabilities)
+
+Pending / Note
+- এই pass-এ commit/push/deploy intentionally করা হয়নি
+- working tree-তে পুরনো audit txt file-গুলো আগের মতো আছে
+- public/sw.js build-generated change

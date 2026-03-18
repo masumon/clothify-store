@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { ComponentProps, FormEvent } from "react";
+import AppIcon from "@/components/AppIcon";
 import { getWishlistCount } from "@/lib/wishlist";
 import { CART_UPDATED_EVENT, getCart } from "@/lib/cart";
 import {
@@ -33,11 +35,13 @@ function normalizeBangladeshWhatsAppNumber(phone: string) {
 export default function Header({
   storeName = "Clothify",
   slogan = "Find Your Fit",
+  logoUrl = "",
   whatsappNumber = "8801811314262",
   homeSearchOnly = false,
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -90,6 +94,11 @@ export default function Header({
     setMoreOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const initialQuery = searchParams.get("search") || searchParams.get("q") || "";
+    setSearchQuery(initialQuery);
+  }, [searchParams]);
+
   const isBn = uiLang === "bn";
 
   const toggleLanguage = () => {
@@ -104,14 +113,15 @@ export default function Header({
     updateSitePreferences({ theme: nextDark ? "dark" : "light" });
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
-    router.push(q ? `/?search=${encodeURIComponent(q)}` : "/");
+    router.push(q ? `/search?search=${encodeURIComponent(q)}` : "/search");
   };
 
   const whatsappLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}`;
   const cartTarget = cartCount > 0 ? "/checkout" : "/cart";
+  const logoSrc = logoUrl || "/icons/icon-192.png";
 
   const headerShellClass = isDarkMode
     ? "sticky top-0 z-50 border-b border-slate-700/80 bg-slate-950/88 backdrop-blur-xl"
@@ -132,40 +142,41 @@ export default function Header({
     {
       href: "/",
       label: isBn ? "হোম" : "Home",
-      icon: "🏠",
+      icon: "home",
       lightColor: "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100",
       darkColor: "border-blue-400/40 bg-blue-500/15 text-blue-100 hover:bg-blue-500/25",
     },
     {
       href: "/categories",
       label: isBn ? "ক্যাটাগরি" : "Categories",
-      icon: "🧭",
+      icon: "categories",
       lightColor: "border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
       darkColor: "border-cyan-400/40 bg-cyan-500/15 text-cyan-100 hover:bg-cyan-500/25",
     },
     {
       href: "/offers",
       label: isBn ? "অফার" : "Offers",
-      icon: "🏷️",
+      icon: "offers",
       lightColor: "border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100",
       darkColor: "border-amber-400/45 bg-amber-500/20 text-amber-100 hover:bg-amber-500/30",
     },
     {
       href: cartTarget,
       label: isBn ? "কার্ট" : "Cart",
-      icon: "🛒",
+      icon: "cart",
       lightColor: "border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100",
       darkColor: "border-orange-400/40 bg-orange-500/15 text-orange-100 hover:bg-orange-500/25",
     },
   ];
 
   const secondaryNav = [
-    { href: "/checkout", label: isBn ? "চেকআউট" : "Checkout", icon: "✅" },
-    { href: "/profile", label: isBn ? "প্রোফাইল" : "Profile", icon: "👤" },
-    { href: "/help", label: isBn ? "সাপোর্ট" : "Support", icon: "💬" },
-    { href: "/size-guide", label: isBn ? "সাইজ গাইড" : "Size Guide", icon: "📏" },
-    { href: "/settings", label: isBn ? "সেটিংস" : "Settings", icon: "⚙️" },
-    { href: "/admin", label: "Admin", icon: "🛡️" },
+    { href: "/checkout", label: isBn ? "চেকআউট" : "Checkout", icon: "payment" },
+    { href: "/profile", label: isBn ? "প্রোফাইল" : "Profile", icon: "profile" },
+    { href: "/help", label: isBn ? "সাপোর্ট" : "Support", icon: "support" },
+    { href: "/size-guide", label: isBn ? "সাইজ গাইড" : "Size Guide", icon: "sizeGuide" },
+    { href: "/settings", label: isBn ? "সেটিংস" : "Settings", icon: "settings" },
+    { href: "/fb", label: isBn ? "ল্যান্ডিং" : "Landing", icon: "landing" },
+    { href: "/admin", label: "Admin", icon: "admin" },
   ];
 
   if (uiMode === "abo") {
@@ -178,7 +189,7 @@ export default function Header({
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-sm">
-              <i className="fa-solid fa-shirt" aria-hidden="true" />
+              <AppIcon name="shirt" className="h-5 w-5" />
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-lg font-black tracking-[0.08em] text-slate-900">ABO</h1>
@@ -210,7 +221,7 @@ export default function Header({
               aria-label="Search"
               title="Search"
             >
-              <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+              <AppIcon name="search" className="h-4.5 w-4.5" />
             </Link>
             <button
               type="button"
@@ -219,7 +230,7 @@ export default function Header({
               aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
               title={uiLang === "bn" ? "BN -> EN" : "EN -> BN"}
             >
-              🌐
+              <AppIcon name="globe" className="h-4.5 w-4.5" />
             </button>
             <button
               type="button"
@@ -228,13 +239,13 @@ export default function Header({
               aria-label="Toggle dark mode"
               title="Toggle dark mode"
             >
-              {isDarkMode ? "☀️" : "🌙"}
+              <AppIcon name={isDarkMode ? "sun" : "moon"} className="h-4.5 w-4.5" />
             </button>
             <Link
               href="/admin"
               className="inline-flex items-center gap-1.5 rounded-full border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-white hover:text-slate-900"
             >
-              <i className="fa-solid fa-user-shield" aria-hidden="true" />
+              <AppIcon name="admin" className="h-4 w-4" />
               Admin
             </Link>
             <Link
@@ -243,7 +254,7 @@ export default function Header({
               aria-label="Cart"
               title="Cart"
             >
-              <i className="fa-solid fa-cart-shopping" aria-hidden="true" />
+              <AppIcon name="cart" className="h-4.5 w-4.5" />
               {cartCount > 0 ? (
                 <span className="absolute -right-1 -top-1 flex min-w-[18px] items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-slate-900">
                   {cartCount > 99 ? "99+" : cartCount}
@@ -258,7 +269,7 @@ export default function Header({
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 lg:hidden"
             aria-label="Open menu"
           >
-            <i className="fa-solid fa-bars" aria-hidden="true" />
+            <AppIcon name="menu" className="h-5 w-5" />
           </button>
         </div>
 
@@ -279,12 +290,12 @@ export default function Header({
                   className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700"
                   aria-label="Close menu"
                 >
-                  <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  <AppIcon name="close" className="h-4.5 w-4.5" />
                 </button>
               </div>
 
               <form onSubmit={handleSearch} className="mb-4 flex items-center gap-2 rounded-full border border-slate-300 bg-white px-2 py-1.5">
-                <i className="fa-solid fa-magnifying-glass pl-2 text-slate-500" aria-hidden="true" />
+                <AppIcon name="search" className="ml-2 h-4.5 w-4.5 text-slate-500" />
                 <input
                   type="search"
                   value={searchQuery}
@@ -316,14 +327,14 @@ export default function Header({
                   onClick={toggleLanguage}
                   className="rounded-xl border border-slate-300 bg-white py-2 text-sm font-semibold text-slate-700"
                 >
-                  🌐
+                  <AppIcon name="globe" className="h-4.5 w-4.5" />
                 </button>
                 <button
                   type="button"
                   onClick={toggleTheme}
                   className="rounded-xl border border-slate-300 bg-white py-2 text-sm font-semibold text-slate-700"
                 >
-                  {isDarkMode ? "☀️" : "🌙"}
+                  <AppIcon name={isDarkMode ? "sun" : "moon"} className="h-4.5 w-4.5" />
                 </button>
                 <a
                   href={whatsappLink}
@@ -331,7 +342,7 @@ export default function Header({
                   rel="noreferrer"
                   className="rounded-xl border border-emerald-300 bg-emerald-50 py-2 text-center text-sm font-semibold text-emerald-700"
                 >
-                  💬
+                  <AppIcon name="whatsapp" className="h-4.5 w-4.5" />
                 </a>
               </div>
             </aside>
@@ -348,7 +359,7 @@ export default function Header({
           <div className="flex items-center justify-between gap-3">
             <Link href="/" className="flex min-w-0 items-center gap-3">
               <Image
-                src="/icons/icon-192.png"
+                src={logoSrc}
                 alt={storeName}
                 width={44}
                 height={44}
@@ -372,7 +383,7 @@ export default function Header({
                 aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
                 title={uiLang === "bn" ? "BN -> EN" : "EN -> BN"}
               >
-                🌐
+                <AppIcon name="globe" className="h-4.5 w-4.5" />
               </button>
 
               <button
@@ -382,11 +393,11 @@ export default function Header({
                 aria-label="Toggle dark mode"
                 title="Toggle dark mode"
               >
-                <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
+                <AppIcon name={isDarkMode ? "sun" : "moon"} className="h-4.5 w-4.5" />
               </button>
 
               <Link href={cartTarget} className={`relative ${iconBtnClass}`} aria-label="Cart" title="Cart">
-                🛒
+                <AppIcon name="cart" className="h-4.5 w-4.5" />
                 {cartCount > 0 ? (
                   <span className="absolute -right-1 -top-1 flex min-w-[18px] items-center justify-center rounded-full bg-amber-500 px-0.5 text-[9px] font-bold text-slate-900">
                     {cartCount > 99 ? "99+" : cartCount}
@@ -402,7 +413,7 @@ export default function Header({
                 aria-label="WhatsApp"
                 title="WhatsApp"
               >
-                <span className="text-sm leading-none">💬</span>
+                <AppIcon name="whatsapp" className="h-4.5 w-4.5" />
               </a>
             </div>
           </div>
@@ -422,7 +433,7 @@ export default function Header({
                       active ? "ring-2 ring-teal-300/70" : ""
                     } hover:-translate-y-0.5 hover:scale-110`}
                   >
-                    <span className="text-base leading-none">{item.icon}</span>
+                    <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-4.5 w-4.5" />
                     <span className="pointer-events-none absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition duration-300 group-hover:opacity-100">
                       {item.label}
                     </span>
@@ -440,7 +451,7 @@ export default function Header({
                     : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
                 }`}
               >
-                <span>⋯</span>
+                <AppIcon name="menu" className="h-4 w-4" />
                 More
               </button>
 
@@ -457,7 +468,7 @@ export default function Header({
                       className="group/item flex flex-col items-center justify-center gap-1 rounded-2xl border border-slate-300/70 bg-slate-50/80 px-2 py-2.5 text-center transition duration-300 hover:scale-105 hover:border-teal-300 hover:bg-teal-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-teal-400/50 dark:hover:bg-slate-700"
                     >
                       <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base shadow-sm dark:border-slate-600 dark:bg-slate-900">
-                        {item.icon}
+                        <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-4.5 w-4.5" />
                       </span>
                       <span className={`text-[10px] font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
                         {item.label}
@@ -482,7 +493,7 @@ export default function Header({
                     active ? "ring-2 ring-teal-400/70 ring-offset-1" : ""
                   }`}
                 >
-                  <span className="text-lg leading-none">{item.icon}</span>
+                  <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-4.5 w-4.5" />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -498,7 +509,7 @@ export default function Header({
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <Image
-            src="/icons/icon-192.png"
+            src={logoSrc}
             alt={storeName}
             width={48}
             height={48}
@@ -523,7 +534,10 @@ export default function Header({
               : "border-slate-200 bg-white shadow-[0_8px_24px_-18px_rgba(15,23,42,0.7)]"
           }`}
         >
-          <span className={`pl-2 text-sm ${isDarkMode ? "text-cyan-200" : "text-cyan-700"}`}>🔎</span>
+          <AppIcon
+            name="search"
+            className={`ml-2 h-4.5 w-4.5 ${isDarkMode ? "text-cyan-200" : "text-cyan-700"}`}
+          />
           <input
             type="search"
             value={searchQuery}
@@ -549,7 +563,7 @@ export default function Header({
             aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
             title={uiLang === "bn" ? "BN -> EN" : "EN -> BN"}
           >
-            🌐
+            <AppIcon name="globe" className="h-4.5 w-4.5" />
           </button>
 
           <button
@@ -559,11 +573,11 @@ export default function Header({
             aria-label="Toggle dark mode"
             title="Toggle dark mode"
           >
-            <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
+            <AppIcon name={isDarkMode ? "sun" : "moon"} className="h-4.5 w-4.5" />
           </button>
 
           <Link href="/wishlist" className={`relative ${iconBtnClass}`} aria-label="Wishlist" title="Wishlist">
-            🤍
+            <AppIcon name="heart" className="h-4.5 w-4.5" />
             {wishlistCount > 0 ? (
               <span className="absolute -right-1 -top-1 flex min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-0.5 text-[9px] font-bold text-white">
                 {wishlistCount > 9 ? "9+" : wishlistCount}
@@ -572,7 +586,7 @@ export default function Header({
           </Link>
 
           <Link href={cartTarget} className={`relative ${iconBtnClass}`} aria-label="Cart" title="Cart">
-            🛒
+            <AppIcon name="cart" className="h-4.5 w-4.5" />
             {cartCount > 0 ? (
               <span className="absolute -right-1 -top-1 flex min-w-[18px] items-center justify-center rounded-full bg-amber-500 px-0.5 text-[9px] font-bold text-slate-900">
                 {cartCount > 99 ? "99+" : cartCount}
@@ -588,7 +602,7 @@ export default function Header({
             aria-label="WhatsApp"
             title="WhatsApp"
           >
-            <span className="text-sm leading-none">💬</span>
+            <AppIcon name="whatsapp" className="h-4.5 w-4.5" />
           </a>
         </div>
 
@@ -602,7 +616,7 @@ export default function Header({
           }`}
           aria-label="Open mobile menu"
         >
-          <span className="text-lg leading-none">{menuOpen ? "✕" : "☰"}</span>
+          <AppIcon name={menuOpen ? "close" : "menu"} className="h-5 w-5" />
         </button>
       </div>
 
@@ -621,7 +635,7 @@ export default function Header({
                   active ? "ring-2 ring-teal-300/70" : ""
                 } hover:scale-110`}
               >
-                <span className="text-base leading-none">{item.icon}</span>
+                <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-4.5 w-4.5" />
                 <span className="pointer-events-none absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
                   {item.label}
                 </span>
@@ -640,7 +654,7 @@ export default function Header({
                 : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
             }`}
           >
-            <span>⋯</span>
+            <AppIcon name="menu" className="h-4 w-4" />
             More
           </button>
 
@@ -658,7 +672,7 @@ export default function Header({
                     className="group flex flex-col items-center justify-center gap-1 rounded-2xl border border-slate-300/70 bg-slate-50/80 px-2 py-2.5 text-center transition hover:scale-105 hover:border-teal-300 hover:bg-teal-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-teal-400/50 dark:hover:bg-slate-700"
                   >
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base shadow-sm dark:border-slate-600 dark:bg-slate-900">
-                      {item.icon}
+                      <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-4.5 w-4.5" />
                     </span>
                     <span className={`text-[10px] font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
                       {item.label}
@@ -683,7 +697,10 @@ export default function Header({
               isDarkMode ? "border-slate-600 bg-slate-900/80" : "border-slate-300 bg-white"
             }`}
           >
-            <span className={`pl-2 text-sm ${isDarkMode ? "text-cyan-200" : "text-cyan-700"}`}>🔎</span>
+            <AppIcon
+              name="search"
+              className={`ml-2 h-4.5 w-4.5 ${isDarkMode ? "text-cyan-200" : "text-cyan-700"}`}
+            />
             <input
               type="search"
               value={searchQuery}
@@ -714,7 +731,7 @@ export default function Header({
                     active ? "ring-2 ring-teal-400/70 ring-offset-1" : ""
                   }`}
                 >
-                  <span className="text-lg leading-none">{item.icon}</span>
+                  <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-4.5 w-4.5" />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -729,7 +746,7 @@ export default function Header({
                 className="group flex flex-col items-center justify-center gap-1 rounded-2xl border border-slate-300/70 bg-slate-50/80 px-2 py-2 text-center transition hover:scale-105 hover:border-teal-300 hover:bg-teal-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-teal-400/50 dark:hover:bg-slate-700"
               >
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-sm shadow-sm dark:border-slate-600 dark:bg-slate-900">
-                  {item.icon}
+                  <AppIcon name={item.icon as ComponentProps<typeof AppIcon>["name"]} className="h-4 w-4" />
                 </span>
                 <span className={`text-[10px] font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
                   {item.label}
@@ -749,7 +766,7 @@ export default function Header({
               }`}
               aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
             >
-              🌐
+              <AppIcon name="globe" className="h-4.5 w-4.5" />
             </button>
             <button
               type="button"
@@ -761,13 +778,13 @@ export default function Header({
               }`}
               aria-label="Toggle dark mode"
             >
-              {isDarkMode ? "☀️" : "🌙"}
+              <AppIcon name={isDarkMode ? "sun" : "moon"} className="h-4.5 w-4.5" />
             </button>
             <Link href="/wishlist" className={`${iconBtnClass} h-10 w-10`} aria-label="Wishlist">
-              🤍
+              <AppIcon name="heart" className="h-4.5 w-4.5" />
             </Link>
             <Link href={cartTarget} className={`${iconBtnClass} relative h-10 w-10`} aria-label="Cart">
-              🛒
+              <AppIcon name="cart" className="h-4.5 w-4.5" />
               {cartCount > 0 ? (
                 <span className="absolute -right-1 -top-1 rounded-full bg-amber-500 px-1 text-[9px] font-bold text-slate-900">
                   {cartCount > 99 ? "99+" : cartCount}
@@ -781,7 +798,7 @@ export default function Header({
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-white transition hover:bg-emerald-700"
               aria-label="WhatsApp"
             >
-              💬
+              <AppIcon name="whatsapp" className="h-4.5 w-4.5" />
             </a>
           </div>
         </div>

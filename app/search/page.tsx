@@ -4,19 +4,23 @@ import MobileStickyBar from "@/components/MobileStickyBar";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import SearchResultsClient from "@/components/SearchResultsClient";
 import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
+import { getDictionary } from "@/lib/i18n";
+import { cookies } from "next/headers";
 
 export const revalidate = 60;
 
 type SearchPageProps = {
-  searchParams?: Promise<{ q?: string | string[] | undefined; category?: string | string[] | undefined }>;
+  searchParams?: Promise<{ search?: string | string[] | undefined; q?: string | string[] | undefined; category?: string | string[] | undefined }>;
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const rawQuery = resolvedSearchParams?.q;
+  const rawQuery = resolvedSearchParams?.search ?? resolvedSearchParams?.q;
   const rawCategory = resolvedSearchParams?.category;
   const q = (Array.isArray(rawQuery) ? rawQuery[0] : rawQuery) || "";
   const category = (Array.isArray(rawCategory) ? rawCategory[0] : rawCategory) || "";
+  const lang = (await cookies()).get("clothfy-lang")?.value === "en" ? "en" : "bn";
+  const dict = getDictionary(lang);
 
   const settings = await getStoreSettings();
   const categories = await getCategories();
@@ -33,9 +37,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <section className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
         <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
-          <span>Home</span>
+          <span>{dict.search.home}</span>
           <span>›</span>
-          <span>Search</span>
+          <span>{dict.search.search}</span>
           {q ? (
             <>
               <span>›</span>
@@ -45,8 +49,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
 
         <div className="surface-card p-4 sm:p-5">
-          <h1 className="text-xl font-extrabold text-slate-900">Search & Filter</h1>
-          <p className="mt-1 text-sm text-slate-600">Find your desired product fast.</p>
+          <h1 className="text-xl font-extrabold text-slate-900">{dict.search.searchFilter}</h1>
+          <p className="mt-1 text-sm text-slate-600">{dict.search.searchPageDescription}</p>
           <div className="mt-3">
             <SearchAndFilter categories={categories} />
           </div>

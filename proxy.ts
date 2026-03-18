@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   isAdminAuthorized,
+  isLegacyBasicAuthEnabled,
   isSessionAuthorized,
   unauthorizedResponse,
 } from "@/lib/admin-auth";
+import { validateTrustedAdminMutationRequest } from "@/lib/admin-mutation-guard";
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Allow the login page and auth API to pass through without any auth check
-  if (
-    pathname === "/admin/login" ||
-    pathname.startsWith("/api/admin/auth")
-  ) {
+  if (pathname === "/admin/login") {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api/admin/auth")) {
+    const mutationCheck = validateTrustedAdminMutationRequest(req);
+    if (!mutationCheck.ok) {
+      return new NextResponse(mutationCheck.message, { status: mutationCheck.status });
+    }
     return NextResponse.next();
   }
 
@@ -25,13 +32,20 @@ export async function proxy(req: NextRequest) {
     });
   }
 
+  if (pathname.startsWith("/api/admin/")) {
+    const mutationCheck = validateTrustedAdminMutationRequest(req);
+    if (!mutationCheck.ok) {
+      return new NextResponse(mutationCheck.message, { status: mutationCheck.status });
+    }
+  }
+
   // Check session cookie (set by the login page)
   if (await isSessionAuthorized(req)) {
     return NextResponse.next();
   }
 
   // Fall back to HTTP Basic Auth for backward compatibility (e.g. API clients)
-  if (isAdminAuthorized(req)) {
+  if (isLegacyBasicAuthEnabled() && isAdminAuthorized(req)) {
     return NextResponse.next();
   }
 
