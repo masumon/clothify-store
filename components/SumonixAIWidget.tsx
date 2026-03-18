@@ -124,15 +124,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "assistant",
-      text:
-        mode === "admin"
-          ? "Admin support ready. আপনার প্রশ্ন লিখুন।"
-          : "SUMONIX AI ready. প্রশ্ন লিখুন।",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const isAdminRoute = pathname.startsWith("/admin");
   const shouldHide = (mode === "public" && isAdminRoute) || (mode === "admin" && !isAdminRoute);
@@ -255,7 +247,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   return (
     <div className={`fixed z-[85] ${floatingPositionClass}`}>
       {open ? (
-        <div className="w-[min(92vw,338px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/25 ring-1 ring-slate-100">
+        <div className="w-[min(90vw,312px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/25 ring-1 ring-slate-100">
           <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-4 py-3.5 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -273,12 +265,12 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
 
           <div
             ref={messagesScrollRef}
-            className="max-h-[390px] space-y-3 overflow-y-auto bg-[radial-gradient(circle_at_top,#e0f7fa_0%,#f8fafc_42%,#f8fafc_100%)] p-3.5"
+            className="max-h-[320px] space-y-3 overflow-y-auto bg-[radial-gradient(circle_at_top,#e0f7fa_0%,#f8fafc_42%,#f8fafc_100%)] p-3"
           >
             {messages.map((message, index) => (
               <div key={`${message.role}-${index}`}>
                 <div
-                  className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
+                  className={`rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${
                     message.role === "assistant"
                       ? "border border-slate-200 bg-white text-slate-800 shadow-sm"
                       : "ml-10 bg-gradient-to-r from-teal-700 to-cyan-700 text-white"
@@ -392,12 +384,12 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                 placeholder={
                   mode === "admin" ? "Ask your admin question..." : "Ask your question..."
                 }
-                className="flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+                className="flex-1 rounded-2xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-2xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                className="rounded-2xl bg-teal-700 px-3.5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
               >
                 {loading ? "Typing..." : "Send"}
               </button>

@@ -40,6 +40,8 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
   const [currency, setCurrency] = useState<Currency>("BDT");
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [zoomActive, setZoomActive] = useState(false);
+  const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
 
   useEffect(() => {
     setWishlisted(isInWishlist(product.id));
@@ -80,6 +82,29 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
   )}%0APrice: ৳${product.price}`;
   const whatsappUrl = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}?text=${waText}`;
 
+  const updateZoomOrigin = (
+    clientX: number,
+    clientY: number,
+    target: EventTarget & HTMLDivElement
+  ) => {
+    const rect = target.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+    setZoomOrigin(`${x}% ${y}%`);
+  };
+
+  const handleImageMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    updateZoomOrigin(event.clientX, event.clientY, event.currentTarget);
+    setZoomActive(true);
+  };
+
+  const handleImageTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    updateZoomOrigin(touch.clientX, touch.clientY, event.currentTarget);
+    setZoomActive(true);
+  };
+
   return (
     <>
       <div
@@ -88,14 +113,29 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
         onMouseLeave={() => setHovered(false)}
       >
         {/* Image region */}
-        <div className="relative overflow-hidden">
+        <div
+          className="relative overflow-hidden"
+          onMouseMove={handleImageMouseMove}
+          onMouseLeave={() => {
+            setZoomActive(false);
+            setZoomOrigin("50% 50%");
+          }}
+          onTouchStart={() => setZoomActive(true)}
+          onTouchMove={handleImageTouchMove}
+          onTouchEnd={() => setZoomActive(false)}
+        >
           <Link href={`/product/${product.id}`}>
             <Image
               src={product.image_url}
               alt={product.name}
               width={400}
               height={288}
-              className="h-52 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-56"
+              className="h-52 w-full object-cover sm:h-56"
+              style={{
+                transformOrigin: zoomOrigin,
+                transform: zoomActive ? "scale(1.25)" : "scale(1)",
+                transition: zoomActive ? "transform 120ms ease-out" : "transform 320ms ease",
+              }}
             />
           </Link>
 

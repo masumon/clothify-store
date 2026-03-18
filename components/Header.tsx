@@ -30,7 +30,6 @@ function normalizeBangladeshWhatsAppNumber(phone: string) {
 export default function Header({
   storeName = "Clothify",
   slogan = "Find Your Fit",
-  logoUrl,
   whatsappNumber = "8801811314262",
 }: HeaderProps) {
   const pathname = usePathname();
@@ -122,11 +121,11 @@ export default function Header({
   ];
 
   const secondaryNav = [
-    { href: "/checkout", label: isBn ? "চেকআউট" : "Checkout" },
-    { href: "/profile", label: isBn ? "প্রোফাইল" : "Profile" },
-    { href: "/help", label: isBn ? "সাপোর্ট" : "Support" },
-    { href: "/size-guide", label: isBn ? "সাইজ গাইড" : "Size Guide" },
-    { href: "/settings", label: isBn ? "সেটিংস" : "Settings" },
+    { href: "/checkout", label: isBn ? "চেকআউট" : "Checkout", icon: "✅" },
+    { href: "/profile", label: isBn ? "প্রোফাইল" : "Profile", icon: "👤" },
+    { href: "/help", label: isBn ? "সাপোর্ট" : "Support", icon: "💬" },
+    { href: "/size-guide", label: isBn ? "সাইজ গাইড" : "Size Guide", icon: "📏" },
+    { href: "/settings", label: isBn ? "সেটিংস" : "Settings", icon: "⚙️" },
   ];
 
   const headerShellClass = isDarkMode
@@ -142,7 +141,7 @@ export default function Header({
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <Image
-            src={logoUrl || "/icons/icon-192.png"}
+            src="/icons/icon-192.png"
             alt={storeName}
             width={48}
             height={48}
@@ -159,18 +158,30 @@ export default function Header({
           </div>
         </Link>
 
-        <form onSubmit={handleSearch} className="hidden max-w-sm flex-1 items-center lg:flex">
+        <form
+          onSubmit={handleSearch}
+          className={`hidden max-w-md flex-1 items-center gap-2 rounded-full border px-2 py-1.5 lg:flex ${
+            isDarkMode
+              ? "border-slate-600 bg-slate-900/80"
+              : "border-slate-200 bg-white shadow-[0_8px_24px_-18px_rgba(15,23,42,0.7)]"
+          }`}
+        >
+          <span className={`pl-2 text-sm ${isDarkMode ? "text-cyan-200" : "text-cyan-700"}`}>🔎</span>
           <input
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={isBn ? "পণ্য সার্চ করুন..." : "Search products..."}
-            className={`w-full rounded-full border px-4 py-2 text-xs outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100 ${
-              isDarkMode
-                ? "border-slate-600 bg-slate-900/90 text-slate-100 placeholder:text-slate-400"
-                : "border-slate-300 bg-white text-slate-800 placeholder:text-slate-500"
+            className={`w-full bg-transparent py-1.5 text-sm outline-none ${
+              isDarkMode ? "text-slate-100 placeholder:text-slate-400" : "text-slate-800 placeholder:text-slate-500"
             }`}
           />
+          <button
+            type="submit"
+            className="rounded-full bg-gradient-to-r from-teal-700 to-cyan-700 px-3 py-1.5 text-xs font-bold text-white transition hover:brightness-110"
+          >
+            {isBn ? "সার্চ" : "Search"}
+          </button>
         </form>
 
         <div className="hidden items-center gap-1.5 md:flex">
@@ -269,23 +280,26 @@ export default function Header({
 
           {moreOpen ? (
             <div
-              className={`absolute right-0 z-40 mt-2 w-48 overflow-hidden rounded-2xl border shadow-xl ${
+              className={`absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-2xl border p-3 shadow-xl ${
                 isDarkMode ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
               }`}
             >
-              {secondaryNav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block px-4 py-2.5 text-sm font-medium transition ${
-                    isDarkMode
-                      ? "text-slate-200 hover:bg-slate-800"
-                      : "text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <div className="grid grid-cols-3 gap-2">
+                {secondaryNav.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="group flex flex-col items-center justify-center gap-1 rounded-2xl border border-slate-300/70 bg-slate-50/80 px-2 py-2.5 text-center transition hover:scale-105 hover:border-teal-300 hover:bg-teal-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-teal-400/50 dark:hover:bg-slate-700"
+                  >
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base shadow-sm dark:border-slate-600 dark:bg-slate-900">
+                      {item.icon}
+                    </span>
+                    <span className={`text-[10px] font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
+                      {item.label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
             </div>
           ) : null}
         </div>
@@ -297,18 +311,28 @@ export default function Header({
             isDarkMode ? "border-slate-700/80 bg-slate-950/92" : "border-slate-200/80 bg-white/92"
           }`}
         >
-          <form onSubmit={handleSearch} className="mb-3">
+          <form
+            onSubmit={handleSearch}
+            className={`mb-3 flex items-center gap-2 rounded-full border px-2 py-1.5 ${
+              isDarkMode ? "border-slate-600 bg-slate-900/80" : "border-slate-300 bg-white"
+            }`}
+          >
+            <span className={`pl-2 text-sm ${isDarkMode ? "text-cyan-200" : "text-cyan-700"}`}>🔎</span>
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isBn ? "পণ্য সার্চ করুন..." : "Search products..."}
-              className={`w-full rounded-full border px-4 py-2.5 text-sm outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100 ${
-                isDarkMode
-                  ? "border-slate-600 bg-slate-900/90 text-slate-100 placeholder:text-slate-400"
-                  : "border-slate-300 bg-white text-slate-800 placeholder:text-slate-500"
+              className={`w-full bg-transparent py-1.5 text-sm outline-none ${
+                isDarkMode ? "text-slate-100 placeholder:text-slate-400" : "text-slate-800 placeholder:text-slate-500"
               }`}
             />
+            <button
+              type="submit"
+              className="rounded-full bg-gradient-to-r from-teal-700 to-cyan-700 px-3 py-1.5 text-xs font-bold text-white"
+            >
+              {isBn ? "Go" : "Go"}
+            </button>
           </form>
 
           <nav className="mb-3 grid grid-cols-4 gap-2">
@@ -331,18 +355,19 @@ export default function Header({
             })}
           </nav>
 
-          <div className="mb-3 grid grid-cols-2 gap-2">
+          <div className="mb-3 grid grid-cols-3 gap-2">
             {secondaryNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition ${
-                  isDarkMode
-                    ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                }`}
+                className="group flex flex-col items-center justify-center gap-1 rounded-2xl border border-slate-300/70 bg-slate-50/80 px-2 py-2 text-center transition hover:scale-105 hover:border-teal-300 hover:bg-teal-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-teal-400/50 dark:hover:bg-slate-700"
               >
-                {item.label}
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-sm shadow-sm dark:border-slate-600 dark:bg-slate-900">
+                  {item.icon}
+                </span>
+                <span className={`text-[10px] font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
+                  {item.label}
+                </span>
               </Link>
             ))}
           </div>

@@ -50,6 +50,7 @@ type PromoAd = {
   title: string;
   description: string;
   className: string;
+  badgeClassName: string;
 };
 
 export default function UpazilaHomepageV2({
@@ -110,7 +111,8 @@ export default function UpazilaHomepageV2({
           ? "Limited stock. Student-friendly combo deal."
           : "Limited stock. Student-friendly combo deal.",
         className:
-          "border-amber-300 bg-gradient-to-br from-amber-100/95 to-orange-100/95 text-slate-900",
+          "border-amber-300 bg-gradient-to-br from-[#fff2cc] to-[#ffd9a8]",
+        badgeClassName: "border-amber-800/20 bg-amber-900/10 text-amber-900",
       },
       {
         id: "festival-deal",
@@ -120,7 +122,8 @@ export default function UpazilaHomepageV2({
           ? "Eid-ready look with special exchange support."
           : "Eid-ready look with special exchange support.",
         className:
-          "border-emerald-300 bg-gradient-to-br from-emerald-100/95 to-teal-100/95 text-slate-900",
+          "border-emerald-300 bg-gradient-to-br from-[#dcfce7] to-[#bbf7d0]",
+        badgeClassName: "border-emerald-800/20 bg-emerald-900/10 text-emerald-900",
       },
     ],
     [isBn]
@@ -214,15 +217,15 @@ export default function UpazilaHomepageV2({
         <div className="grid gap-3 sm:grid-cols-2">
           {visibleAds.map((ad) => (
             <div key={ad.id} className={`relative rounded-2xl border p-4 shadow-sm ${ad.className}`}>
-              <span className="rounded-full border border-black/10 bg-white/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em]">
+              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] ${ad.badgeClassName}`}>
                 {ad.badge}
               </span>
-              <h3 className="mt-2 text-lg font-extrabold">{ad.title}</h3>
-              <p className="mt-1 text-sm text-slate-700">{ad.description}</p>
+              <h3 className="mt-2 text-lg font-extrabold text-[#102a43]">{ad.title}</h3>
+              <p className="mt-1 text-sm text-[#334e68]">{ad.description}</p>
               <button
                 type="button"
                 onClick={() => setDismissedAds((prev) => [...prev, ad.id])}
-                className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border border-black/15 bg-white/80 text-sm font-bold text-slate-700 transition hover:scale-110 hover:bg-white"
+                className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border border-black/15 bg-white/90 text-sm font-bold text-[#334e68] transition hover:scale-110 hover:bg-white"
                 aria-label="Close ad"
                 title={isBn ? "বন্ধ করুন" : "Close"}
               >

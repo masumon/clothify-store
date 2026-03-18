@@ -24,10 +24,12 @@ export default async function OffersPage() {
       />
 
       <section className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
-        <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 sm:p-7">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-700">Offers & Deals</p>
-          <h1 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">আজকের সেরা ছাড় • Best Value Picks</h1>
-          <p className="mt-2 text-sm text-slate-600">Student-friendly combo, flash discount, and trending deal items.</p>
+        <div className="relative overflow-hidden rounded-3xl border border-cyan-300/40 bg-gradient-to-br from-[#0b2f52] via-[#114c7a] to-[#0f766e] p-5 text-white shadow-lg shadow-slate-900/20 sm:p-7">
+          <div className="absolute -right-10 -top-12 h-44 w-44 rounded-full bg-amber-300/20 blur-3xl" />
+          <div className="absolute -left-12 bottom-0 h-40 w-40 rounded-full bg-cyan-300/20 blur-3xl" />
+          <p className="relative text-xs font-bold uppercase tracking-[0.2em] text-amber-200">Offers & Deals</p>
+          <h1 className="relative mt-2 text-2xl font-extrabold text-white sm:text-3xl">আজকের সেরা ছাড় • Best Value Picks</h1>
+          <p className="relative mt-2 text-sm text-cyan-100">Student-friendly combo, flash discount, and trending deal items.</p>
         </div>
 
         <div className="mt-8">

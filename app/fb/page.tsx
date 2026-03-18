@@ -69,7 +69,7 @@ export default function FacebookLandingPage() {
       <div className="sticky top-0 z-50 flex items-center justify-between border-b border-white/70 bg-white/80 px-4 py-2 backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <Image
-            src={settings?.logo_url || "/icons/icon-192.png"}
+            src="/icons/icon-192.png"
             alt={storeName}
             width={34}
             height={34}

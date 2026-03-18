@@ -52,7 +52,7 @@ export default function SearchAndFilter({ categories }: Props) {
 
   return (
     <form
-      className="mb-6 rounded-3xl border border-slate-200/80 bg-white/90 p-4 shadow-[0_12px_30px_-24px_rgba(2,6,23,0.55)] backdrop-blur sm:p-5"
+      className="mb-6 rounded-3xl border border-cyan-200/70 bg-gradient-to-r from-white/95 via-cyan-50/70 to-white/95 p-4 shadow-[0_12px_30px_-24px_rgba(2,6,23,0.55)] backdrop-blur sm:p-5"
       onSubmit={handleSubmit}
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -65,13 +65,16 @@ export default function SearchAndFilter({ categories }: Props) {
       </div>
 
       <div className="grid gap-3 md:grid-cols-[1fr_220px_140px]">
-        <input
-          type="text"
-          placeholder={isBn ? "🔍 পণ্য খুঁজুন..." : "🔍 Search products..."}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-xl border border-slate-300/90 bg-white px-4 py-3 text-slate-800 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
-        />
+        <div className="relative">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-cyan-700">🔎</span>
+          <input
+            type="text"
+            placeholder={isBn ? "পণ্য খুঁজুন..." : "Search products..."}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border border-slate-300/90 bg-white pl-10 pr-4 py-3 text-slate-800 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+          />
+        </div>
 
         <select
           aria-label="Product Category"
@@ -90,7 +93,7 @@ export default function SearchAndFilter({ categories }: Props) {
 
         <button
           type="submit"
-          className="rounded-xl bg-teal-700 px-5 py-3 font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-teal-800"
+          className="rounded-xl bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 px-5 py-3 font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:brightness-110"
         >
           {isBn ? "✨ Apply করুন" : "✨ Apply"}
         </button>
