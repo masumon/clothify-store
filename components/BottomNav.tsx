@@ -32,7 +32,7 @@ export default function BottomNav() {
       { href: "/offers", icon: "🏷️", label: lang === "bn" ? "অফার" : "Offers", external: false },
       { href: "/cart", icon: "🛒", label: lang === "bn" ? "কার্ট" : "Cart", external: false },
       { href: "/profile", icon: "👤", label: lang === "bn" ? "প্রোফাইল" : "Profile", external: false },
-      { href: "/help", icon: "💬", label: lang === "bn" ? "হেল্প" : "Help", external: false },
+      { href: "/fb", icon: "📣", label: lang === "bn" ? "ল্যান্ডিং" : "Landing", external: false },
     ],
     [lang]
   );

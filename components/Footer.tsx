@@ -126,6 +126,7 @@ export default function Footer({
             <h4 className="text-base font-bold">{isBn ? "দ্রুত লিংক" : "Quick Links"}</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-300">
               <li><Link href="/" className="transition hover:text-white">{isBn ? "🏠 হোম" : "🏠 Home"}</Link></li>
+              <li><Link href="/fb" className="transition hover:text-white">{isBn ? "📣 ল্যান্ডিং পেজ" : "📣 Landing Page"}</Link></li>
               <li><Link href="/categories" className="transition hover:text-white">{isBn ? "🧭 ক্যাটাগরি" : "🧭 Categories"}</Link></li>
               <li><Link href="/offers" className="transition hover:text-white">{isBn ? "🏷️ অফার" : "🏷️ Offers"}</Link></li>
               <li><Link href="/checkout" className="transition hover:text-white">{isBn ? "✅ চেকআউট" : "✅ Checkout"}</Link></li>
