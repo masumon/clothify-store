@@ -129,8 +129,8 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
       role: "assistant",
       text:
         mode === "admin"
-          ? "আমি SUMONIX AI। orders, stock, sales, publish/draft, settings navigation এবং admin insights নিয়ে জিজ্ঞেস করতে পারেন।"
-          : "আমি SUMONIX AI। পুরো ওয়েবসাইটভিত্তিক product, দাম, delivery, payment, size guide, language/theme settings বা support নিয়ে জিজ্ঞেস করুন।",
+          ? "Admin support ready. আপনার প্রশ্ন লিখুন।"
+          : "SUMONIX AI ready. প্রশ্ন লিখুন।",
     },
   ]);
 
@@ -255,19 +255,16 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   return (
     <div className={`fixed z-[85] ${floatingPositionClass}`}>
       {open ? (
-        <div className="w-[min(94vw,390px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/25 ring-1 ring-slate-100">
-          <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-4 py-4 text-white">
+        <div className="w-[min(92vw,338px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/25 ring-1 ring-slate-100">
+          <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-4 py-3.5 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-lg font-extrabold">SUMONIX AI</h3>
-                <p className="mt-1 text-[11px] font-semibold text-white/80">
-                  {mode === "admin" ? "Live analytics + prediction + action hints" : "Order help + payment guide + product support"}
-                </p>
+                <h3 className="text-base font-extrabold">SUMONIX AI</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full bg-white/15 px-3 py-1 text-sm font-semibold text-white"
+                className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white"
               >
                 Close
               </button>
@@ -276,7 +273,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
 
           <div
             ref={messagesScrollRef}
-            className="max-h-[430px] space-y-3 overflow-y-auto bg-[radial-gradient(circle_at_top,#e0f7fa_0%,#f8fafc_42%,#f8fafc_100%)] p-4"
+            className="max-h-[390px] space-y-3 overflow-y-auto bg-[radial-gradient(circle_at_top,#e0f7fa_0%,#f8fafc_42%,#f8fafc_100%)] p-3.5"
           >
             {messages.map((message, index) => (
               <div key={`${message.role}-${index}`}>
@@ -393,9 +390,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder={
-                  mode === "admin"
-                    ? "Ask: today sales, top source, drop-off, prediction..."
-                    : "Ask: order guide, payment, delivery, support..."
+                  mode === "admin" ? "Ask your admin question..." : "Ask your question..."
                 }
                 className="flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
               />
@@ -415,10 +410,10 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="group rounded-full bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-teal-900/25 transition hover:scale-[1.02] hover:shadow-2xl"
+          className="group rounded-full bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 px-4 py-2.5 text-xs font-bold text-white shadow-xl shadow-teal-900/25 transition hover:scale-[1.03] hover:shadow-2xl"
         >
           <span className="flex items-center gap-2">
-            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300 shadow-[0_0_0_4px_rgba(110,231,183,0.25)]" />
+            <span className="inline-flex h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_0_3px_rgba(110,231,183,0.25)]" />
             SUMONIX AI
           </span>
         </button>

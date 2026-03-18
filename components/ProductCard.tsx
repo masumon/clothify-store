@@ -95,7 +95,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
               alt={product.name}
               width={400}
               height={288}
-              className="h-64 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-72"
+              className="h-52 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-56"
             />
           </Link>
 
@@ -163,7 +163,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
 
         {/* Card body */}
         <div className="p-4 sm:p-5">
-          <h3 className="line-clamp-2 min-h-[56px] text-lg font-bold leading-7 text-slate-900">
+          <h3 className="line-clamp-2 min-h-[50px] text-base font-bold leading-6 text-slate-900 sm:text-lg sm:leading-7">
             {product.name}
           </h3>
 

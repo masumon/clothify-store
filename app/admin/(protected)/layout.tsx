@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import SumonixAIWidget from "@/components/SumonixAIWidget";
 
 const adminNavItems = [
@@ -19,9 +20,16 @@ export default function AdminLayout({
       <SumonixAIWidget mode="admin" />
       <div className="grid min-h-screen md:grid-cols-[270px_1fr]">
         <aside className="admin-sidebar hidden border-r border-slate-700/60 bg-slate-950/80 p-6 backdrop-blur md:block">
-          <h2 className="text-2xl font-extrabold tracking-tight text-white">
-            Clothfy Admin
-          </h2>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/icon-192.png"
+              alt="Clothify"
+              width={34}
+              height={34}
+              className="h-8 w-8 rounded-full border border-slate-700 object-cover"
+            />
+            <h2 className="text-2xl font-extrabold tracking-tight text-white">Clothify Admin</h2>
+          </div>
           <p className="mt-1 text-sm text-slate-300">Data-driven POS and operations control</p>
 
           <nav className="mt-6 space-y-2">
@@ -58,7 +66,16 @@ export default function AdminLayout({
         <div className="min-w-0">
           <div className="sticky top-0 z-40 border-b border-slate-700/70 bg-slate-950/90 px-3 py-3 backdrop-blur md:hidden">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-bold text-white">Clothfy Admin</p>
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/icons/icon-192.png"
+                  alt="Clothify"
+                  width={24}
+                  height={24}
+                  className="h-6 w-6 rounded-full border border-slate-700 object-cover"
+                />
+                <p className="text-sm font-bold text-white">Clothify Admin</p>
+              </div>
               <Link
                 href="/"
                 className="rounded-full border border-slate-600 px-3 py-1 text-xs font-semibold text-slate-200"

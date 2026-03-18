@@ -21,7 +21,6 @@ type HeaderProps = {
 
 function normalizeBangladeshWhatsAppNumber(phone: string) {
   const digits = phone.replace(/\D/g, "");
-
   if (!digits) return "8801811314262";
   if (digits.startsWith("880")) return digits;
   if (digits.startsWith("0")) return `88${digits}`;
@@ -37,19 +36,17 @@ export default function Header({
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [uiLang, setUiLang] = useState<Language>("bn");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const syncPreferences = () => {
       const preferences = readSitePreferences();
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const shouldUseDark =
-        preferences.theme === "dark" ||
-        (preferences.theme === "system" && prefersDark);
+      const shouldUseDark = preferences.theme === "dark" || (preferences.theme === "system" && prefersDark);
       setUiLang(preferences.language);
       setIsDarkMode(shouldUseDark);
     };
@@ -66,6 +63,13 @@ export default function Header({
     return () => window.removeEventListener("clothfy-wishlist-change", updateCount);
   }, []);
 
+  useEffect(() => {
+    setMenuOpen(false);
+    setMoreOpen(false);
+  }, [pathname]);
+
+  const isBn = uiLang === "bn";
+
   const toggleLanguage = () => {
     const nextLang: Language = uiLang === "bn" ? "en" : "bn";
     setUiLang(nextLang);
@@ -81,21 +85,16 @@ export default function Header({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
-    if (!q) return;
-    router.push(`/?search=${encodeURIComponent(q)}`);
-    setSearchOpen(false);
-    setSearchQuery("");
+    router.push(q ? `/?search=${encodeURIComponent(q)}` : "/");
   };
 
   const whatsappLink = `https://wa.me/${normalizeBangladeshWhatsAppNumber(whatsappNumber)}`;
 
-  const isBn = uiLang === "bn";
-
-  const navItems = [
+  const primaryNav = [
     {
       href: "/",
-      label: isBn ? "শপ" : "Shop",
-      icon: "🛍️",
+      label: isBn ? "হোম" : "Home",
+      icon: "🏠",
       lightColor: "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100",
       darkColor: "border-blue-400/40 bg-blue-500/15 text-blue-100 hover:bg-blue-500/25",
     },
@@ -120,118 +119,67 @@ export default function Header({
       lightColor: "border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100",
       darkColor: "border-orange-400/40 bg-orange-500/15 text-orange-100 hover:bg-orange-500/25",
     },
-    {
-      href: "/checkout",
-      label: isBn ? "চেকআউট" : "Checkout",
-      icon: "✅",
-      lightColor: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
-      darkColor: "border-green-400/40 bg-green-500/15 text-green-100 hover:bg-green-500/25",
-    },
-    {
-      href: "/profile",
-      label: isBn ? "প্রোফাইল" : "Profile",
-      icon: "👤",
-      lightColor: "border-indigo-200 bg-indigo-50 text-indigo-900 hover:bg-indigo-100",
-      darkColor: "border-indigo-400/40 bg-indigo-500/15 text-indigo-100 hover:bg-indigo-500/25",
-    },
-    {
-      href: "/help",
-      label: isBn ? "হেল্প" : "Help",
-      icon: "💬",
-      lightColor: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
-      darkColor: "border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25",
-    },
-    {
-      href: "/size-guide",
-      label: isBn ? "সাইজ গাইড" : "Size Guide",
-      icon: "📏",
-      lightColor: "border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100",
-      darkColor: "border-rose-400/40 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25",
-    },
-    {
-      href: "/settings",
-      label: isBn ? "সেটিংস" : "Settings",
-      icon: "⚙️",
-      lightColor: "border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100",
-      darkColor: "border-purple-400/40 bg-purple-500/15 text-purple-100 hover:bg-purple-500/25",
-    },
   ];
 
-  const mobileMenuItems = navItems;
+  const secondaryNav = [
+    { href: "/checkout", label: isBn ? "চেকআউট" : "Checkout" },
+    { href: "/profile", label: isBn ? "প্রোফাইল" : "Profile" },
+    { href: "/help", label: isBn ? "সাপোর্ট" : "Support" },
+    { href: "/size-guide", label: isBn ? "সাইজ গাইড" : "Size Guide" },
+    { href: "/settings", label: isBn ? "সেটিংস" : "Settings" },
+  ];
+
   const headerShellClass = isDarkMode
-    ? "sticky top-0 z-50 border-b border-slate-700/80 bg-slate-950/85 backdrop-blur-xl"
-    : "sticky top-0 z-50 border-b border-white/70 bg-white/80 backdrop-blur-xl";
+    ? "sticky top-0 z-50 border-b border-slate-700/80 bg-slate-950/88 backdrop-blur-xl"
+    : "sticky top-0 z-50 border-b border-white/80 bg-white/90 backdrop-blur-xl";
+
   const iconBtnClass = isDarkMode
-    ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 bg-slate-900/80 text-base text-slate-100 transition hover:bg-slate-800"
-    : "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100";
+    ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 bg-slate-900/80 text-base text-slate-100 transition hover:scale-110 hover:bg-slate-800"
+    : "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:scale-110 hover:bg-slate-100";
 
   return (
     <header className={headerShellClass}>
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-3">
-          {logoUrl ? (
-            <Image
-              src={logoUrl}
-              alt={storeName}
-              width={48}
-              height={48}
-              className="h-12 w-12 rounded-2xl border border-slate-200 object-cover"
-            />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-600 to-cyan-700 text-lg font-bold text-white shadow-lg shadow-teal-900/20">
-              C
-            </div>
-          )}
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+        <Link href="/" className="flex min-w-0 items-center gap-3">
+          <Image
+            src={logoUrl || "/icons/icon-192.png"}
+            alt={storeName}
+            width={48}
+            height={48}
+            className="h-11 w-11 shrink-0 rounded-full border border-slate-200 object-cover shadow-sm"
+          />
 
-          <div>
-            <h1 className="text-lg font-extrabold tracking-tight text-slate-900">
+          <div className="min-w-0">
+            <h1 className={`truncate text-lg font-extrabold tracking-tight ${isDarkMode ? "text-slate-100" : "text-slate-900"}`}>
               {storeName}
             </h1>
-            <p className="text-xs font-medium tracking-wide text-slate-500">
+            <p className={`truncate text-xs font-medium tracking-wide ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
               {slogan}
             </p>
           </div>
         </Link>
 
-        <div className="hidden items-center gap-1.5 md:flex lg:gap-2">
-          {/* Search */}
-          {searchOpen ? (
-            <form onSubmit={handleSearch} className="flex items-center gap-1.5">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={isBn ? "পণ্য খুঁজুন..." : "Search products..."}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                className="w-40 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
-              />
-              <button
-                type="button"
-                onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-xs text-slate-600 transition hover:bg-slate-100"
-              >
-                ✕
-              </button>
-            </form>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              className={iconBtnClass}
-              aria-label="Search products"
-              title="Search"
-            >
-              🔍
-            </button>
-          )}
+        <form onSubmit={handleSearch} className="hidden max-w-sm flex-1 items-center lg:flex">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={isBn ? "পণ্য সার্চ করুন..." : "Search products..."}
+            className={`w-full rounded-full border px-4 py-2 text-xs outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100 ${
+              isDarkMode
+                ? "border-slate-600 bg-slate-900/90 text-slate-100 placeholder:text-slate-400"
+                : "border-slate-300 bg-white text-slate-800 placeholder:text-slate-500"
+            }`}
+          />
+        </form>
 
+        <div className="hidden items-center gap-1.5 md:flex">
           <button
             type="button"
             onClick={toggleLanguage}
             className={iconBtnClass}
-            aria-label="Toggle language"
-            title={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
+            aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
+            title={uiLang === "bn" ? "BN -> EN" : "EN -> BN"}
           >
             🌐
           </button>
@@ -246,64 +194,26 @@ export default function Header({
             <span className="text-base leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
           </button>
 
-          {/* Wishlist */}
-          <Link
-            href="/wishlist"
-            className={`relative ${iconBtnClass}`}
-            aria-label="Wishlist"
-            title="Wishlist"
-          >
+          <Link href="/wishlist" className={`relative ${iconBtnClass}`} aria-label="Wishlist" title="Wishlist">
             🤍
-            {wishlistCount > 0 && (
+            {wishlistCount > 0 ? (
               <span className="absolute -right-1 -top-1 flex min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-0.5 text-[9px] font-bold text-white">
                 {wishlistCount > 9 ? "9+" : wishlistCount}
               </span>
-            )}
-          </Link>
-
-          <Link
-            href="/cart"
-            className={iconBtnClass}
-            aria-label="Go to cart"
-            title="Cart"
-          >
-            🛒
+            ) : null}
           </Link>
 
           <a
             href={whatsappLink}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-base text-white transition hover:bg-emerald-700"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-base text-white transition hover:scale-110 hover:bg-emerald-700"
             aria-label="WhatsApp"
             title="WhatsApp"
           >
             <span className="text-sm leading-none">💬</span>
           </a>
         </div>
-
-        <nav className="hidden items-center gap-1.5 lg:flex lg:gap-2">
-          {navItems.map((item) => {
-            const active =
-              pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
-            const palette = isDarkMode ? item.darkColor : item.lightColor;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={item.label}
-                aria-label={item.label}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-base transition ${palette} ${
-                  active ? "ring-2 ring-teal-300/60" : ""
-                }`}
-              >
-                <span className="text-base leading-none">{item.icon}</span>
-              </Link>
-            );
-          })}
-        </nav>
 
         <button
           type="button"
@@ -319,77 +229,164 @@ export default function Header({
         </button>
       </div>
 
-      {menuOpen && (
+      <div className="mx-auto hidden max-w-6xl items-center justify-between gap-3 px-4 pb-3 lg:flex">
+        <nav className="flex items-center gap-2">
+          {primaryNav.map((item) => {
+            const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            const palette = isDarkMode ? item.darkColor : item.lightColor;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-label={item.label}
+                className={`group relative inline-flex h-10 w-10 items-center justify-center rounded-full border text-base transition ${palette} ${
+                  active ? "ring-2 ring-teal-300/70" : ""
+                } hover:scale-110`}
+              >
+                <span className="text-base leading-none">{item.icon}</span>
+                <span className="pointer-events-none absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setMoreOpen((prev) => !prev)}
+            className={`inline-flex items-center gap-1 rounded-full border px-3 py-2 text-xs font-semibold transition ${
+              isDarkMode
+                ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            <span>⋯</span>
+            {isBn ? "More" : "More"}
+          </button>
+
+          {moreOpen ? (
+            <div
+              className={`absolute right-0 z-40 mt-2 w-48 overflow-hidden rounded-2xl border shadow-xl ${
+                isDarkMode ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
+              }`}
+            >
+              {secondaryNav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`block px-4 py-2.5 text-sm font-medium transition ${
+                    isDarkMode
+                      ? "text-slate-200 hover:bg-slate-800"
+                      : "text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {menuOpen ? (
         <div
           className={`border-t px-4 pb-4 pt-3 backdrop-blur lg:hidden ${
-            isDarkMode
-              ? "border-slate-700/80 bg-slate-950/90"
-              : "border-slate-200/80 bg-white/90"
+            isDarkMode ? "border-slate-700/80 bg-slate-950/92" : "border-slate-200/80 bg-white/92"
           }`}
         >
-          <div className="mb-3 flex items-center justify-center gap-2.5">
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border text-base font-bold transition ${
+          <form onSubmit={handleSearch} className="mb-3">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={isBn ? "পণ্য সার্চ করুন..." : "Search products..."}
+              className={`w-full rounded-full border px-4 py-2.5 text-sm outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100 ${
                 isDarkMode
-                  ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  ? "border-slate-600 bg-slate-900/90 text-slate-100 placeholder:text-slate-400"
+                  : "border-slate-300 bg-white text-slate-800 placeholder:text-slate-500"
               }`}
-              aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
-              title={uiLang === "bn" ? "BN → EN" : "EN → BN"}
-            >
-              🌐
-            </button>
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${
-                isDarkMode
-                  ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-              aria-label="Toggle dark mode"
-              title="Toggle theme"
-            >
-              <span className="text-lg leading-none">{isDarkMode ? "☀️" : "🌙"}</span>
-            </button>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-white transition hover:bg-emerald-700"
-              aria-label="WhatsApp"
-              title="WhatsApp"
-            >
-              <span className="text-lg leading-none">💬</span>
-            </a>
-          </div>
-          <nav className="flex flex-wrap items-center justify-center gap-2.5">
-            {mobileMenuItems.map((item) => {
-              const active =
-                pathname === item.href ||
-                (item.href !== "/" && pathname.startsWith(item.href));
+            />
+          </form>
+
+          <nav className="mb-3 grid grid-cols-4 gap-2">
+            {primaryNav.map((item) => {
+              const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               const palette = isDarkMode ? item.darkColor : item.lightColor;
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`inline-flex h-12 w-12 items-center justify-center rounded-full border transition ${palette} ${
+                  className={`flex flex-col items-center justify-center gap-1 rounded-2xl border px-2 py-3 text-center text-xs font-semibold transition ${palette} ${
                     active ? "ring-2 ring-teal-400/70 ring-offset-1" : ""
                   }`}
-                  aria-label={item.label}
-                  title={item.label}
                 >
-                  <span className="text-xl leading-none">{item.icon}</span>
+                  <span className="text-lg leading-none">{item.icon}</span>
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
+
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            {secondaryNav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition ${
+                  isDarkMode
+                    ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className={`inline-flex h-10 w-10 items-center justify-center rounded-full border text-base transition ${
+                isDarkMode
+                  ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+              aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
+            >
+              🌐
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className={`inline-flex h-10 w-10 items-center justify-center rounded-full border text-base transition ${
+                isDarkMode
+                  ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+              aria-label="Toggle dark mode"
+            >
+              {isDarkMode ? "☀️" : "🌙"}
+            </button>
+            <Link href="/wishlist" className={`${iconBtnClass} h-10 w-10`} aria-label="Wishlist">
+              🤍
+            </Link>
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-white transition hover:bg-emerald-700"
+              aria-label="WhatsApp"
+            >
+              💬
+            </a>
+          </div>
         </div>
-      )}
+      ) : null}
     </header>
   );
 }

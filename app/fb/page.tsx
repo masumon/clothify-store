@@ -67,12 +67,21 @@ export default function FacebookLandingPage() {
     <main className="min-h-screen bg-slate-100">
       {/* Top controls bar */}
       <div className="sticky top-0 z-50 flex items-center justify-between border-b border-white/70 bg-white/80 px-4 py-2 backdrop-blur-xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-        >
-          ← {isBn ? "ড্যাশবোর্ডে ফিরুন" : "Back to Dashboard"}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Image
+            src={settings?.logo_url || "/icons/icon-192.png"}
+            alt={storeName}
+            width={34}
+            height={34}
+            className="h-8 w-8 rounded-full border border-slate-200 object-cover"
+          />
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          >
+            ← {isBn ? "ড্যাশবোর্ডে ফিরুন" : "Back to Dashboard"}
+          </Link>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={toggleLanguage}

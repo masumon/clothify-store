@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
 type AuthTab = "login" | "otp" | "reset" | "register";
@@ -253,8 +254,14 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-600 to-cyan-700 text-2xl font-bold text-white shadow-xl shadow-teal-900/50">
-            C
+          <div className="mx-auto mb-4 flex justify-center">
+            <Image
+              src="/icons/icon-192.png"
+              alt="Clothify"
+              width={64}
+              height={64}
+              className="h-16 w-16 rounded-full border border-white/20 object-cover shadow-xl shadow-teal-900/50"
+            />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white">Clothify Admin</h1>
           <p className="mt-1 text-sm text-slate-400">Secure admin access portal</p>

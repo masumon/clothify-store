@@ -52,11 +52,11 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   manifest: "/manifest.webmanifest",
-  applicationName: "CLOTHFY",
+  applicationName: "CLOTHIFY",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "CLOTHFY",
+    title: "CLOTHIFY",
   },
   icons: {
     icon: [

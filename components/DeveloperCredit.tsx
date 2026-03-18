@@ -113,17 +113,19 @@ export default function DeveloperCredit({
             alt="ABO Enterprise"
             width={44}
             height={44}
-            className="h-11 w-11 shrink-0 rounded-xl border border-white/20 object-cover"
+            className="h-11 w-11 shrink-0 rounded-full border border-white/25 object-cover"
           />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-bold text-white">{name}</p>
             <p className="truncate text-[11px] text-slate-400">{role}</p>
             <p className="mt-0.5 text-[11px] font-semibold text-emerald-400">{business}</p>
 
-          <p className="mt-2 space-y-0.5 text-[10px] text-slate-500">
-            <span className="flex items-center gap-1 truncate"><MailIcon />{email1}</span>
-            <span className="flex items-center gap-1 truncate"><PhoneIcon />WhatsApp: {whatsapp}</span>
-          </p>
+            <p className="mt-2 space-y-0.5 text-[10px] text-slate-500">
+              <span className="flex items-center gap-1 truncate"><MailIcon />{email1}</span>
+              <span className="flex items-center gap-1 truncate"><MailIcon />{email2}</span>
+              <span className="flex items-center gap-1 truncate"><PhoneIcon />WhatsApp: {whatsapp}</span>
+              <span className="flex items-center gap-1 truncate"><PhoneIcon />Phone: {phone}</span>
+            </p>
 
             <a
               href={developerFacebook}

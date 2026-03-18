@@ -1,7 +1,7 @@
 {
-  "name": "CLOTHFY",
-  "short_name": "CLOTHFY",
-  "description": "CLOTHFY premium menswear shopping app with AI assistant, cart, checkout, and live order tools.",
+  "name": "CLOTHIFY",
+  "short_name": "CLOTHIFY",
+  "description": "CLOTHIFY premium menswear shopping app with cart, checkout, and live order tools.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
