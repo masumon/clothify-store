@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import SearchAndFilter from "@/components/SearchAndFilter";
 import SectionHeader from "@/components/SectionHeader";
 import {
   type Language,
@@ -143,13 +142,7 @@ export default function UpazilaHomepageV2({
   const promoMarqueeCards = promoAds.length > 0 ? [...promoAds, ...promoAds] : [];
 
   return (
-    <section className="space-y-8">
-      <div id="filters-top" className="scroll-mt-24 flex justify-end">
-        <div className="w-full md:max-w-xl">
-          <SearchAndFilter categories={categories} compact />
-        </div>
-      </div>
-
+    <section className="space-y-8 sm:space-y-9">
       <div className="relative overflow-hidden rounded-3xl border border-teal-100 bg-gradient-to-br from-[#000080] via-[#0a3b7a] to-[#008080] p-4 text-white sm:p-6">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#CC5500]/30 blur-2xl" />
         <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[#8A9A5B]/30 blur-2xl" />
