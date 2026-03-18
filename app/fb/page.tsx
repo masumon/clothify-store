@@ -3,11 +3,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+  updateSitePreferences,
+} from "@/lib/site-preferences";
 
 export default function FacebookLandingPage() {
   const [settings, setSettings] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
-  const [uiLang, setUiLang] = useState<"en" | "bn">("bn");
+  const [uiLang, setUiLang] = useState<Language>("bn");
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -22,33 +28,29 @@ export default function FacebookLandingPage() {
       })
       .catch((err) => console.error("Failed to load data:", err));
 
-    // Initialize preferences
-    const savedLang = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
-    if (savedLang === "en" || savedLang === "bn") {
-      setUiLang(savedLang);
-    }
+    const syncPrefs = () => {
+      const prefs = readSitePreferences();
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const shouldUseDark = prefs.theme === "dark" || (prefs.theme === "system" && prefersDark);
+      setUiLang(prefs.language);
+      setIsDarkMode(shouldUseDark);
+    };
 
-    const savedTheme = localStorage.getItem("clothfy-theme") || localStorage.getItem("clothify-theme") || "system";
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark = savedTheme === "dark" || (savedTheme === "system" && prefersDark);
-    setIsDarkMode(shouldUseDark);
-    document.documentElement.classList.toggle("dark-theme", shouldUseDark);
+    syncPrefs();
+    window.addEventListener(PREFERENCE_EVENT, syncPrefs);
+    return () => window.removeEventListener(PREFERENCE_EVENT, syncPrefs);
   }, []);
 
   const toggleLanguage = () => {
-    const nextLang: "en" | "bn" = uiLang === "bn" ? "en" : "bn";
+    const nextLang: Language = uiLang === "bn" ? "en" : "bn";
     setUiLang(nextLang);
-    localStorage.setItem("clothfy-lang", nextLang);
-    localStorage.setItem("clothify-language", nextLang);
-    document.documentElement.lang = nextLang;
+    updateSitePreferences({ language: nextLang });
   };
 
   const toggleTheme = () => {
     const nextDark = !isDarkMode;
     setIsDarkMode(nextDark);
-    localStorage.setItem("clothfy-theme", nextDark ? "dark" : "light");
-    localStorage.setItem("clothify-theme", nextDark ? "dark" : "light");
-    document.documentElement.classList.toggle("dark-theme", nextDark);
+    updateSitePreferences({ theme: nextDark ? "dark" : "light" });
   };
 
   const storeName = settings?.store_name || "Clothify";

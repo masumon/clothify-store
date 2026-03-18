@@ -207,7 +207,12 @@ export async function getCategories() {
   });
 }
 
-export async function getProductById(id: string) {
+export async function getProductById(
+  id: string,
+  options?: {
+    includeDraft?: boolean;
+  }
+) {
   const client = supabase;
   if (!hasSupabasePublicConfig() || !client) {
     return null;
@@ -217,23 +222,37 @@ export async function getProductById(id: string) {
   if (!key) return null;
 
   const cached = readCache(cacheState.productsById.get(key) || null);
-  if (cached) {
+  const includeDraft = options?.includeDraft === true;
+  if (cached && !includeDraft) {
     return cached;
   }
 
   return getOrSetPending(`product-${key}`, async () => {
-    const { data, error } = await client
-      .from("products")
-      .select("*")
-      .eq("id", key)
-      .single();
+    let query = client.from("products").select("*").eq("id", key);
+    if (!includeDraft) {
+      query = query.eq("is_published", true);
+    }
+
+    let { data, error } = await query.single();
+
+    if (error && !includeDraft && error.message.toLowerCase().includes("is_published")) {
+      const fallback = await client
+        .from("products")
+        .select("*")
+        .eq("id", key)
+        .single();
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       console.error("Product fetch error:", error.message);
       return null;
     }
 
-    cacheState.productsById.set(key, writeCache(data, PRODUCT_BY_ID_TTL_MS));
+    if (!includeDraft) {
+      cacheState.productsById.set(key, writeCache(data, PRODUCT_BY_ID_TTL_MS));
+    }
     return data;
   });
 }

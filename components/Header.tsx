@@ -5,6 +5,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getWishlistCount } from "@/lib/wishlist";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+  updateSitePreferences,
+} from "@/lib/site-preferences";
 
 type HeaderProps = {
   storeName?: string;
@@ -31,7 +37,7 @@ export default function Header({
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [uiLang, setUiLang] = useState<"en" | "bn">("bn");
+  const [uiLang, setUiLang] = useState<Language>("bn");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -39,29 +45,18 @@ export default function Header({
 
   useEffect(() => {
     const syncPreferences = () => {
-      const savedLang = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
-      const savedTheme = localStorage.getItem("clothfy-theme") || localStorage.getItem("clothify-theme") || "system";
-
-      if (savedLang === "en" || savedLang === "bn") {
-        setUiLang(savedLang);
-        document.documentElement.lang = savedLang;
-      } else if (savedLang === "EN" || savedLang === "BN") {
-        const normalized = savedLang.toLowerCase() as "en" | "bn";
-        setUiLang(normalized);
-        document.documentElement.lang = normalized;
-        localStorage.setItem("clothfy-lang", normalized);
-        localStorage.setItem("clothify-language", normalized);
-      }
-
+      const preferences = readSitePreferences();
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const shouldUseDark = savedTheme === "dark" || (savedTheme === "system" && prefersDark);
+      const shouldUseDark =
+        preferences.theme === "dark" ||
+        (preferences.theme === "system" && prefersDark);
+      setUiLang(preferences.language);
       setIsDarkMode(shouldUseDark);
-      document.documentElement.classList.toggle("dark-theme", shouldUseDark);
     };
 
     syncPreferences();
-    window.addEventListener("clothfy-preferences-change", syncPreferences);
-    return () => window.removeEventListener("clothfy-preferences-change", syncPreferences);
+    window.addEventListener(PREFERENCE_EVENT, syncPreferences);
+    return () => window.removeEventListener(PREFERENCE_EVENT, syncPreferences);
   }, []);
 
   useEffect(() => {
@@ -72,21 +67,15 @@ export default function Header({
   }, []);
 
   const toggleLanguage = () => {
-    const nextLang: "en" | "bn" = uiLang === "bn" ? "en" : "bn";
+    const nextLang: Language = uiLang === "bn" ? "en" : "bn";
     setUiLang(nextLang);
-    localStorage.setItem("clothfy-lang", nextLang);
-    localStorage.setItem("clothify-language", nextLang);
-    document.documentElement.lang = nextLang;
-    window.dispatchEvent(new Event("clothfy-preferences-change"));
+    updateSitePreferences({ language: nextLang });
   };
 
   const toggleTheme = () => {
     const nextDark = !isDarkMode;
     setIsDarkMode(nextDark);
-    localStorage.setItem("clothfy-theme", nextDark ? "dark" : "light");
-    localStorage.setItem("clothify-theme", nextDark ? "dark" : "light");
-    document.documentElement.classList.toggle("dark-theme", nextDark);
-    window.dispatchEvent(new Event("clothfy-preferences-change"));
+    updateSitePreferences({ theme: nextDark ? "dark" : "light" });
   };
 
   const handleSearch = (e: React.FormEvent) => {

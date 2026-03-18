@@ -1,5 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import DeveloperCredit from "./DeveloperCredit";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
 
 type Props = {
   storeName?: string;
@@ -212,6 +220,17 @@ export default function Footer({
   address = "",
   phone = "",
 }: Props) {
+  const [lang, setLang] = useState<Language>("bn");
+
+  useEffect(() => {
+    const sync = () => setLang(readSitePreferences().language);
+    sync();
+    window.addEventListener(PREFERENCE_EVENT, sync);
+    return () => window.removeEventListener(PREFERENCE_EVENT, sync);
+  }, []);
+
+  const isBn = lang === "bn";
+
   return (
     <footer className="mt-16 border-t border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 text-white">
       <div className="mx-auto max-w-6xl px-4 py-12">
@@ -226,17 +245,19 @@ export default function Footer({
               <h3 className="text-xl font-bold">{storeName}</h3>
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              Premium clothing collection with trusted checkout and fast service.
+              {isBn
+                ? "বিশ্বস্ত checkout এবং দ্রুত সেবাসহ প্রিমিয়াম পোশাক সংগ্রহ।"
+                : "Premium clothing collection with trusted checkout and fast service."}
             </p>
             <div className="mt-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Contact
+                {isBn ? "যোগাযোগ" : "Contact"}
               </p>
               <p className="mt-2 flex items-start gap-1.5 text-sm text-slate-300">
                 <span className="mt-0.5">
                   <PhoneIcon />
                 </span>
-                {phone || "Phone not added yet"}
+                {phone || (isBn ? "ফোন নাম্বার এখনও যোগ করা হয়নি" : "Phone not added yet")}
               </p>
             </div>
           </div>
@@ -245,7 +266,7 @@ export default function Footer({
           <div>
             <h4 className="flex items-center gap-1.5 text-lg font-semibold">
               <LinkIcon />
-              Quick Links
+              {isBn ? "দ্রুত লিংক" : "Quick Links"}
             </h4>
             <ul className="mt-3 space-y-2">
               <li>
@@ -254,7 +275,7 @@ export default function Footer({
                   className="flex items-center gap-2 text-sm text-slate-300 transition hover:text-white"
                 >
                   <ShopIcon />
-                  Shop
+                  {isBn ? "শপ" : "Shop"}
                 </Link>
               </li>
               <li>
@@ -263,7 +284,7 @@ export default function Footer({
                   className="flex items-center gap-2 text-sm text-slate-300 transition hover:text-white"
                 >
                   <CartIcon />
-                  Cart
+                  {isBn ? "কার্ট" : "Cart"}
                 </Link>
               </li>
               <li>
@@ -272,7 +293,7 @@ export default function Footer({
                   className="flex items-center gap-2 text-sm text-slate-300 transition hover:text-white"
                 >
                   <CheckoutIcon />
-                  Checkout
+                  {isBn ? "চেকআউট" : "Checkout"}
                 </Link>
               </li>
               <li>
@@ -281,7 +302,7 @@ export default function Footer({
                   className="flex items-center gap-2 text-sm text-slate-300 transition hover:text-white"
                 >
                   <SettingsIcon />
-                  Settings
+                  {isBn ? "সেটিংস" : "Settings"}
                 </Link>
               </li>
             </ul>
@@ -289,14 +310,14 @@ export default function Footer({
 
           {/* About Us with Social Media */}
           <div>
-            <h4 className="text-lg font-semibold">About Us</h4>
+            <h4 className="text-lg font-semibold">{isBn ? "আমাদের সম্পর্কে" : "About Us"}</h4>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link
                   href="/fb"
                   className="text-sm text-slate-300 transition hover:text-white"
                 >
-                  📣 Landing Page
+                  {isBn ? "📣 ল্যান্ডিং পেজ" : "📣 Landing Page"}
                 </Link>
               </li>
               <li>
@@ -304,14 +325,14 @@ export default function Footer({
                   href="/payment"
                   className="text-sm text-slate-300 transition hover:text-white"
                 >
-                  💳 Payment Guide
+                  {isBn ? "💳 পেমেন্ট গাইড" : "💳 Payment Guide"}
                 </Link>
               </li>
             </ul>
 
             <div className="mt-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Follow Us
+                {isBn ? "ফলো করুন" : "Follow Us"}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <a
@@ -325,7 +346,7 @@ export default function Footer({
                   <FacebookIcon />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/"
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-white transition hover:scale-110"
@@ -335,7 +356,7 @@ export default function Footer({
                   <InstagramIcon />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.youtube.com/"
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-white transition hover:scale-110"
@@ -345,7 +366,7 @@ export default function Footer({
                   <YouTubeIcon />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.tiktok.com/"
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-white transition hover:scale-110"
@@ -370,8 +391,8 @@ export default function Footer({
 
           {/* Payment Methods */}
           <div>
-            <h4 className="text-lg font-semibold">Payment Methods</h4>
-            <p className="mt-2 text-xs text-slate-400">We accept</p>
+            <h4 className="text-lg font-semibold">{isBn ? "পেমেন্ট মেথড" : "Payment Methods"}</h4>
+            <p className="mt-2 text-xs text-slate-400">{isBn ? "আমরা গ্রহণ করি" : "We accept"}</p>
             <div className="mt-3 space-y-2">
               <div className="flex flex-wrap gap-2">
                 <BkashIcon />
@@ -397,7 +418,7 @@ export default function Footer({
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur">
             <h4 className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-slate-400">
               <MapPinFooterIcon />
-              Store Location
+              {isBn ? "স্টোর লোকেশন" : "Store Location"}
             </h4>
             <p className="mt-2 text-sm leading-6 text-slate-300">{address}</p>
           </div>
@@ -408,7 +429,7 @@ export default function Footer({
 
         {/* Copyright */}
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-slate-400">
-          © {new Date().getFullYear()} {storeName}. All rights reserved.
+          © {new Date().getFullYear()} {storeName}. {isBn ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}
         </div>
       </div>
     </footer>

@@ -61,14 +61,20 @@ export default function AdminProductsManager({ products }: Props) {
 
     try {
       setBusy(true);
-      await Promise.all(
+      const results = await Promise.all(
         selectedIds.map((id) =>
           fetch(`/api/admin/products/${id}`, {
             method: "DELETE",
           })
         )
       );
-      alert("Bulk delete completed");
+
+      const failed = results.filter((response) => !response.ok).length;
+      if (failed > 0) {
+        alert(`Bulk delete partially completed. Failed: ${failed}, Success: ${results.length - failed}`);
+      } else {
+        alert("Bulk delete completed");
+      }
       setSelectedIds([]);
       router.refresh();
     } catch {
@@ -200,7 +206,7 @@ export default function AdminProductsManager({ products }: Props) {
             🗑️ Bulk Delete
           </button>
 
-          <p className="ml-auto text-xs font-semibold text-slate-500">
+          <p className="ml-0 w-full text-xs font-semibold text-slate-500 sm:ml-auto sm:w-auto">
             Selected: {selectedIds.length} | Showing: {filtered.length}
           </p>
         </div>

@@ -13,10 +13,11 @@ const allowedStatuses = new Set([
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id?.trim();
+    const resolvedParams = await params;
+    const id = resolvedParams.id?.trim();
     const body = (await req.json()) as { status?: string };
     const status = typeof body.status === "string" ? body.status.trim() : "";
 

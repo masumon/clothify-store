@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobileStickyBar from "@/components/MobileStickyBar";
+import { cookies } from "next/headers";
 import { getCategories, getStoreSettings } from "@/lib/data";
 
 export const revalidate = 120;
@@ -24,6 +25,8 @@ const GROUPS = [
 export default async function CategoriesPage() {
   const settings = await getStoreSettings();
   const categories = await getCategories();
+  const cookieStore = await cookies();
+  const isBn = cookieStore.get("clothfy-lang")?.value !== "en";
 
   return (
     <main className="pb-24 md:pb-0">
@@ -37,8 +40,14 @@ export default async function CategoriesPage() {
       <section className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:py-8">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-7">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Categories</p>
-          <h1 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Men&apos;s Collection by Category</h1>
-          <p className="mt-2 text-sm text-slate-600">৩ ট্যাপের মধ্যে product খুঁজে পাওয়ার জন্য curated category structure।</p>
+          <h1 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">
+            {isBn ? "ক্যাটাগরি অনুযায়ী কালেকশন" : "Collection by Category"}
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            {isBn
+              ? "৩ ট্যাপের মধ্যে product খুঁজে পাওয়ার জন্য curated category structure।"
+              : "Curated category structure to find products in just a few taps."}
+          </p>
         </div>
 
         {GROUPS.map((group) => (
@@ -59,7 +68,8 @@ export default async function CategoriesPage() {
         ))}
 
         <div className="rounded-3xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">
-          Available live categories: {categories.length > 0 ? categories.join(", ") : "No category found"}
+          {isBn ? "লাইভ ক্যাটাগরি" : "Available live categories"}:{" "}
+          {categories.length > 0 ? categories.join(", ") : isBn ? "কোনো ক্যাটাগরি পাওয়া যায়নি" : "No category found"}
         </div>
       </section>
 

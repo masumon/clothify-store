@@ -7,25 +7,29 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getWishlist, removeFromWishlist, type WishlistItem } from "@/lib/wishlist";
 import { addToCart } from "@/lib/cart";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
 
 export default function WishlistPage() {
   const [items, setItems] = useState<WishlistItem[]>([]);
-  const [lang, setLang] = useState<"en" | "bn">("bn");
+  const [lang, setLang] = useState<Language>("bn");
 
   useEffect(() => {
     const refresh = () => setItems(getWishlist());
     const syncLang = () => {
-      const saved = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
-      if (saved === "en" || saved === "bn") setLang(saved);
+      setLang(readSitePreferences().language);
     };
 
     refresh();
     syncLang();
     window.addEventListener("clothfy-wishlist-change", refresh);
-    window.addEventListener("clothfy-preferences-change", syncLang);
+    window.addEventListener(PREFERENCE_EVENT, syncLang);
     return () => {
       window.removeEventListener("clothfy-wishlist-change", refresh);
-      window.removeEventListener("clothfy-preferences-change", syncLang);
+      window.removeEventListener(PREFERENCE_EVENT, syncLang);
     };
   }, []);
 

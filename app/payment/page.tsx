@@ -9,12 +9,12 @@ export default async function PaymentPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <div className="max-w-xl w-full rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900 text-center">
+      <div className="max-w-xl w-full rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+        <h1 className="text-center text-2xl font-bold text-slate-900 sm:text-3xl">
           bKash Merchant Payment
         </h1>
 
-        <p className="mt-3 text-slate-600 text-center">
+        <p className="mt-3 text-center text-sm text-slate-600 sm:text-base">
           bKash Merchant অপশন থেকে QR স্ক্যান করে অথবা নাম্বার দিয়ে পেমেন্ট করুন।
         </p>
 

@@ -15,8 +15,6 @@ const rangeOptions = [
   { key: "30d", label: "Last 30 Days", days: 30 },
 ] as const;
 
-type RangeKey = (typeof rangeOptions)[number]["key"];
-
 function resolveRange(range?: string) {
   const selected = rangeOptions.find((item) => item.key === range);
   return selected || rangeOptions[1];
@@ -188,12 +186,15 @@ async function getDashboardData(rangeDays: number) {
   }
 }
 
-export default async function AdminHomePage({
-  searchParams,
-}: {
-  searchParams?: { range?: string };
-}) {
-  const activeRange = resolveRange(searchParams?.range);
+type AdminHomePageProps = {
+  searchParams?: Promise<{ range?: string | string[] | undefined }>;
+};
+
+export default async function AdminHomePage({ searchParams }: AdminHomePageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const rawRange = resolvedSearchParams?.range;
+  const range = Array.isArray(rawRange) ? rawRange[0] : rawRange;
+  const activeRange = resolveRange(range);
   const {
     totalProducts,
     totalOrders,
@@ -438,15 +439,17 @@ export default async function AdminHomePage({
               type="text"
               placeholder="Scan barcode or type SKU"
               className="rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-sm text-slate-100 outline-none focus:border-emerald-400"
-              readOnly
             />
-            <button
-              type="button"
+            <Link
+              href="/admin/orders"
               className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white"
             >
-              Start POS
-            </button>
+              Open POS Desk
+            </Link>
           </div>
+          <p className="mt-2 text-xs text-slate-400">
+            Enter SKU then open POS Desk to process order দ্রুতভাবে।
+          </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
               <p className="text-xs font-semibold text-slate-400">Cart Items</p>

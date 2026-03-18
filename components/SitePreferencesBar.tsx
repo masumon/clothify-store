@@ -2,154 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { getSavedCurrency, saveCurrency, type Currency } from "@/lib/currency";
-
-type Theme = "light" | "dark" | "system";
-type Language = "en" | "bn";
-type TextSize = "normal" | "large";
-type Contrast = "normal" | "high";
-type Motion = "normal" | "reduced";
-
-const THEME_KEY = "clothfy-theme";
-const LANGUAGE_KEY = "clothfy-lang";
-const TEXT_SIZE_KEY = "clothify-text-size";
-const CONTRAST_KEY = "clothify-contrast";
-const MOTION_KEY = "clothify-motion";
-const CURRENCY_KEY = "clothfy-currency";
-
-function applyTheme(theme: Theme) {
-  const root = document.documentElement;
-  const prefersDark =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const resolvedTheme = theme === "system" ? (prefersDark ? "dark" : "light") : theme;
-
-  root.setAttribute("data-theme", theme);
-  root.classList.toggle("dark-theme", resolvedTheme === "dark");
-}
-
-function emitPreferenceChange() {
-  window.dispatchEvent(new Event("clothfy-preferences-change"));
-}
-
-function saveTheme(theme: Theme) {
-  localStorage.setItem(THEME_KEY, theme);
-  localStorage.setItem("clothify-theme", theme);
-}
-
-function saveLanguage(language: Language) {
-  localStorage.setItem(LANGUAGE_KEY, language);
-  localStorage.setItem("clothify-language", language);
-}
-
-function applyLanguage(language: Language) {
-  document.documentElement.lang = language;
-}
-
-function applyTextSize(size: TextSize) {
-  const root = document.documentElement;
-  root.classList.toggle("text-size-large", size === "large");
-}
-
-function applyContrast(contrast: Contrast) {
-  const root = document.documentElement;
-  root.classList.toggle("high-contrast", contrast === "high");
-}
-
-function applyMotion(motion: Motion) {
-  const root = document.documentElement;
-  root.classList.toggle("reduce-motion", motion === "reduced");
-}
+import {
+  type Contrast,
+  type Language,
+  type Motion,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+  saveAndApplySitePreferences,
+  type SitePreferences,
+  type TextSize,
+  type Theme,
+  updateSitePreferences,
+} from "@/lib/site-preferences";
 
 export default function SitePreferencesBar({ compact = false }: { compact?: boolean }) {
-  const [theme, setTheme] = useState<Theme>("system");
-  const [language, setLanguage] = useState<Language>("bn");
-  const [textSize, setTextSize] = useState<TextSize>("normal");
-  const [contrast, setContrast] = useState<Contrast>("normal");
-  const [motion, setMotion] = useState<Motion>("normal");
+  const [preferences, setPreferences] = useState<SitePreferences>(readSitePreferences());
   const [currency, setCurrency] = useState<Currency>("BDT");
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_KEY) || localStorage.getItem("clothify-theme");
-    const savedLanguage = localStorage.getItem(LANGUAGE_KEY) || localStorage.getItem("clothify-language");
-    const savedTextSize = localStorage.getItem(TEXT_SIZE_KEY);
-    const savedContrast = localStorage.getItem(CONTRAST_KEY);
-    const savedMotion = localStorage.getItem(MOTION_KEY);
-
-    const resolvedTheme: Theme =
-      savedTheme === "dark" || savedTheme === "light" || savedTheme === "system"
-        ? savedTheme
-        : "system";
-    const resolvedLanguage: Language =
-      savedLanguage === "bn" || savedLanguage === "en"
-        ? savedLanguage
-        : savedLanguage === "BN" || savedLanguage === "EN"
-          ? (savedLanguage.toLowerCase() as Language)
-          : "bn";
-    const resolvedTextSize: TextSize =
-      savedTextSize === "large" || savedTextSize === "normal"
-        ? savedTextSize
-        : "normal";
-    const resolvedContrast: Contrast =
-      savedContrast === "high" || savedContrast === "normal"
-        ? savedContrast
-        : "normal";
-    const resolvedMotion: Motion =
-      savedMotion === "reduced" || savedMotion === "normal"
-        ? savedMotion
-        : "normal";
-
-    const resolvedCurrency: Currency = localStorage.getItem(CURRENCY_KEY) === "USD" ? "USD" : "BDT";
-
-    setTheme(resolvedTheme);
-    setLanguage(resolvedLanguage);
-    setTextSize(resolvedTextSize);
-    setContrast(resolvedContrast);
-    setMotion(resolvedMotion);
-    setCurrency(resolvedCurrency);
-    applyTheme(resolvedTheme);
-    applyLanguage(resolvedLanguage);
-    applyTextSize(resolvedTextSize);
-    applyContrast(resolvedContrast);
-    applyMotion(resolvedMotion);
-
-    emitPreferenceChange();
-  }, []);
-
-  useEffect(() => {
-    const syncFromStorage = () => {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
-
-      if (savedTheme === "dark" || savedTheme === "light" || savedTheme === "system") {
-        setTheme(savedTheme);
-        applyTheme(savedTheme);
-      }
-
-      if (savedLanguage === "en" || savedLanguage === "bn") {
-        setLanguage(savedLanguage);
-        applyLanguage(savedLanguage);
-      } else if (savedLanguage === "EN" || savedLanguage === "BN") {
-        const normalizedLanguage = savedLanguage.toLowerCase() as Language;
-        setLanguage(normalizedLanguage);
-        applyLanguage(normalizedLanguage);
-        saveLanguage(normalizedLanguage);
-      }
+    const sync = () => {
+      setPreferences(readSitePreferences());
+      setCurrency(getSavedCurrency());
     };
 
-    window.addEventListener("clothfy-preferences-change", syncFromStorage);
-    return () => window.removeEventListener("clothfy-preferences-change", syncFromStorage);
+    sync();
+    window.addEventListener(PREFERENCE_EVENT, sync);
+    return () => window.removeEventListener(PREFERENCE_EVENT, sync);
   }, []);
-
-  useEffect(() => {
-    if (theme !== "system") return;
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onSystemThemeChange = () => applyTheme("system");
-
-    media.addEventListener("change", onSystemThemeChange);
-    return () => media.removeEventListener("change", onSystemThemeChange);
-  }, [theme]);
 
   useEffect(() => {
     if (!toast) return;
@@ -157,45 +37,38 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
     return () => window.clearTimeout(id);
   }, [toast]);
 
+  const setPreference = (partial: Partial<SitePreferences>) => {
+    setPreferences(updateSitePreferences(partial));
+  };
+
   const toggleTheme = () => {
     const nextTheme: Theme =
-      theme === "system" ? "light" : theme === "light" ? "dark" : "system";
-    setTheme(nextTheme);
-    saveTheme(nextTheme);
-    applyTheme(nextTheme);
-    emitPreferenceChange();
+      preferences.theme === "system"
+        ? "light"
+        : preferences.theme === "light"
+          ? "dark"
+          : "system";
+    setPreference({ theme: nextTheme });
   };
 
   const toggleLanguage = () => {
-    const nextLanguage: Language = language === "en" ? "bn" : "en";
-    setLanguage(nextLanguage);
-    saveLanguage(nextLanguage);
-    applyLanguage(nextLanguage);
-    emitPreferenceChange();
+    const nextLanguage: Language = preferences.language === "en" ? "bn" : "en";
+    setPreference({ language: nextLanguage });
   };
 
   const toggleTextSize = () => {
-    const nextSize: TextSize = textSize === "normal" ? "large" : "normal";
-    setTextSize(nextSize);
-    localStorage.setItem(TEXT_SIZE_KEY, nextSize);
-    applyTextSize(nextSize);
-    emitPreferenceChange();
+    const nextSize: TextSize = preferences.textSize === "normal" ? "large" : "normal";
+    setPreference({ textSize: nextSize });
   };
 
   const toggleContrast = () => {
-    const nextContrast: Contrast = contrast === "normal" ? "high" : "normal";
-    setContrast(nextContrast);
-    localStorage.setItem(CONTRAST_KEY, nextContrast);
-    applyContrast(nextContrast);
-    emitPreferenceChange();
+    const nextContrast: Contrast = preferences.contrast === "normal" ? "high" : "normal";
+    setPreference({ contrast: nextContrast });
   };
 
   const toggleMotion = () => {
-    const nextMotion: Motion = motion === "normal" ? "reduced" : "normal";
-    setMotion(nextMotion);
-    localStorage.setItem(MOTION_KEY, nextMotion);
-    applyMotion(nextMotion);
-    emitPreferenceChange();
+    const nextMotion: Motion = preferences.motion === "normal" ? "reduced" : "normal";
+    setPreference({ motion: nextMotion });
   };
 
   const toggleCurrency = () => {
@@ -205,160 +78,83 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
   };
 
   const resetAllPreferences = () => {
-    const defaultTheme: Theme = "system";
-    const defaultLanguage: Language = "bn";
-    const defaultTextSize: TextSize = "normal";
-    const defaultContrast: Contrast = "normal";
-    const defaultMotion: Motion = "normal";
-
-    setTheme(defaultTheme);
-    setLanguage(defaultLanguage);
-    setTextSize(defaultTextSize);
-    setContrast(defaultContrast);
-    setMotion(defaultMotion);
-
-    saveTheme(defaultTheme);
-    saveLanguage(defaultLanguage);
-    localStorage.setItem(TEXT_SIZE_KEY, defaultTextSize);
-    localStorage.setItem(CONTRAST_KEY, defaultContrast);
-    localStorage.setItem(MOTION_KEY, defaultMotion);
-
-    applyTheme(defaultTheme);
-    applyLanguage(defaultLanguage);
-    applyTextSize(defaultTextSize);
-    applyContrast(defaultContrast);
-    applyMotion(defaultMotion);
-    emitPreferenceChange();
-
-    setToast(language === "bn" ? "সব সেটিংস রিসেট হয়েছে" : "All preferences reset");
+    const defaults: SitePreferences = {
+      theme: "system",
+      language: "bn",
+      textSize: "normal",
+      contrast: "normal",
+      motion: "normal",
+    };
+    setPreferences(defaults);
+    saveAndApplySitePreferences(defaults);
+    setToast(defaults.language === "bn" ? "সব সেটিংস রিসেট হয়েছে" : "All preferences reset");
   };
 
-  const isBn = language === "bn";
-  const title = isBn ? "সাইট পছন্দ" : "Site Preferences";
-  const subtitle = isBn
-    ? "থিম ও ভাষা বেছে নিন। আপনার সেটিংস সংরক্ষণ হবে।"
-    : "Choose your theme and language. Your preferences are saved.";
-  const themeLabel = isBn ? "থিম" : "Theme";
-  const languageLabel = isBn ? "ভাষা" : "Language";
+  const isBn = preferences.language === "bn";
   const themeValue =
-    theme === "system"
+    preferences.theme === "system"
       ? isBn
         ? "অটো"
         : "Auto"
-      : theme === "light"
+      : preferences.theme === "light"
         ? isBn
           ? "লাইট"
           : "Light"
         : isBn
           ? "ডার্ক"
           : "Dark";
-  const languageValue = language === "en" ? "English" : "বাংলা";
-  const textSizeLabel = isBn ? "লেখার আকার" : "Text Size";
+  const languageValue = preferences.language === "en" ? "English" : "বাংলা";
   const textSizeValue =
-    textSize === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "বড়" : "Large";
-  const contrastLabel = isBn ? "কনট্রাস্ট" : "Contrast";
+    preferences.textSize === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "বড়" : "Large";
   const contrastValue =
-    contrast === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "হাই" : "High";
-  const motionLabel = isBn ? "মোশন" : "Motion";
+    preferences.contrast === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "হাই" : "High";
   const motionValue =
-    motion === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "কম" : "Reduced";
-  const currencyLabel = isBn ? "মুদ্রা" : "Currency";
+    preferences.motion === "normal" ? (isBn ? "স্বাভাবিক" : "Normal") : isBn ? "কম" : "Reduced";
   const currencyValue = currency === "USD" ? "$ USD" : "৳ BDT";
-  const resetLabel = isBn ? "সব সেটিংস রিসেট" : "Reset All Preferences";
 
   const applyPreset = (preset: "default" | "focus" | "readable") => {
     if (preset === "default") {
-      const defaultTheme: Theme = "system";
-      const defaultLanguage: Language = "bn";
-      const defaultTextSize: TextSize = "normal";
-      const defaultContrast: Contrast = "normal";
-      const defaultMotion: Motion = "normal";
-
-      setTheme(defaultTheme);
-      setLanguage(defaultLanguage);
-      setTextSize(defaultTextSize);
-      setContrast(defaultContrast);
-      setMotion(defaultMotion);
-
-      saveTheme(defaultTheme);
-      saveLanguage(defaultLanguage);
-      localStorage.setItem(TEXT_SIZE_KEY, defaultTextSize);
-      localStorage.setItem(CONTRAST_KEY, defaultContrast);
-      localStorage.setItem(MOTION_KEY, defaultMotion);
-
-      applyTheme(defaultTheme);
-      applyLanguage(defaultLanguage);
-      applyTextSize(defaultTextSize);
-      applyContrast(defaultContrast);
-      applyMotion(defaultMotion);
-      emitPreferenceChange();
-      setToast(isBn ? "ডিফল্ট প্রিসেট চালু হয়েছে" : "Default preset activated");
+      resetAllPreferences();
       return;
     }
 
     if (preset === "focus") {
-      const nextTheme: Theme = "dark";
-      const nextLanguage: Language = language;
-      const nextTextSize: TextSize = "normal";
-      const nextContrast: Contrast = "high";
-      const nextMotion: Motion = "reduced";
-
-      setTheme(nextTheme);
-      setLanguage(nextLanguage);
-      setTextSize(nextTextSize);
-      setContrast(nextContrast);
-      setMotion(nextMotion);
-
-      saveTheme(nextTheme);
-      saveLanguage(nextLanguage);
-      localStorage.setItem(TEXT_SIZE_KEY, nextTextSize);
-      localStorage.setItem(CONTRAST_KEY, nextContrast);
-      localStorage.setItem(MOTION_KEY, nextMotion);
-
-      applyTheme(nextTheme);
-      applyLanguage(nextLanguage);
-      applyTextSize(nextTextSize);
-      applyContrast(nextContrast);
-      applyMotion(nextMotion);
-      emitPreferenceChange();
+      const next: SitePreferences = {
+        ...preferences,
+        theme: "dark",
+        textSize: "normal",
+        contrast: "high",
+        motion: "reduced",
+      };
+      setPreferences(next);
+      saveAndApplySitePreferences(next);
       setToast(isBn ? "ফোকাস মোড চালু হয়েছে" : "Focus mode activated");
       return;
     }
 
-    const nextTheme: Theme = "light";
-    const nextLanguage: Language = language;
-    const nextTextSize: TextSize = "large";
-    const nextContrast: Contrast = "high";
-    const nextMotion: Motion = "reduced";
-
-    setTheme(nextTheme);
-    setLanguage(nextLanguage);
-    setTextSize(nextTextSize);
-    setContrast(nextContrast);
-    setMotion(nextMotion);
-
-    saveTheme(nextTheme);
-    saveLanguage(nextLanguage);
-    localStorage.setItem(TEXT_SIZE_KEY, nextTextSize);
-    localStorage.setItem(CONTRAST_KEY, nextContrast);
-    localStorage.setItem(MOTION_KEY, nextMotion);
-
-    applyTheme(nextTheme);
-    applyLanguage(nextLanguage);
-    applyTextSize(nextTextSize);
-    applyContrast(nextContrast);
-    applyMotion(nextMotion);
-    emitPreferenceChange();
+    const next: SitePreferences = {
+      ...preferences,
+      theme: "light",
+      textSize: "large",
+      contrast: "high",
+      motion: "reduced",
+    };
+    setPreferences(next);
+    saveAndApplySitePreferences(next);
     setToast(isBn ? "রিডেবল মোড চালু হয়েছে" : "Readable mode activated");
   };
 
   return (
-    <section className={`rounded-3xl border border-slate-200 bg-white p-4 shadow-sm ${compact ? "mb-4" : "mb-8"}`}>
+    <section
+      className={`rounded-3xl border border-slate-200 bg-white p-4 shadow-sm ${compact ? "mb-4" : "mb-8"}`}
+    >
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">⚙️ {title}</h3>
+          <h3 className="text-lg font-bold text-slate-900">⚙️ {isBn ? "সাইট পছন্দ" : "Site Preferences"}</h3>
           <p className="mt-1 text-sm text-slate-500">
-            {subtitle}
+            {isBn
+              ? "থিম ও ভাষা বেছে নিন। আপনার সেটিংস সংরক্ষণ হবে।"
+              : "Choose your theme and language. Your preferences are saved."}
           </p>
         </div>
 
@@ -397,22 +193,22 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
             type="button"
             onClick={toggleTheme}
             className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
-              theme === "dark"
+              preferences.theme === "dark"
                 ? "border-slate-700 bg-slate-800 text-white hover:bg-slate-700"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
-            aria-label={`${themeLabel}: ${themeValue}`}
-            title={`${themeLabel}: ${themeValue}`}
+            aria-label={`${isBn ? "থিম" : "Theme"}: ${themeValue}`}
+            title={`${isBn ? "থিম" : "Theme"}: ${themeValue}`}
           >
-            {theme === "dark" ? "🌙" : theme === "light" ? "☀️" : "🌓"}
+            {preferences.theme === "dark" ? "🌙" : preferences.theme === "light" ? "☀️" : "🌓"}
           </button>
 
           <button
             type="button"
             onClick={toggleLanguage}
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-slate-50 text-base text-slate-800 transition hover:bg-slate-100"
-            aria-label={`${languageLabel}: ${languageValue}`}
-            title={`${languageLabel}: ${languageValue}`}
+            aria-label={`${isBn ? "ভাষা" : "Language"}: ${languageValue}`}
+            title={`${isBn ? "ভাষা" : "Language"}: ${languageValue}`}
           >
             🌐
           </button>
@@ -425,8 +221,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
                 ? "border-emerald-300 bg-emerald-100 text-emerald-900 hover:bg-emerald-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
-            aria-label={`${currencyLabel}: ${currencyValue}`}
-            title={`${currencyLabel}: ${currencyValue}`}
+            aria-label={`${isBn ? "মুদ্রা" : "Currency"}: ${currencyValue}`}
+            title={`${isBn ? "মুদ্রা" : "Currency"}: ${currencyValue}`}
           >
             💱
           </button>
@@ -435,12 +231,12 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
             type="button"
             onClick={toggleTextSize}
             className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
-              textSize === "large"
+              preferences.textSize === "large"
                 ? "border-indigo-300 bg-indigo-100 text-indigo-900 hover:bg-indigo-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
-            aria-label={`${textSizeLabel}: ${textSizeValue}`}
-            title={`${textSizeLabel}: ${textSizeValue}`}
+            aria-label={`${isBn ? "লেখার আকার" : "Text Size"}: ${textSizeValue}`}
+            title={`${isBn ? "লেখার আকার" : "Text Size"}: ${textSizeValue}`}
           >
             🔠
           </button>
@@ -449,12 +245,12 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
             type="button"
             onClick={toggleContrast}
             className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
-              contrast === "high"
+              preferences.contrast === "high"
                 ? "border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
-            aria-label={`${contrastLabel}: ${contrastValue}`}
-            title={`${contrastLabel}: ${contrastValue}`}
+            aria-label={`${isBn ? "কনট্রাস্ট" : "Contrast"}: ${contrastValue}`}
+            title={`${isBn ? "কনট্রাস্ট" : "Contrast"}: ${contrastValue}`}
           >
             🌓
           </button>
@@ -463,12 +259,12 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
             type="button"
             onClick={toggleMotion}
             className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-base transition ${
-              motion === "reduced"
+              preferences.motion === "reduced"
                 ? "border-cyan-300 bg-cyan-100 text-cyan-900 hover:bg-cyan-200"
                 : "border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100"
             }`}
-            aria-label={`${motionLabel}: ${motionValue}`}
-            title={`${motionLabel}: ${motionValue}`}
+            aria-label={`${isBn ? "মোশন" : "Motion"}: ${motionValue}`}
+            title={`${isBn ? "মোশন" : "Motion"}: ${motionValue}`}
           >
             🎞️
           </button>
@@ -477,8 +273,8 @@ export default function SitePreferencesBar({ compact = false }: { compact?: bool
             type="button"
             onClick={resetAllPreferences}
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-300 bg-rose-50 text-base text-rose-800 transition hover:bg-rose-100"
-            aria-label={resetLabel}
-            title={resetLabel}
+            aria-label={isBn ? "সব সেটিংস রিসেট" : "Reset All Preferences"}
+            title={isBn ? "সব সেটিংস রিসেট" : "Reset All Preferences"}
           >
             ♻️
           </button>

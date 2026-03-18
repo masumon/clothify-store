@@ -39,12 +39,15 @@ async function getOrders() {
   }
 }
 
-export default async function AdminOrdersPage({
-  searchParams,
-}: {
-  searchParams?: { range?: string };
-}) {
-  const activeRange = resolveRange(searchParams?.range);
+type AdminOrdersPageProps = {
+  searchParams?: Promise<{ range?: string | string[] | undefined }>;
+};
+
+export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const rawRange = resolvedSearchParams?.range;
+  const range = Array.isArray(rawRange) ? rawRange[0] : rawRange;
+  const activeRange = resolveRange(range);
   const settings = await getStoreSettings();
   const orders = await getOrders();
   const now = Date.now();

@@ -2,18 +2,40 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const items = [
-  { href: "/", icon: "🏠", label: "হোম", external: false },
-  { href: "/categories", icon: "🧭", label: "ক্যাটাগরি", external: false },
-  { href: "/offers", icon: "🏷️", label: "অফার", external: false },
-  { href: "/cart", icon: "🛒", label: "কার্ট", external: false },
-  { href: "/profile", icon: "👤", label: "প্রোফাইল", external: false },
-  { href: "/help", icon: "💬", label: "হেল্প", external: false },
-];
+import { useEffect, useMemo, useState } from "react";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
 
 export default function MobileStickyBar() {
   const pathname = usePathname();
+  const [lang, setLang] = useState<Language>("bn");
+
+  useEffect(() => {
+    const sync = () => setLang(readSitePreferences().language);
+    sync();
+    window.addEventListener(PREFERENCE_EVENT, sync);
+    return () => window.removeEventListener(PREFERENCE_EVENT, sync);
+  }, []);
+
+  const items = useMemo(
+    () => [
+      { href: "/", icon: "🏠", label: lang === "bn" ? "হোম" : "Home", external: false },
+      {
+        href: "/categories",
+        icon: "🧭",
+        label: lang === "bn" ? "ক্যাটাগরি" : "Categories",
+        external: false,
+      },
+      { href: "/offers", icon: "🏷️", label: lang === "bn" ? "অফার" : "Offers", external: false },
+      { href: "/cart", icon: "🛒", label: lang === "bn" ? "কার্ট" : "Cart", external: false },
+      { href: "/profile", icon: "👤", label: lang === "bn" ? "প্রোফাইল" : "Profile", external: false },
+      { href: "/help", icon: "💬", label: lang === "bn" ? "হেল্প" : "Help", external: false },
+    ],
+    [lang]
+  );
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">

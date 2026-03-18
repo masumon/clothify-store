@@ -64,7 +64,12 @@ function ShieldIcon() {
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get("next") || "/admin";
+  const rawNextPath = searchParams.get("next") || "/admin";
+  const nextPath =
+    rawNextPath.startsWith("/") && !rawNextPath.startsWith("//")
+      ? rawNextPath
+      : "/admin";
+  const supabaseFlowEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN_SUPABASE_AUTH === "true";
 
   const [tab, setTab] = useState<AuthTab>("login");
 
@@ -234,12 +239,14 @@ export default function AdminLoginPage() {
     setLoading(false);
   };
 
-  const tabs: { id: AuthTab; label: string; icon: string }[] = [
-    { id: "login", label: "Login", icon: "🔐" },
-    { id: "otp", label: "OTP", icon: "📱" },
-    { id: "reset", label: "Reset", icon: "🔑" },
-    { id: "register", label: "Register", icon: "👤" },
-  ];
+  const tabs: { id: AuthTab; label: string; icon: string }[] = supabaseFlowEnabled
+    ? [
+        { id: "login", label: "Login", icon: "🔐" },
+        { id: "otp", label: "OTP", icon: "📱" },
+        { id: "reset", label: "Reset", icon: "🔑" },
+        { id: "register", label: "Register", icon: "👤" },
+      ]
+    : [{ id: "login", label: "Login", icon: "🔐" }];
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 px-4 py-12">
@@ -256,7 +263,11 @@ export default function AdminLoginPage() {
         {/* Card */}
         <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-1 backdrop-blur-xl shadow-2xl">
           {/* Tab bar */}
-          <div className="grid grid-cols-4 gap-1 rounded-2xl bg-white/5 p-1">
+          <div
+            className={`grid gap-1 rounded-2xl bg-white/5 p-1 ${
+              tabs.length > 1 ? "grid-cols-4" : "grid-cols-1"
+            }`}
+          >
             {tabs.map((t) => (
               <button
                 key={t.id}
@@ -350,42 +361,51 @@ export default function AdminLoginPage() {
                   </button>
                 </form>
 
-                <div className="my-5 flex items-center gap-3">
-                  <div className="h-px flex-1 bg-white/10" />
-                  <span className="text-xs text-slate-500">or continue with</span>
-                  <div className="h-px flex-1 bg-white/10" />
-                </div>
+                {supabaseFlowEnabled ? (
+                  <>
+                    <div className="my-5 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-white/10" />
+                      <span className="text-xs text-slate-500">or continue with</span>
+                      <div className="h-px flex-1 bg-white/10" />
+                    </div>
 
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  <GoogleIcon />
-                  Continue with Google
-                </button>
+                    <button
+                      type="button"
+                      onClick={handleGoogleLogin}
+                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                    >
+                      <GoogleIcon />
+                      Continue with Google
+                    </button>
 
-                <div className="mt-4 flex justify-between text-xs text-slate-500">
-                  <button
-                    type="button"
-                    onClick={() => { setTab("reset"); clearMessages(); }}
-                    className="hover:text-teal-400 transition"
-                  >
-                    Forgot password?
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setTab("register"); clearMessages(); }}
-                    className="hover:text-teal-400 transition"
-                  >
-                    Create account →
-                  </button>
-                </div>
+                    <div className="mt-4 flex justify-between text-xs text-slate-500">
+                      <button
+                        type="button"
+                        onClick={() => { setTab("reset"); clearMessages(); }}
+                        className="hover:text-teal-400 transition"
+                      >
+                        Forgot password?
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setTab("register"); clearMessages(); }}
+                        className="hover:text-teal-400 transition"
+                      >
+                        Create account →
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="mt-4 rounded-xl border border-slate-600 bg-slate-900/50 px-4 py-3 text-xs text-slate-300">
+                    Username/password admin login is active. Supabase auth methods are disabled.
+                    Set <code className="ml-1">NEXT_PUBLIC_ENABLE_ADMIN_SUPABASE_AUTH=true</code> to enable extra methods.
+                  </p>
+                )}
               </div>
             )}
 
             {/* ── OTP TAB ─────────────────────────────────────────────────── */}
-            {tab === "otp" && (
+            {supabaseFlowEnabled && tab === "otp" && (
               <div>
                 <div className="mb-5 flex items-center gap-2 text-white">
                   <ShieldIcon />
@@ -460,7 +480,7 @@ export default function AdminLoginPage() {
             )}
 
             {/* ── RESET PASSWORD TAB ──────────────────────────────────────── */}
-            {tab === "reset" && (
+            {supabaseFlowEnabled && tab === "reset" && (
               <div>
                 <div className="mb-5 flex items-center gap-2 text-white">
                   <KeyIcon />
@@ -509,7 +529,7 @@ export default function AdminLoginPage() {
             )}
 
             {/* ── REGISTER TAB ────────────────────────────────────────────── */}
-            {tab === "register" && (
+            {supabaseFlowEnabled && tab === "register" && (
               <div>
                 <div className="mb-5 flex items-center gap-2 text-white">
                   <UserIcon />

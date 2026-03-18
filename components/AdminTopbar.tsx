@@ -1,6 +1,23 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function AdminTopbar() {
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await fetch("/api/admin/auth", { method: "DELETE" });
+    } finally {
+      router.replace("/admin/login");
+      router.refresh();
+    }
+  };
+
   return (
     <div className="mb-6 rounded-2xl border border-slate-700 bg-slate-900/80 p-4 shadow-[0_14px_30px_-22px_rgba(0,0,0,0.9)] backdrop-blur">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -23,12 +40,14 @@ export default function AdminTopbar() {
           >
             ← Back to Website
           </Link>
-          <Link
-            href="/admin"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="inline-flex items-center justify-center rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:opacity-60"
           >
-            Dashboard
-          </Link>
+            {loggingOut ? "Logging out..." : "Logout"}
+          </button>
         </div>
       </div>
     </div>

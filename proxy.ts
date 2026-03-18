@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminAuthorized, isSessionAuthorized } from "@/lib/admin-auth";
+import {
+  isAdminAuthorized,
+  isSessionAuthorized,
+  unauthorizedResponse,
+} from "@/lib/admin-auth";
 
-export function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Allow the login page and auth API to pass through without any auth check
@@ -22,13 +26,17 @@ export function middleware(req: NextRequest) {
   }
 
   // Check session cookie (set by the login page)
-  if (isSessionAuthorized(req)) {
+  if (await isSessionAuthorized(req)) {
     return NextResponse.next();
   }
 
   // Fall back to HTTP Basic Auth for backward compatibility (e.g. API clients)
   if (isAdminAuthorized(req)) {
     return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api/admin/")) {
+    return unauthorizedResponse("Unauthorized admin API request.");
   }
 
   // Not authenticated – redirect to the custom login page

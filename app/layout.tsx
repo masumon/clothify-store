@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Hind_Siliguri, Plus_Jakarta_Sans } from "next/font/google";
+import { cookies } from "next/headers";
 import TrafficTracker from "@/components/TrafficTracker";
 import SumonixAIWidget from "@/components/SumonixAIWidget";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
@@ -70,22 +71,25 @@ export const viewport: Viewport = {
   themeColor: "#0F172A",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const initialLang = cookieStore.get("clothfy-lang")?.value === "en" ? "en" : "bn";
+
   return (
-    <html lang="bn" suppressHydrationWarning>
+    <html lang={initialLang} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.documentElement;var rawLang=localStorage.getItem("clothfy-lang")||localStorage.getItem("clothify-language")||d.lang||"bn";var lang=rawLang==="en"?"en":"bn";localStorage.setItem("clothfy-lang",lang);localStorage.setItem("clothify-language",lang);d.lang=lang;var rawTheme=localStorage.getItem("clothfy-theme")||localStorage.getItem("clothify-theme")||"system";var theme=(rawTheme==="light"||rawTheme==="dark"||rawTheme==="system")?rawTheme:"system";var dark=theme==="dark"||(theme==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);localStorage.setItem("clothfy-theme",theme);localStorage.setItem("clothify-theme",theme);d.setAttribute("data-theme",theme);d.classList.toggle("dark-theme",dark);d.classList.toggle("text-size-large",localStorage.getItem("clothify-text-size")==="large");d.classList.toggle("high-contrast",localStorage.getItem("clothify-contrast")==="high");d.classList.toggle("reduce-motion",localStorage.getItem("clothify-motion")==="reduced");}catch(e){}})();`,
+            __html: `(function(){try{var d=document.documentElement;var rawLang=localStorage.getItem("clothfy-lang")||localStorage.getItem("clothify-language")||d.lang||"bn";var lang=rawLang==="en"?"en":"bn";localStorage.setItem("clothfy-lang",lang);localStorage.setItem("clothify-language",lang);document.cookie="clothfy-lang="+lang+"; path=/; max-age=31536000; samesite=lax";d.lang=lang;var rawTheme=localStorage.getItem("clothfy-theme")||localStorage.getItem("clothify-theme")||"system";var theme=(rawTheme==="light"||rawTheme==="dark"||rawTheme==="system")?rawTheme:"system";var dark=theme==="dark"||(theme==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);localStorage.setItem("clothfy-theme",theme);localStorage.setItem("clothify-theme",theme);document.cookie="clothfy-theme="+theme+"; path=/; max-age=31536000; samesite=lax";d.setAttribute("data-theme",theme);d.classList.toggle("dark-theme",dark);d.classList.toggle("dark",dark);d.classList.toggle("text-size-large",localStorage.getItem("clothify-text-size")==="large");d.classList.toggle("high-contrast",localStorage.getItem("clothify-contrast")==="high");d.classList.toggle("reduce-motion",localStorage.getItem("clothify-motion")==="reduced");}catch(e){}})();`,
           }}
         />
       </head>
       <body
-        className={`${plusJakarta.variable} ${hindSiliguri.variable} antialiased`}
+        className={`${plusJakarta.variable} ${hindSiliguri.variable} overflow-x-hidden antialiased`}
       >
         <PreferenceSync />
         <TrafficTracker />

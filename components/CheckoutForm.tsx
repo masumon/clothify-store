@@ -118,6 +118,11 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
           payment_method: paymentMethod,
           total_amount: total,
           bkash_trx_id: trxId,
+          items: cart.map((item) => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            selected_size: item.selectedSize || "Standard",
+          })),
           website,
           client_started_at: startedAt,
         }),
@@ -134,6 +139,10 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
           INVOICE_STORAGE_KEY,
           JSON.stringify({
             orderId: result.id || `ORD-${Date.now()}`,
+            invoiceNumber:
+              typeof result.invoice_number === "string" && result.invoice_number.trim()
+                ? result.invoice_number.trim()
+                : "",
             customerName,
             phone,
             address,
@@ -143,7 +152,10 @@ export default function CheckoutForm({ storeName = "Clothify" }: CheckoutFormPro
             trxId,
             total,
             items: cart,
-            createdAt: new Date().toISOString(),
+            createdAt:
+              typeof result.created_at === "string" && result.created_at
+                ? result.created_at
+                : new Date().toISOString(),
             storeName,
           })
         );

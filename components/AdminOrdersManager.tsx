@@ -244,7 +244,7 @@ export default function AdminOrdersManager({
   return (
     <div>
       <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
-        <div className="grid gap-3 lg:grid-cols-[1fr_180px_180px_180px_180px_auto]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_180px_180px_180px_180px_auto]">
           <input
             type="text"
             placeholder="Search by customer, phone, address, TRX"
@@ -308,7 +308,7 @@ export default function AdminOrdersManager({
           <button
             type="button"
             onClick={exportPdf}
-            className="rounded-xl bg-rose-600 px-5 py-3 font-semibold text-white transition hover:bg-rose-700"
+            className="rounded-xl bg-rose-600 px-5 py-3 font-semibold text-white transition hover:bg-rose-700 sm:col-span-2 xl:col-span-1"
           >
             Export PDF
           </button>
@@ -393,7 +393,7 @@ export default function AdminOrdersManager({
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/95 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
-        <table className="min-w-full">
+        <table className="min-w-[1080px]">
           <thead className="bg-slate-50/90">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>

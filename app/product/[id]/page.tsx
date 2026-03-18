@@ -11,13 +11,14 @@ import { getProductById, getStoreSettings } from "@/lib/data";
 
 export const revalidate = 120;
 
-export default async function ProductDetailsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+type ProductDetailsPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function ProductDetailsPage({ params }: ProductDetailsPageProps) {
+  const resolvedParams = await params;
   const settings = await getStoreSettings();
-  const product = await getProductById(params.id);
+  const product = await getProductById(resolvedParams.id);
 
   if (!product) {
     return (

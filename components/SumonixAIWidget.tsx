@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { addToCart, getCart } from "@/lib/cart";
 
 type SuggestedProduct = {
@@ -29,10 +29,15 @@ type Props = {
 };
 
 function renderRichText(text: string) {
-  const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  const markdownLinkRegex = /\[([^\]]+)\]\(((?:https?:\/\/|\/)[^\s)]+)\)/g;
   const rawUrlRegex = /(https?:\/\/[^\s]+)/g;
 
-  const withMarkdownLinks: Array<{ type: "text" | "link"; text: string; href?: string }> = [];
+  const withMarkdownLinks: Array<{
+    type: "text" | "link";
+    text: string;
+    href?: string;
+    external?: boolean;
+  }> = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
@@ -41,7 +46,12 @@ function renderRichText(text: string) {
     if (match.index > lastIndex) {
       withMarkdownLinks.push({ type: "text", text: text.slice(lastIndex, match.index) });
     }
-    withMarkdownLinks.push({ type: "link", text: label, href });
+    withMarkdownLinks.push({
+      type: "link",
+      text: label,
+      href,
+      external: /^https?:\/\//.test(href),
+    });
     lastIndex = match.index + fullMatch.length;
   }
 
@@ -49,7 +59,12 @@ function renderRichText(text: string) {
     withMarkdownLinks.push({ type: "text", text: text.slice(lastIndex) });
   }
 
-  const nodes: Array<{ type: "text" | "link"; text: string; href?: string }> = [];
+  const nodes: Array<{
+    type: "text" | "link";
+    text: string;
+    href?: string;
+    external?: boolean;
+  }> = [];
   withMarkdownLinks.forEach((part) => {
     if (part.type === "link") {
       nodes.push(part);
@@ -63,7 +78,7 @@ function renderRichText(text: string) {
       if (urlMatch.index > urlLastIndex) {
         nodes.push({ type: "text", text: part.text.slice(urlLastIndex, urlMatch.index) });
       }
-      nodes.push({ type: "link", text: url, href: url });
+      nodes.push({ type: "link", text: url, href: url, external: true });
       urlLastIndex = urlMatch.index + url.length;
     }
 
@@ -72,25 +87,40 @@ function renderRichText(text: string) {
     }
   });
 
-  return nodes.map((node, index) =>
-    node.type === "link" && node.href ? (
-      <a
-        key={`node-${index}`}
-        href={node.href}
-        target="_blank"
-        rel="noreferrer"
-        className="font-semibold text-cyan-700 underline underline-offset-2"
-      >
-        {node.text}
-      </a>
-    ) : (
-      <span key={`node-${index}`}>{node.text}</span>
-    )
-  );
+  return nodes.map((node, index) => {
+    if (node.type === "link" && node.href) {
+      if (node.external) {
+        return (
+          <a
+            key={`node-${index}`}
+            href={node.href}
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-cyan-700 underline underline-offset-2"
+          >
+            {node.text}
+          </a>
+        );
+      }
+
+      return (
+        <Link
+          key={`node-${index}`}
+          href={node.href}
+          className="font-semibold text-cyan-700 underline underline-offset-2"
+        >
+          {node.text}
+        </Link>
+      );
+    }
+
+    return <span key={`node-${index}`}>{node.text}</span>;
+  });
 }
 
 export default function SumonixAIWidget({ mode = "public" }: Props) {
   const pathname = usePathname();
+  const messagesScrollRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
@@ -99,13 +129,36 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
       role: "assistant",
       text:
         mode === "admin"
-          ? "আমি SUMONIX AI admin assistant। sales, stock, orders, draft, featured products, store info সম্পর্কে জিজ্ঞেস করতে পারেন।"
-          : "আমি SUMONIX AI। কাপড়, দাম, payment, courier, address, offer বা যেকোনো product সম্পর্কে জিজ্ঞেস করুন।",
+          ? "আমি SUMONIX AI admin assistant। orders, stock, sales, publish/draft, settings navigation এবং admin insights নিয়ে জিজ্ঞেস করতে পারেন।"
+          : "আমি SUMONIX AI। পুরো ওয়েবসাইটভিত্তিক product, দাম, delivery, payment, size guide, language/theme settings বা support নিয়ে জিজ্ঞেস করুন।",
     },
   ]);
 
   const isAdminRoute = pathname.startsWith("/admin");
-  if ((mode === "public" && isAdminRoute) || (mode === "admin" && !isAdminRoute)) {
+  const shouldHide = (mode === "public" && isAdminRoute) || (mode === "admin" && !isAdminRoute);
+  const quickPrompts =
+    mode === "admin"
+      ? [
+          "আজকের sales + pending report দিন",
+          "গত ৫ দিনের intent gap বলুন",
+          "কোথায় drop-off বেশি হচ্ছে?",
+          "restock alert দিন",
+        ]
+      : [
+          "কিভাবে অর্ডার করবো?",
+          "পেমেন্ট কিভাবে করবো?",
+          "ডেলিভারি কতো দিনে হবে?",
+          "আমি checkout এ আটকে গেছি",
+        ];
+
+  useEffect(() => {
+    if (!open) return;
+    const container = messagesScrollRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  }, [messages, loading, open]);
+
+  if (shouldHide) {
     return null;
   }
 
@@ -115,14 +168,19 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
       ? "bottom-[5.5rem] right-4 sm:bottom-24 sm:right-5 md:bottom-6 md:right-6"
       : "bottom-5 right-5 md:bottom-6 md:right-6";
 
-  const sendQuestion = async (e?: FormEvent) => {
-    e?.preventDefault();
-    const text = question.trim();
+  const getUiLanguage = () => {
+    if (typeof window === "undefined") return "";
+    const htmlLang = document.documentElement.lang || "";
+    if (htmlLang) return htmlLang;
+    return localStorage.getItem("clothfy-lang") || "";
+  };
+
+  const submitQuestion = async (rawText: string) => {
+    const text = rawText.trim();
     if (!text || loading) return;
 
     setMessages((prev) => [...prev, { role: "user", text }]);
     setQuestion("");
-    setLoading(true);
 
     if (mode === "public") {
       const q = text.toLowerCase();
@@ -146,13 +204,19 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
       }
     }
 
+    setLoading(true);
+
     try {
       const response = await fetch(mode === "admin" ? "/api/admin/sumonix" : "/api/sumonix", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question: text }),
+        body: JSON.stringify({
+          question: text,
+          contextPath: pathname,
+          uiLanguage: getUiLanguage(),
+        }),
       });
 
       const result = await response.json();
@@ -183,15 +247,25 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
     }
   };
 
+  const sendQuestion = async (e?: FormEvent) => {
+    e?.preventDefault();
+    await submitQuestion(question);
+  };
+
   return (
     <div className={`fixed z-[85] ${floatingPositionClass}`}>
       {open ? (
-        <div className="w-[min(92vw,360px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/20 ring-1 ring-slate-100">
-          <div className="bg-gradient-to-r from-teal-700 to-cyan-700 px-4 py-4 text-white">
+        <div className="w-[min(94vw,390px)] overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/25 ring-1 ring-slate-100">
+          <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-4 py-4 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">AI Assistant</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
+                  {mode === "admin" ? "Admin Copilot" : "AI Assistant"}
+                </p>
                 <h3 className="text-lg font-extrabold">SUMONIX AI</h3>
+                <p className="mt-1 text-[11px] font-semibold text-white/80">
+                  {mode === "admin" ? "Live analytics + prediction + action hints" : "Order help + payment guide + product support"}
+                </p>
               </div>
               <button
                 type="button"
@@ -203,14 +277,17 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
             </div>
           </div>
 
-          <div className="max-h-[420px] space-y-3 overflow-y-auto bg-slate-50 p-4">
+          <div
+            ref={messagesScrollRef}
+            className="max-h-[430px] space-y-3 overflow-y-auto bg-[radial-gradient(circle_at_top,#e0f7fa_0%,#f8fafc_42%,#f8fafc_100%)] p-4"
+          >
             {messages.map((message, index) => (
               <div key={`${message.role}-${index}`}>
                 <div
                   className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
                     message.role === "assistant"
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "ml-10 bg-teal-700 text-white"
+                      ? "border border-slate-200 bg-white text-slate-800 shadow-sm"
+                      : "ml-10 bg-gradient-to-r from-teal-700 to-cyan-700 text-white"
                   }`}
                 >
                   {renderRichText(message.text)}
@@ -285,15 +362,44 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                 ) : null}
               </div>
             ))}
+
+            {loading ? (
+              <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-800 shadow-sm">
+                <span className="font-semibold text-teal-700">SUMONIX AI typing......</span>
+                <span className="ml-2 inline-flex items-center gap-1 align-middle">
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-600 [animation-delay:0ms]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-600 [animation-delay:120ms]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-600 [animation-delay:240ms]" />
+                </span>
+              </div>
+            ) : null}
           </div>
 
           <form onSubmit={sendQuestion} className="border-t border-slate-200 bg-white p-3">
+            <div className="mb-2 flex flex-wrap gap-2">
+              {quickPrompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void submitQuestion(prompt)}
+                  className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-[11px] font-semibold text-cyan-700 transition hover:bg-cyan-100 disabled:opacity-50"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+
             <div className="flex gap-2">
               <input
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder={mode === "admin" ? "Ask about products, sales, stock..." : "Ask about clothes, price, courier..."}
+                placeholder={
+                  mode === "admin"
+                    ? "Ask: today sales, top source, drop-off, prediction..."
+                    : "Ask: order guide, payment, delivery, support..."
+                }
                 className="flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
               />
               <button
@@ -301,7 +407,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
                 disabled={loading}
                 className="rounded-2xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
-                {loading ? "..." : "Send"}
+                {loading ? "Typing..." : "Send"}
               </button>
             </div>
           </form>
@@ -312,7 +418,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="group rounded-full bg-gradient-to-r from-teal-700 to-cyan-700 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-teal-900/25 transition hover:scale-[1.02] hover:shadow-2xl"
+          className="group rounded-full bg-gradient-to-r from-teal-700 via-cyan-700 to-sky-700 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-teal-900/25 transition hover:scale-[1.02] hover:shadow-2xl"
         >
           <span className="flex items-center gap-2">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300 shadow-[0_0_0_4px_rgba(110,231,183,0.25)]" />

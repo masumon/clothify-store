@@ -11,6 +11,7 @@ type InvoiceItem = {
 
 type InvoicePayload = {
   orderId: string;
+  invoiceNumber?: string;
   customerName: string;
   phone: string;
   address: string;
@@ -31,6 +32,27 @@ type Props = {
 };
 
 const STORAGE_KEY = "clothify-latest-invoice";
+
+function hashToSerial(value: string, max = 9999) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) % max;
+  }
+  return String(Math.max(1, hash)).padStart(4, "0");
+}
+
+function resolveInvoiceNumber(invoice: InvoicePayload) {
+  if (invoice.invoiceNumber && invoice.invoiceNumber.trim()) {
+    return invoice.invoiceNumber.trim();
+  }
+
+  const date = new Date(invoice.createdAt || Date.now());
+  const y = String(date.getFullYear());
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const serial = hashToSerial(invoice.orderId || `${Date.now()}`);
+  return `INV-${y}${m}${d}-${serial}`;
+}
 
 async function fetchImageAsDataUrl(url: string): Promise<string> {
   try {
@@ -55,6 +77,8 @@ function buildInvoiceHTML(
   storePhone: string,
   logoDataUrl: string
 ): string {
+  const invoiceNumber = resolveInvoiceNumber(invoice);
+  const orderTokenTail = (invoice.orderId || "").slice(-8).toUpperCase();
   const orderDate = new Date(invoice.createdAt).toLocaleString("bn-BD", {
     year: "numeric",
     month: "long",
@@ -90,7 +114,7 @@ function buildInvoiceHTML(
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ইনভয়েস — ${invoice.orderId}</title>
+  <title>ইনভয়েস — ${invoiceNumber}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -110,8 +134,13 @@ function buildInvoiceHTML(
     .invoice-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.12em; }
     .invoice-id { font-size: 15px; font-weight: 700; color: #ffffff; margin-top: 2px; }
     .invoice-date { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 3px; }
+    .invoice-order-ref { font-size: 10px; color: rgba(255,255,255,0.75); margin-top: 2px; }
     .body { padding: 28px 32px; position: relative; z-index: 1; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .meta-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .meta-pill { border-radius: 10px; padding: 8px 10px; background: #f0fdfa; border: 1px solid #99f6e4; }
+    .meta-pill .k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #0f766e; font-weight: 700; }
+    .meta-pill .v { display: block; margin-top: 2px; font-size: 12px; color: #134e4a; font-weight: 700; }
     .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; }
     .info-box-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #64748b; margin-bottom: 8px; }
     .info-row { display: flex; gap: 6px; font-size: 12px; color: #334155; margin-bottom: 4px; align-items: flex-start; }
@@ -139,6 +168,7 @@ function buildInvoiceHTML(
     .footer-note small { font-size: 10px; color: #4ade80; margin-top: 4px; display: block; }
     .footer-bar { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; }
     .footer-bar span { font-size: 10px; color: #94a3b8; }
+    @media (max-width: 760px) { .info-grid { grid-template-columns: 1fr; } .meta-strip { grid-template-columns: 1fr; } }
     @media print { @page { size: A4; margin: 0; } body { background: #fff !important; } .page { box-shadow: none !important; } }
   </style>
 </head>
@@ -156,11 +186,17 @@ function buildInvoiceHTML(
       </div>
       <div class="header-right">
         <div class="invoice-label">ইনভয়েস নম্বর</div>
-        <div class="invoice-id">#${invoice.orderId}</div>
+        <div class="invoice-id">#${invoiceNumber}</div>
         <div class="invoice-date">${orderDate}</div>
+        <div class="invoice-order-ref">Order Ref: ${invoice.orderId}</div>
       </div>
     </div>
     <div class="body">
+      <div class="meta-strip">
+        <div class="meta-pill"><span class="k">Invoice No</span><span class="v">${invoiceNumber}</span></div>
+        <div class="meta-pill"><span class="k">Order Token</span><span class="v">${orderTokenTail || "N/A"}</span></div>
+        <div class="meta-pill"><span class="k">Status</span><span class="v">Pending Confirmation</span></div>
+      </div>
       <div class="info-grid">
         <div class="info-box">
           <div class="info-box-title">ক্রেতার তথ্য</div>
@@ -204,7 +240,7 @@ function buildInvoiceHTML(
     </div>
     <div class="footer-bar">
       <span>${storeName} — অর্ডার ইনভয়েস</span>
-      <span>Invoice #${invoice.orderId}</span>
+      <span>Invoice #${invoiceNumber}</span>
     </div>
   </div>
   <script>

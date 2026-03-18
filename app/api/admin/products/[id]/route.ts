@@ -3,10 +3,11 @@ import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id?.trim();
+    const resolvedParams = await params;
+    const id = resolvedParams.id?.trim();
     if (!id) {
       return NextResponse.json({ error: "Product id is required." }, { status: 400 });
     }

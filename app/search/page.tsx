@@ -7,13 +7,16 @@ import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const revalidate = 60;
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams?: { q?: string; category?: string };
-}) {
-  const q = searchParams?.q || "";
-  const category = searchParams?.category || "";
+type SearchPageProps = {
+  searchParams?: Promise<{ q?: string | string[] | undefined; category?: string | string[] | undefined }>;
+};
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const rawQuery = resolvedSearchParams?.q;
+  const rawCategory = resolvedSearchParams?.category;
+  const q = (Array.isArray(rawQuery) ? rawQuery[0] : rawQuery) || "";
+  const category = (Array.isArray(rawCategory) ? rawCategory[0] : rawCategory) || "";
 
   const settings = await getStoreSettings();
   const categories = await getCategories();

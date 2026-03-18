@@ -7,9 +7,9 @@ export default async function OrderSuccessPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="max-w-lg rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900">Order Placed Successfully</h1>
-        <p className="mt-4 text-slate-600">
+      <div className="max-w-lg rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm sm:p-10">
+        <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Order Placed Successfully</h1>
+        <p className="mt-4 text-sm text-slate-600 sm:text-base">
           Thank you for shopping with Clothify. Your order has been received and
           is waiting for confirmation.
         </p>

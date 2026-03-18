@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  type Language,
+  PREFERENCE_EVENT,
+  readSitePreferences,
+} from "@/lib/site-preferences";
 
 type Props = {
   storeName?: string;
@@ -36,20 +41,17 @@ export default function HomeHero({
   slogan = "Find Your Fit",
   whatsappNumber = "8801811314262",
 }: Props) {
-  const [lang, setLang] = useState<"en" | "bn">("bn");
+  const [lang, setLang] = useState<Language>("bn");
   const [countdown, setCountdown] = useState<Countdown>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     const syncLang = () => {
-      const saved = localStorage.getItem("clothfy-lang") || localStorage.getItem("clothify-language");
-      if (saved === "en" || saved === "bn") {
-        setLang(saved);
-      }
+      setLang(readSitePreferences().language);
     };
 
     syncLang();
-    window.addEventListener("clothfy-preferences-change", syncLang);
-    return () => window.removeEventListener("clothfy-preferences-change", syncLang);
+    window.addEventListener(PREFERENCE_EVENT, syncLang);
+    return () => window.removeEventListener(PREFERENCE_EVENT, syncLang);
   }, []);
 
   useEffect(() => {

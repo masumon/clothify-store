@@ -6,13 +6,16 @@ import { getCategories, getProducts, getStoreSettings } from "@/lib/data";
 
 export const revalidate = 60;
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams?: { search?: string; category?: string };
-}) {
-  const activeSearch = searchParams?.search || "";
-  const activeCategory = searchParams?.category || "";
+type HomePageProps = {
+  searchParams?: Promise<{ search?: string | string[] | undefined; category?: string | string[] | undefined }>;
+};
+
+export default async function Home({ searchParams }: HomePageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const rawSearch = resolvedSearchParams?.search;
+  const rawCategory = resolvedSearchParams?.category;
+  const activeSearch = (Array.isArray(rawSearch) ? rawSearch[0] : rawSearch) || "";
+  const activeCategory = (Array.isArray(rawCategory) ? rawCategory[0] : rawCategory) || "";
 
   const settings = await getStoreSettings();
   const products = await getProducts({

@@ -19,12 +19,54 @@ The admin panel is protected with comprehensive authentication. To get started:
    ```env
    ADMIN_USERNAME=your_username
    ADMIN_PASSWORD=your_secure_password
+   ADMIN_SESSION_SECRET=your_random_long_secret
+   # Optional: enable extra Supabase login tabs in admin login UI
+   NEXT_PUBLIC_ENABLE_ADMIN_SUPABASE_AUTH=false
+   # Optional: WhatsApp webhook notifications for order + security alerts
+   WHATSAPP_NOTIFY_ENABLED=true
+   WHATSAPP_NOTIFY_WEBHOOK_URL=https://your-webhook-endpoint
+   WHATSAPP_NOTIFY_WEBHOOK_SECRET=your_webhook_secret
+   WHATSAPP_NOTIFY_ORDER_EVENTS=true
+   WHATSAPP_NOTIFY_SECURITY_EVENTS=true
    ```
 3. Restart the development server
 4. Access the admin panel at `/admin` - you'll be redirected to the login page
 5. Login with your credentials
 
 For complete documentation on admin authentication, see [ADMIN_LOGIN_GUIDE.md](./ADMIN_LOGIN_GUIDE.md)
+
+বাংলায় ready-to-use setup checklist: [READY_TO_USE_SETUP_BN.md](./READY_TO_USE_SETUP_BN.md)
+ক্লায়েন্ট ওয়েবসাইট ইউজার গাইড (বাংলা): [WEBSITE_USER_GUIDE_BN.md](./WEBSITE_USER_GUIDE_BN.md)
+এডমিন প্যানেল গাইড (বাংলা): [ADMIN_PANEL_GUIDE_BN.md](./ADMIN_PANEL_GUIDE_BN.md)
+
+## WhatsApp Alert Setup (Instant Order + Security Notification)
+
+Order created এবং admin security lockout event-এ backend থেকে webhook trigger হয়।
+
+1. আপনার WhatsApp provider (Meta Cloud API / Make / Zapier / custom bot)-এর webhook URL নিন  
+2. `.env.local`-এ `WHATSAPP_NOTIFY_WEBHOOK_URL` সেট করুন  
+3. Secret validation থাকলে `WHATSAPP_NOTIFY_WEBHOOK_SECRET` সেট করুন  
+4. Notification type toggle:
+   - `WHATSAPP_NOTIFY_ORDER_EVENTS=true`
+   - `WHATSAPP_NOTIFY_SECURITY_EVENTS=true`
+
+Webhook payloadে `title`, `message`, `type`, `metadata` পাঠানো হয়।
+
+## SUMONIX Multi-Language Setup
+
+SUMONIX এখন user query language detect করে উত্তর দেয় (Bangla, English, Sylheti-style এবং অন্যান্য ভাষার জন্য runtime translation)।
+
+Optional full translation quality (all-language mode):
+
+1. `.env.local` এ `OPENAI_API_KEY` সেট করুন  
+2. প্রয়োজনে `SUMONIX_TRANSLATION_MODEL` পরিবর্তন করুন (default: `gpt-4o-mini`)  
+3. server restart করুন
+
+Without `OPENAI_API_KEY`, assistant public translation endpoint fallback ব্যবহার করে best-effort translation দেয়।
+
+Sylheti behavior:
+
+- user যদি Sylheti tone/keyword এ প্রশ্ন করে, SUMONIX Sylheti ঢঙে উত্তর দেয়।
 
 ## Migration (Required for Draft + Persistent Analytics)
 
@@ -48,6 +90,17 @@ This migration adds:
 - `products.stock_quantity`
 - `products.is_featured`
 - `products.campaign_badge`
+
+## Order Integrity Migration (Order Items Persistence)
+
+Run this SQL file in Supabase SQL Editor:
+
+- `supabase/migrations/20260318_order_items.sql`
+
+This migration adds:
+
+- `order_items` table for per-product order line persistence
+- indexes for faster order and product joins
 
 ## প্রোডাকশন ভেরিফিকেশন রিপোর্ট (2026-03-17)
 
