@@ -1,41 +1,18 @@
 export default function LoadingPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-          Clothify
-        </p>
-        <h2 className="mt-2 text-xl font-bold text-slate-900">Please wait</h2>
-        <p className="mt-1 text-sm text-slate-600">Your page is loading...</p>
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-teal-900 px-4">
+      <div className="absolute -left-20 top-0 h-72 w-72 rounded-full bg-amber-500/25 blur-3xl" />
+      <div className="absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-teal-400/25 blur-3xl" />
 
-        <button
-          type="button"
-          disabled
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-black px-5 py-3 text-sm font-semibold text-white disabled:opacity-100"
-        >
-          <svg
-            className="h-4 w-4 animate-spin"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="9"
-              stroke="currentColor"
-              strokeWidth="3"
-              className="opacity-30"
-            />
-            <path
-              d="M21 12a9 9 0 0 0-9-9"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-          </svg>
-          Loading...
-        </button>
+      <div className="relative w-full max-w-md rounded-3xl border border-white/15 bg-white/10 px-6 py-10 text-center shadow-2xl backdrop-blur-md">
+        <p className="text-3xl font-black uppercase tracking-[0.5em] text-white sm:text-4xl">CLOTHIFY</p>
+        <p className="mt-3 text-sm font-semibold uppercase tracking-[0.28em] text-amber-200 sm:text-base">
+          FIND YOUR FIT
+        </p>
+
+        <div className="mx-auto mt-6 h-1.5 w-44 overflow-hidden rounded-full bg-white/20">
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-amber-300 via-white to-teal-300" />
+        </div>
       </div>
     </main>
   );

@@ -210,6 +210,73 @@ html.dark-theme option {
   color: #042f2e;
 }
 
+@keyframes hero-marquee-move {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.hero-marquee-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-marquee-mask::before,
+.hero-marquee-mask::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero-marquee-mask::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(2, 6, 23, 0.72), transparent);
+}
+
+.hero-marquee-mask::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(2, 6, 23, 0.72), transparent);
+}
+
+.hero-marquee-track {
+  display: flex;
+  gap: 0.75rem;
+  width: max-content;
+  animation: hero-marquee-move 30s linear infinite;
+}
+
+.hero-look-card {
+  width: 172px;
+  flex: 0 0 auto;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(2, 6, 23, 0.45);
+  backdrop-filter: blur(6px);
+}
+
+.hero-marquee-mask:hover .hero-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (min-width: 640px) {
+  .hero-marquee-track {
+    gap: 1rem;
+    animation-duration: 36s;
+  }
+
+  .hero-look-card {
+    width: 218px;
+  }
+}
+
 @layer components {
   .surface-card {
     @apply rounded-3xl border border-slate-200/80 bg-white/90 shadow-[0_10px_40px_-28px_rgba(2,6,23,0.65)] backdrop-blur;
@@ -268,4 +335,9 @@ html.reduce-motion *::after {
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
+}
+
+html.reduce-motion .hero-marquee-track {
+  animation: none !important;
+  transform: none !important;
 }

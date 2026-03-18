@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import SectionHeader from "@/components/SectionHeader";
@@ -43,6 +44,15 @@ export default function UpazilaHomepageV2({
   whatsappNumber,
 }: Props) {
   const safeWhatsApp = whatsappNumber || "8801811314262";
+  const heroFocusKeywords = /panjabi|kabli|shirt|t-shirt|polo|pant|trouser|jeans/i;
+  const heroLooks = products
+    .filter((p) => heroFocusKeywords.test(`${p.name} ${p.category}`))
+    .slice(0, 8);
+  const heroCarouselProducts = (heroLooks.length > 0 ? heroLooks : products.slice(0, 8)).filter(
+    (product, index, list) => list.findIndex((candidate) => candidate.id === product.id) === index
+  );
+  const heroMarqueeItems =
+    heroCarouselProducts.length > 0 ? [...heroCarouselProducts, ...heroCarouselProducts] : [];
 
   const featured = products.filter((p) => p.is_featured).slice(0, 6);
   const newArrival = products.slice(0, 6);
@@ -90,40 +100,80 @@ export default function UpazilaHomepageV2({
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#CC5500]/30 blur-2xl" />
         <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[#8A9A5B]/30 blur-2xl" />
 
-        <div className="relative z-10 max-w-xl">
-          <p className="inline-flex rounded-full bg-white/20 px-3 py-1 text-[11px] font-semibold tracking-wide">
-            Upazila Style Drop • Smart Budget Premium
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold leading-tight sm:text-4xl">
-            ভাই, আপনার Fit Ready! 2026 Men&apos;s Collection
-          </h2>
-          <p className="mt-3 text-sm text-slate-100 sm:text-base">
-            Panjabi, Polo, Shirt, Jeans – trendy look, budget-friendly price, trusted checkout.
-          </p>
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="max-w-xl">
+            <p className="inline-flex rounded-full bg-white/20 px-3 py-1 text-[11px] font-semibold tracking-wide">
+              Upazila Style Drop • Smart Budget Premium
+            </p>
+            <h2 className="mt-3 text-2xl font-extrabold leading-tight sm:text-4xl">
+              ভাই, আপনার Fit Ready! 2026 Men&apos;s Collection
+            </h2>
+            <p className="mt-3 text-sm text-slate-100 sm:text-base">
+              Panjabi, Polo, Shirt, Jeans – trendy look, budget-friendly price, trusted checkout.
+            </p>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href="#new-arrival"
-              className="rounded-full bg-[#CC5500] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#b84c00]"
-            >
-              🛍️ Shop Now
-            </Link>
-            <a
-              href={`https://wa.me/${safeWhatsApp}?text=${encodeURIComponent("ভাই, একটা product নিয়ে help লাগবে")}`}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full border border-white/50 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
-            >
-              💬 WhatsApp Help
-            </a>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link
+                href="#new-arrival"
+                className="rounded-full bg-[#CC5500] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#b84c00]"
+              >
+                🛍️ Shop Now
+              </Link>
+              <a
+                href={`https://wa.me/${safeWhatsApp}?text=${encodeURIComponent("ভাই, একটা product নিয়ে help লাগবে")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-white/50 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+              >
+                💬 WhatsApp Help
+              </a>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-2 text-[11px] sm:flex sm:flex-wrap">
+              {trustItems.map((item) => (
+                <span key={item} className="rounded-full bg-white/15 px-3 py-1.5 font-semibold">
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-2 text-[11px] sm:flex sm:flex-wrap">
-            {trustItems.map((item) => (
-              <span key={item} className="rounded-full bg-white/15 px-3 py-1.5 font-semibold">
-                {item}
-              </span>
-            ))}
+          <div className="rounded-3xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm sm:p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-200">
+              Eid Real Looks Preview
+            </p>
+
+            {heroMarqueeItems.length > 0 ? (
+              <div className="hero-marquee-mask mt-3 rounded-2xl">
+                <div className="hero-marquee-track">
+                  {heroMarqueeItems.map((product, index) => (
+                    <Link key={`${product.id}-${index}`} href={`/product/${product.id}`} className="hero-look-card group">
+                      <div className="relative h-36 overflow-hidden rounded-2xl sm:h-44">
+                        <Image
+                          src={product.image_url || "/hero-modern-fashion.svg"}
+                          alt={product.name}
+                          fill
+                          sizes="(max-width: 640px) 60vw, 220px"
+                          className="object-cover transition duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="px-1 pb-1 pt-2">
+                        <p className="line-clamp-1 text-xs font-semibold text-white/95">{product.name}</p>
+                        <p className="mt-0.5 line-clamp-1 text-[11px] font-medium text-amber-200">{product.category}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 rounded-2xl border border-white/25 bg-white/10 px-4 py-5 text-sm font-semibold text-white/90">
+                Premium Panjabi, Shirt, Pant & T-Shirt images will appear automatically after product upload.
+              </div>
+            )}
+
+            <p className="mt-3 text-[11px] font-medium text-white/75">
+              Auto flow চলবে ডান দিক থেকে বাম দিকে। পছন্দের item-এ click করলে সরাসরি product page খুলবে।
+            </p>
           </div>
         </div>
       </div>
