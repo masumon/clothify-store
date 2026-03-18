@@ -488,7 +488,7 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
       </div>
 
       <div id="ai" className="mt-6 rounded-2xl border border-slate-700 bg-slate-900/80 p-5">
-        <h3 className="text-lg font-bold text-white">AI Assistant Zone</h3>
+        <h3 className="text-lg font-bold text-white">SUMONIX AI Zone</h3>
         <p className="mt-2 text-sm text-slate-300">
           SUMONIX AI থেকে orders, stock, sales, draft/publish actions এবং insights নিয়ে natural language-এ কাজ করতে পারবেন।
         </p>

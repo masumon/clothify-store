@@ -83,12 +83,21 @@ html.dark-theme .text-black {
 }
 
 html.dark-theme .text-slate-900,
-html.dark-theme .text-slate-800,
+html.dark-theme .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
 html.dark-theme .text-slate-700,
-html.dark-theme .text-slate-600,
-html.dark-theme .text-slate-500,
-html.dark-theme .text-slate-400 {
+html.dark-theme .text-slate-600 {
   color: #e5e7eb !important;
+}
+
+html.dark-theme .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+html.dark-theme .text-slate-400 {
+  color: #94a3b8 !important;
 }
 
 html.dark-theme .border-slate-200,
@@ -102,15 +111,50 @@ html.dark-theme .bg-slate-200 {
   background-color: rgba(15, 23, 42, 0.8) !important;
 }
 
+/* Dark-mode safe replacements for light-tint backgrounds used in cards and menu pills.
+   This prevents white/light backgrounds from clashing with light text after theme switches. */
+html.dark-theme .bg-amber-50,
+html.dark-theme .bg-amber-100 {
+  background-color: rgba(120, 53, 15, 0.34) !important;
+}
+
+html.dark-theme .bg-emerald-50,
+html.dark-theme .bg-emerald-100,
+html.dark-theme .bg-green-50,
+html.dark-theme .bg-green-100 {
+  background-color: rgba(6, 78, 59, 0.34) !important;
+}
+
+html.dark-theme .bg-blue-50,
+html.dark-theme .bg-blue-100,
+html.dark-theme .bg-cyan-50,
+html.dark-theme .bg-cyan-100 {
+  background-color: rgba(30, 58, 138, 0.34) !important;
+}
+
+html.dark-theme .bg-orange-50,
+html.dark-theme .bg-orange-100,
+html.dark-theme .bg-rose-50,
+html.dark-theme .bg-rose-100,
+html.dark-theme .bg-fuchsia-50,
+html.dark-theme .bg-fuchsia-100 {
+  background-color: rgba(136, 19, 55, 0.34) !important;
+}
+
+html.dark-theme .bg-indigo-50,
+html.dark-theme .bg-indigo-100,
+html.dark-theme .bg-purple-50,
+html.dark-theme .bg-purple-100,
+html.dark-theme .bg-teal-50,
+html.dark-theme .bg-teal-100 {
+  background-color: rgba(49, 46, 129, 0.34) !important;
+}
+
 /* Removed overly aggressive wildcard selector that was breaking semi-transparent backgrounds */
 /* Semi-transparent bg-white/XX classes are intentionally used on dark backgrounds and should NOT be overridden */
 
 html.dark-theme [class*="border-slate-"] {
   border-color: var(--line) !important;
-}
-
-html.dark-theme [class*="text-slate-"] {
-  color: var(--text) !important;
 }
 
 html.dark-theme input,

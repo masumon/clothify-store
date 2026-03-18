@@ -96,63 +96,77 @@ export default function Header({
       href: "/",
       label: isBn ? "শপ" : "Shop",
       icon: "🛍️",
-      color: "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100",
+      lightColor: "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100",
+      darkColor: "border-blue-400/40 bg-blue-500/15 text-blue-100 hover:bg-blue-500/25",
     },
     {
       href: "/categories",
       label: isBn ? "ক্যাটাগরি" : "Categories",
       icon: "🧭",
-      color: "border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
+      lightColor: "border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
+      darkColor: "border-cyan-400/40 bg-cyan-500/15 text-cyan-100 hover:bg-cyan-500/25",
     },
     {
       href: "/offers",
       label: isBn ? "অফার" : "Offers",
       icon: "🏷️",
-      color: "border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100",
+      lightColor: "border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100",
+      darkColor: "border-amber-400/45 bg-amber-500/20 text-amber-100 hover:bg-amber-500/30",
     },
     {
       href: "/cart",
       label: isBn ? "কার্ট" : "Cart",
       icon: "🛒",
-      color: "border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100",
+      lightColor: "border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100",
+      darkColor: "border-orange-400/40 bg-orange-500/15 text-orange-100 hover:bg-orange-500/25",
     },
     {
       href: "/checkout",
       label: isBn ? "চেকআউট" : "Checkout",
       icon: "✅",
-      color: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
+      lightColor: "border-green-200 bg-green-50 text-green-900 hover:bg-green-100",
+      darkColor: "border-green-400/40 bg-green-500/15 text-green-100 hover:bg-green-500/25",
     },
     {
       href: "/profile",
       label: isBn ? "প্রোফাইল" : "Profile",
       icon: "👤",
-      color: "border-indigo-200 bg-indigo-50 text-indigo-900 hover:bg-indigo-100",
+      lightColor: "border-indigo-200 bg-indigo-50 text-indigo-900 hover:bg-indigo-100",
+      darkColor: "border-indigo-400/40 bg-indigo-500/15 text-indigo-100 hover:bg-indigo-500/25",
     },
     {
       href: "/help",
       label: isBn ? "হেল্প" : "Help",
       icon: "💬",
-      color: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
+      lightColor: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
+      darkColor: "border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25",
     },
     {
       href: "/size-guide",
       label: isBn ? "সাইজ গাইড" : "Size Guide",
       icon: "📏",
-      color: "border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100",
+      lightColor: "border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100",
+      darkColor: "border-rose-400/40 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25",
     },
     {
       href: "/settings",
       label: isBn ? "সেটিংস" : "Settings",
       icon: "⚙️",
-      color: "border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100",
+      lightColor: "border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100",
+      darkColor: "border-purple-400/40 bg-purple-500/15 text-purple-100 hover:bg-purple-500/25",
     },
   ];
 
   const mobileMenuItems = navItems;
-  const iconBtnClass = "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100";
+  const headerShellClass = isDarkMode
+    ? "sticky top-0 z-50 border-b border-slate-700/80 bg-slate-950/85 backdrop-blur-xl"
+    : "sticky top-0 z-50 border-b border-white/70 bg-white/80 backdrop-blur-xl";
+  const iconBtnClass = isDarkMode
+    ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 bg-slate-900/80 text-base text-slate-100 transition hover:bg-slate-800"
+    : "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-100";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/70 bg-white/80 backdrop-blur-xl">
+    <header className={headerShellClass}>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
           {logoUrl ? (
@@ -273,6 +287,7 @@ export default function Header({
             const active =
               pathname === item.href ||
               (item.href !== "/" && pathname.startsWith(item.href));
+            const palette = isDarkMode ? item.darkColor : item.lightColor;
 
             return (
               <Link
@@ -280,7 +295,7 @@ export default function Header({
                 href={item.href}
                 title={item.label}
                 aria-label={item.label}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-base transition ${item.color} ${
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-base transition ${palette} ${
                   active ? "ring-2 ring-teal-300/60" : ""
                 }`}
               >
@@ -293,7 +308,11 @@ export default function Header({
         <button
           type="button"
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/70 text-slate-700 transition hover:bg-slate-100 lg:hidden"
+          className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border transition lg:hidden ${
+            isDarkMode
+              ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
+              : "border-slate-300 bg-white/70 text-slate-700 hover:bg-slate-100"
+          }`}
           aria-label="Open mobile menu"
         >
           <span className="text-lg leading-none">{menuOpen ? "✕" : "☰"}</span>
@@ -301,12 +320,22 @@ export default function Header({
       </div>
 
       {menuOpen && (
-        <div className="border-t border-slate-200/80 bg-white/90 px-4 pb-4 pt-3 backdrop-blur lg:hidden">
+        <div
+          className={`border-t px-4 pb-4 pt-3 backdrop-blur lg:hidden ${
+            isDarkMode
+              ? "border-slate-700/80 bg-slate-950/90"
+              : "border-slate-200/80 bg-white/90"
+          }`}
+        >
           <div className="mb-3 flex items-center justify-center gap-2.5">
             <button
               type="button"
               onClick={toggleLanguage}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-base font-bold text-slate-700 transition hover:bg-slate-50"
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border text-base font-bold transition ${
+                isDarkMode
+                  ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
               aria-label={uiLang === "bn" ? "Switch to English" : "বাংলায় পরিবর্তন করুন"}
               title={uiLang === "bn" ? "BN → EN" : "EN → BN"}
             >
@@ -315,7 +344,11 @@ export default function Header({
             <button
               type="button"
               onClick={toggleTheme}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50"
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${
+                isDarkMode
+                  ? "border-slate-600 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
               aria-label="Toggle dark mode"
               title="Toggle theme"
             >
@@ -337,13 +370,14 @@ export default function Header({
               const active =
                 pathname === item.href ||
                 (item.href !== "/" && pathname.startsWith(item.href));
+              const palette = isDarkMode ? item.darkColor : item.lightColor;
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className={`inline-flex h-12 w-12 items-center justify-center rounded-full border transition ${item.color} ${
+                  className={`inline-flex h-12 w-12 items-center justify-center rounded-full border transition ${palette} ${
                     active ? "ring-2 ring-teal-400/70 ring-offset-1" : ""
                   }`}
                   aria-label={item.label}

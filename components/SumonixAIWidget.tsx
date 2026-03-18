@@ -129,7 +129,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
       role: "assistant",
       text:
         mode === "admin"
-          ? "আমি SUMONIX AI admin assistant। orders, stock, sales, publish/draft, settings navigation এবং admin insights নিয়ে জিজ্ঞেস করতে পারেন।"
+          ? "আমি SUMONIX AI। orders, stock, sales, publish/draft, settings navigation এবং admin insights নিয়ে জিজ্ঞেস করতে পারেন।"
           : "আমি SUMONIX AI। পুরো ওয়েবসাইটভিত্তিক product, দাম, delivery, payment, size guide, language/theme settings বা support নিয়ে জিজ্ঞেস করুন।",
     },
   ]);
@@ -165,7 +165,7 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
   // Keep assistant above mobile sticky navigation on public pages.
   const floatingPositionClass =
     mode === "public"
-      ? "bottom-[5.5rem] right-4 sm:bottom-24 sm:right-5 md:bottom-6 md:right-6"
+      ? "bottom-[8.4rem] left-4 sm:bottom-24 sm:left-5 md:bottom-24 md:left-6"
       : "bottom-5 right-5 md:bottom-6 md:right-6";
 
   const getUiLanguage = () => {
@@ -259,9 +259,6 @@ export default function SumonixAIWidget({ mode = "public" }: Props) {
           <div className="bg-gradient-to-r from-teal-800 via-cyan-700 to-sky-700 px-4 py-4 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
-                  {mode === "admin" ? "Admin Copilot" : "AI Assistant"}
-                </p>
                 <h3 className="text-lg font-extrabold">SUMONIX AI</h3>
                 <p className="mt-1 text-[11px] font-semibold text-white/80">
                   {mode === "admin" ? "Live analytics + prediction + action hints" : "Order help + payment guide + product support"}

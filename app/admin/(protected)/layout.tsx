@@ -6,7 +6,7 @@ const adminNavItems = [
   { href: "/admin/orders", icon: "📦", label: "Orders" },
   { href: "/admin/products", icon: "🗂️", label: "Products" },
   { href: "/admin/settings", icon: "⚙️", label: "Settings" },
-  { href: "/admin#ai", icon: "🤖", label: "AI Assistant" },
+  { href: "/admin#ai", icon: "🤖", label: "SUMONIX AI" },
 ];
 
 export default function AdminLayout({

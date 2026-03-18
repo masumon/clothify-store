@@ -153,12 +153,12 @@ export default function UpazilaHomepageV2({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-amber-800">Hot Offer</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Hot Offer</p>
           <h3 className="mt-1 text-lg font-extrabold text-slate-900">Buy 2 Shirts, Save ৳300</h3>
           <p className="mt-1 text-sm text-slate-600">Limited stock. Student-friendly combo deal.</p>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Festival Deal</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Festival Deal</p>
           <h3 className="mt-1 text-lg font-extrabold text-slate-900">Panjabi + Pajama Bundle</h3>
           <p className="mt-1 text-sm text-slate-600">Eid-ready look with special exchange support.</p>
         </div>
