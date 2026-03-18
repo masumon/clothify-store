@@ -1,5 +1,6 @@
 import { getRuntimeStoreMode, setStringValue, getStringValue, deleteKey } from "@/lib/runtime-store";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
+import { resolvePublicSiteUrl } from "@/lib/site-url";
 
 export type HealthStatus = "ok" | "warn" | "error" | "skipped";
 
@@ -79,8 +80,8 @@ async function checkRuntimeStore(): Promise<AdminHealthCheck> {
     return {
       id: "runtime-store",
       label: "Upstash Redis",
-      status: "warn",
-      detail: `Not configured. Current fallback mode: ${storeMode}.`,
+      status: "skipped",
+      detail: `Not configured. App is using safe ${storeMode} fallback mode.`,
     };
   }
 
@@ -153,8 +154,8 @@ function checkSentry(): AdminHealthCheck {
     return {
       id: "sentry",
       label: "Sentry",
-      status: "warn",
-      detail: "Server/client DSN missing. Error capture will stay disabled.",
+      status: "skipped",
+      detail: "Server/client DSN missing. Optional error capture is currently disabled.",
     };
   }
 
@@ -218,14 +219,16 @@ function checkOpenAi(): AdminHealthCheck {
 }
 
 function checkSiteUrl(): AdminHealthCheck {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const resolvedSiteUrl = resolvePublicSiteUrl(rawSiteUrl);
   return {
     id: "site-url",
     label: "Site URL",
-    status: siteUrl ? "ok" : "warn",
-    detail: siteUrl
-      ? `NEXT_PUBLIC_SITE_URL set to ${siteUrl}.`
-      : "NEXT_PUBLIC_SITE_URL missing. Redirects/share links may be inconsistent.",
+    status: "ok",
+    detail:
+      rawSiteUrl && rawSiteUrl !== resolvedSiteUrl
+        ? `Canonical site URL auto-resolved to ${resolvedSiteUrl} from legacy value ${rawSiteUrl}.`
+        : `Canonical site URL resolved to ${resolvedSiteUrl}.`,
   };
 }
 

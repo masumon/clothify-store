@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { resolvePublicSiteUrl } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://clothify-store.vercel.app";
+  const base = resolvePublicSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
   const now = new Date();
 
   return [
