@@ -130,6 +130,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
               alt={product.name}
               width={400}
               height={288}
+              sizes="(max-width: 640px) 48vw, (max-width: 1024px) 32vw, 24vw"
               className="h-52 w-full object-cover sm:h-56"
               style={{
                 transformOrigin: zoomOrigin,
@@ -233,7 +234,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
           </p>
 
           {/* Action row */}
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-1.5 sm:gap-2">
             <button
               type="button"
               disabled={isOutOfStock}
@@ -247,15 +248,15 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
                   quantity: 1,
                 })
               }
-              className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-full border border-slate-200 bg-slate-50 px-2 py-2 text-center text-[11px] font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:py-2.5 sm:text-sm"
             >
-              🛒 Add to Cart
+              🛒 Cart
             </button>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex-1 rounded-full bg-emerald-600 px-3 py-2.5 text-center text-sm font-bold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-700"
+              className="rounded-full bg-emerald-600 px-2 py-2 text-center text-[11px] font-bold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 sm:px-3 sm:py-2.5 sm:text-sm"
             >
               💬 WhatsApp
             </a>
