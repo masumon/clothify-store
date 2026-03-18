@@ -22,7 +22,7 @@ function toWebhookUrl() {
 }
 
 function isEnabledFor(type: NotificationType) {
-  const allEnabled = (process.env.WHATSAPP_NOTIFY_ENABLED || "true").toLowerCase() !== "false";
+  const allEnabled = (process.env.WHATSAPP_NOTIFY_ENABLED || "false").toLowerCase() !== "false";
   if (!allEnabled) return false;
 
   if (type === "order_created") {

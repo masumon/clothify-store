@@ -177,7 +177,7 @@ function checkSentry(): AdminHealthCheck {
 }
 
 function checkWhatsApp(): AdminHealthCheck {
-  const enabled = (process.env.WHATSAPP_NOTIFY_ENABLED || "true").toLowerCase() !== "false";
+  const enabled = (process.env.WHATSAPP_NOTIFY_ENABLED || "false").toLowerCase() !== "false";
   const webhookUrl = process.env.WHATSAPP_NOTIFY_WEBHOOK_URL?.trim();
 
   if (!enabled) {

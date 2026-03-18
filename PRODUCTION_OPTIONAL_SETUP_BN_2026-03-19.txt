@@ -1,0 +1,191 @@
+Clothify Final Production Setup Checklist
+তারিখ: 2026-03-19
+
+এই checklist তিনটি optional কিন্তু recommended production service-এর জন্য:
+1. WhatsApp Notification Webhook
+2. Upstash Redis
+3. Sentry Monitoring
+
+বর্তমান অবস্থা
+- Core site live এবং কাজ করছে
+- Admin login/session কাজ করছে
+- Public/Admin SUMONIX AI কাজ করছে
+- WhatsApp webhook এখনো missing
+- Upstash Redis এখনো missing
+- Sentry DSN এখনো missing
+
+--------------------------------------------------
+1. WhatsApp Webhook Setup
+--------------------------------------------------
+গুরুত্বপূর্ণ:
+এই project সরাসরি Meta/WhatsApp-এ message পাঠায় না।
+এই project একটি generic outgoing webhook URL-এ POST request পাঠায়।
+অর্থাৎ WHATSAPP_NOTIFY_WEBHOOK_URL হিসেবে এমন একটি HTTPS endpoint দিতে হবে যা JSON payload receive করে এবং সেখান থেকে WhatsApp message পাঠাবে।
+
+Project যে env key চায়:
+- WHATSAPP_NOTIFY_WEBHOOK_URL
+- WHATSAPP_NOTIFY_WEBHOOK_SECRET
+- WHATSAPP_NOTIFY_ENABLED
+- WHATSAPP_NOTIFY_ORDER_EVENTS
+- WHATSAPP_NOTIFY_SECURITY_EVENTS
+- WHATSAPP_NOTIFY_TIMEOUT_MS
+
+আপনার webhook endpoint যে JSON receive করবে:
+- channel
+- type
+- title
+- message
+- text
+- metadata
+- created_at
+
+Recommended env values:
+WHATSAPP_NOTIFY_ENABLED=true
+WHATSAPP_NOTIFY_ORDER_EVENTS=true
+WHATSAPP_NOTIFY_SECURITY_EVENTS=true
+WHATSAPP_NOTIFY_TIMEOUT_MS=10000
+
+Step-by-step:
+1. আপনার control-এ একটি HTTPS webhook endpoint তৈরি করুন
+2. সেই endpoint-এ POST JSON receive করার ব্যবস্থা রাখুন
+3. endpoint-এর ভিতরে WhatsApp provider/API integration করুন
+4. secret verification চাইলে request header x-webhook-secret verify করুন
+5. endpoint URL কপি করুন
+6. Vercel এ WHATSAPP_NOTIFY_WEBHOOK_URL হিসেবে দিন
+7. strong random string দিয়ে WHATSAPP_NOTIFY_WEBHOOK_SECRET দিন
+8. Admin panel থেকে Run Health Check চালান
+9. তারপর Send WhatsApp Smoke চালান
+
+যদি আপনি Meta Cloud API use করতে চান:
+- এই app-এর webhook endpoint Meta Cloud API token নিয়ে final WhatsApp send করবে
+- অর্থাৎ Meta webhook URL সরাসরি এখানে বসবে না, আপনার own relay endpoint বসবে
+
+--------------------------------------------------
+2. Upstash Redis Setup
+--------------------------------------------------
+এটি দিলে rate limit, monitoring logs, webhook delivery logs multi-instance production-এ consistent হবে।
+না দিলেও app চলে, কিন্তু memory fallback mode-এ থাকে।
+
+Project যে env key চায়:
+- UPSTASH_REDIS_REST_URL
+- UPSTASH_REDIS_REST_TOKEN
+
+Step-by-step:
+1. Upstash account এ login করুন
+2. নতুন Redis database তৈরি করুন
+3. database dashboard এ যান
+4. REST API section থেকে HTTPS endpoint copy করুন
+5. একই section থেকে Token copy করুন
+6. Vercel এ env হিসেবে বসান:
+   - UPSTASH_REDIS_REST_URL=<copied https endpoint>
+   - UPSTASH_REDIS_REST_TOKEN=<copied token>
+7. redeploy হলে admin health check এ runtime-store status ok দেখাবে
+
+গুরুত্বপূর্ণ note:
+- Standard token public করবেন না
+- শুধু Vercel server env এ রাখবেন
+
+--------------------------------------------------
+3. Sentry Setup
+--------------------------------------------------
+এটি দিলে server/client exception, monitoring events, notification failures capture হবে।
+এখন app-এ Sentry code already wired আছে; শুধু DSN missing।
+
+Project যে env key চায়:
+- SENTRY_DSN
+- NEXT_PUBLIC_SENTRY_DSN
+- SENTRY_ENVIRONMENT
+- NEXT_PUBLIC_SENTRY_ENVIRONMENT
+- SENTRY_TRACES_SAMPLE_RATE
+- NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE
+
+Recommended values:
+SENTRY_ENVIRONMENT=production
+NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0.2
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.2
+
+Step-by-step:
+1. Sentry account এ login করুন
+2. নতুন project create করুন
+3. Platform হিসেবে Next.js / JavaScript project choose করুন
+4. DSN copy করুন
+5. same DSN অথবা client DSN project policy অনুযায়ী copy করুন
+6. Vercel এ env হিসেবে বসান:
+   - SENTRY_DSN=<server dsn>
+   - NEXT_PUBLIC_SENTRY_DSN=<client dsn>
+   - SENTRY_ENVIRONMENT=production
+   - NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+   - SENTRY_TRACES_SAMPLE_RATE=0.2
+   - NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.2
+7. নতুন deploy হওয়ার পর একটি test error বা failed webhook event হলে Sentry event দেখতে পাবেন
+
+--------------------------------------------------
+4. Vercel এ কোথায় কী বসাবেন
+--------------------------------------------------
+Path:
+Vercel Dashboard -> Project -> Settings -> Environment Variables
+
+Format:
+- Key = env নাম
+- Value = env value
+- Environment = Production + Preview
+
+এই project-এর জন্য minimum recommended optional keys:
+WHATSAPP_NOTIFY_WEBHOOK_URL=
+WHATSAPP_NOTIFY_WEBHOOK_SECRET=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_ENVIRONMENT=production
+NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0.2
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.2
+
+--------------------------------------------------
+5. Setup Complete হওয়ার পর কীভাবে verify করবেন
+--------------------------------------------------
+1. Admin login করুন
+2. Dashboard monitoring panel এ যান
+3. Run Health Check চাপুন
+4. Expected result:
+   - runtime-store = ok
+   - sentry = ok
+   - whatsapp = ok
+5. তারপর Send WhatsApp Smoke চাপুন
+6. যদি webhook relay ঠিক থাকে, success delivery log দেখাবে
+
+--------------------------------------------------
+6. Current optional warnings কী কী
+--------------------------------------------------
+বর্তমানে live health check এ যা পাওয়া গেছে:
+- runtime-store: skipped (memory fallback)
+- sentry: skipped (DSN missing)
+- whatsapp: warn (webhook missing)
+- supabase-admin-ui: skipped (extra admin Google/OTP tab disabled)
+
+--------------------------------------------------
+7. Final recommendation order
+--------------------------------------------------
+সবচেয়ে practical sequence:
+1. Upstash Redis বসান
+2. Sentry DSN বসান
+3. WhatsApp relay webhook তৈরি/বসান
+4. Health check চালান
+5. WhatsApp smoke test চালান
+
+--------------------------------------------------
+8. Official docs reference
+--------------------------------------------------
+Vercel Environment Variables:
+https://vercel.com/docs/environment-variables
+
+Upstash Redis REST API:
+https://upstash.com/docs/redis/features/restapi
+
+Upstash env-based connect note:
+https://upstash.com/docs/redis/howto/connectwithupstashredis
+
+Sentry Next.js configuration options:
+https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/environments/
