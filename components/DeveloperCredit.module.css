@@ -1,12 +1,12 @@
 .wrap {
-  margin-top: 2rem;
+  margin-top: 1.35rem;
 }
 
 .card {
   position: relative;
   overflow: hidden;
-  border-radius: 30px;
-  padding: 1.5rem;
+  border-radius: 24px;
+  padding: 0.8rem;
   background:
     linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56)),
     rgba(255, 255, 255, 0.36);
@@ -64,26 +64,41 @@
   z-index: -1;
 }
 
+.summaryButton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.85rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .header {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  min-width: 0;
+  align-items: center;
+  gap: 0.9rem;
+  flex: 1;
 }
 
 .avatar {
   display: inline-flex;
-  height: 4.25rem;
-  width: 4.25rem;
+  height: 3.2rem;
+  width: 3.2rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 1.35rem;
+  border-radius: 1rem;
   background: linear-gradient(145deg, #0f172a, #2563eb);
   box-shadow: 0 16px 36px -22px rgba(37, 99, 235, 0.6);
   color: #f8fafc;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
 }
 
 .identity {
@@ -92,59 +107,70 @@
 
 .kicker {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #0f766e;
 }
 
 .name {
-  margin: 0.4rem 0 0;
-  font-size: clamp(1.55rem, 2.8vw, 2.2rem);
-  line-height: 1.08;
+  margin: 0;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.15;
   font-weight: 800;
   color: #020617;
 }
 
 .primaryTitle {
-  margin: 0.7rem 0 0;
-  max-width: 42rem;
-  font-size: 0.98rem;
-  line-height: 1.65;
+  margin: 0.3rem 0 0;
+  max-width: 36rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
   color: #1e293b;
   font-weight: 600;
 }
 
 .secondaryTitle {
   margin: 0.35rem 0 0;
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.5;
   color: #475569;
   font-weight: 600;
 }
 
-.actions {
-  margin-top: 1.35rem;
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.summaryChevronInline {
+  height: 1rem;
+  width: 1rem;
+  flex-shrink: 0;
+  color: #64748b;
+  transition: transform 180ms ease;
 }
 
-.contactButton {
+.summaryChevronOpen {
+  transform: rotate(180deg);
+}
+
+.quickActions {
+  margin-top: 0.7rem;
   display: flex;
-  min-width: 0;
   align-items: center;
-  gap: 0.85rem;
-  border-radius: 20px;
-  padding: 0.92rem 1rem;
+  gap: 0.55rem;
+  padding-left: 4.1rem;
+}
+
+.iconButton {
+  display: inline-flex;
+  height: 2.35rem;
+  width: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  color: #0f172a;
   text-decoration: none;
-  color: inherit;
-  background: rgba(255, 255, 255, 0.52);
-  border: 1px solid rgba(255, 255, 255, 0.58);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
   transition:
     transform 180ms ease,
     background 180ms ease,
@@ -152,73 +178,43 @@
     box-shadow 180ms ease;
 }
 
-.contactButton:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.66);
-  border-color: rgba(148, 163, 184, 0.36);
+.iconButton:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(148, 163, 184, 0.32);
   box-shadow:
-    0 16px 28px -24px rgba(15, 23, 42, 0.38),
+    0 14px 26px -22px rgba(15, 23, 42, 0.42),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
-.contactIcon {
-  display: inline-flex;
-  height: 2.7rem;
-  width: 2.7rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.08), rgba(37, 99, 235, 0.18));
-  color: #0f172a;
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms ease;
+}
+
+.panelOpen {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
 }
 
 .lucideIcon,
 .brandIcon {
-  height: 1.08rem;
-  width: 1.08rem;
+  height: 1rem;
+  width: 1rem;
 }
 
 .brandIcon {
   fill: currentColor;
 }
 
-.contactText {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.contactLabel {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #0f172a;
-}
-
-.contactValue {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.85rem;
-  color: #334155;
-  font-weight: 600;
-}
-
-.contactArrow {
-  height: 1rem;
-  width: 1rem;
-  flex-shrink: 0;
-  color: #64748b;
-}
-
 .creditLines {
-  margin-top: 1.3rem;
+  margin-top: 0.9rem;
   border-top: 1px solid rgba(148, 163, 184, 0.26);
-  padding-top: 1rem;
+  padding-top: 0.8rem;
 }
 
 .creditLines p {
@@ -226,16 +222,16 @@
 }
 
 .creditMain {
-  font-size: 0.94rem;
-  line-height: 1.7;
+  font-size: 0.8rem;
+  line-height: 1.55;
   color: #0f172a;
   font-weight: 700;
 }
 
 .creditBusiness {
   margin-top: 0.25rem !important;
-  font-size: 0.88rem;
-  line-height: 1.7;
+  font-size: 0.76rem;
+  line-height: 1.55;
   color: #475569;
   font-weight: 700;
   text-transform: uppercase;
@@ -243,11 +239,11 @@
 }
 
 .slogan {
-  margin: 1.1rem 0 0;
+  margin: 0.8rem 0 0;
   text-align: center;
-  font-size: 0.73rem;
+  font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: #64748b;
 }
@@ -271,88 +267,62 @@
 
 :global(html.dark-theme) .name,
 :global(html.dark-theme) .primaryTitle,
-:global(html.dark-theme) .contactLabel,
 :global(html.dark-theme) .creditMain,
 :global(html.abo-premium) .name,
 :global(html.abo-premium) .primaryTitle,
-:global(html.abo-premium) .contactLabel,
 :global(html.abo-premium) .creditMain {
   color: #f8fafc;
 }
 
 :global(html.dark-theme) .secondaryTitle,
-:global(html.dark-theme) .contactValue,
+:global(html.dark-theme) .summaryChevronInline,
 :global(html.dark-theme) .creditBusiness,
 :global(html.dark-theme) .slogan,
 :global(html.abo-premium) .secondaryTitle,
-:global(html.abo-premium) .contactValue,
+:global(html.abo-premium) .summaryChevronInline,
 :global(html.abo-premium) .creditBusiness,
 :global(html.abo-premium) .slogan {
   color: #cbd5e1;
 }
 
-:global(html.dark-theme) .contactButton,
-:global(html.abo-premium) .contactButton {
+:global(html.dark-theme) .iconButton,
+:global(html.abo-premium) .iconButton {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
 }
 
-:global(html.dark-theme) .contactButton:hover,
-:global(html.abo-premium) .contactButton:hover {
+:global(html.dark-theme) .iconButton:hover,
+:global(html.abo-premium) .iconButton:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.18);
 }
 
-:global(html.dark-theme) .contactIcon,
-:global(html.abo-premium) .contactIcon {
-  background: linear-gradient(145deg, rgba(45, 212, 191, 0.14), rgba(59, 130, 246, 0.18));
-  color: #f8fafc;
-}
-
-:global(html.dark-theme) .contactArrow,
-:global(html.abo-premium) .contactArrow {
-  color: #94a3b8;
-}
-
-@media (max-width: 900px) {
-  .actions {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 640px) {
   .card {
-    border-radius: 24px;
-    padding: 1.2rem;
-  }
-
-  .header {
-    flex-direction: column;
+    border-radius: 20px;
+    padding: 0.75rem;
   }
 
   .avatar {
-    height: 3.5rem;
-    width: 3.5rem;
-    border-radius: 1.1rem;
-    font-size: 1rem;
+    height: 2.9rem;
+    width: 2.9rem;
+    border-radius: 0.95rem;
+    font-size: 0.88rem;
+  }
+
+  .quickActions {
+    padding-left: 0;
+    margin-top: 0.75rem;
+    justify-content: flex-start;
   }
 
   .kicker {
     letter-spacing: 0.14em;
   }
 
-  .contactButton {
-    padding: 0.85rem 0.9rem;
-    border-radius: 18px;
-  }
-
-  .contactValue {
-    white-space: normal;
-    word-break: break-word;
-  }
-
   .slogan {
-    letter-spacing: 0.28em;
+    letter-spacing: 0.22em;
   }
 }
