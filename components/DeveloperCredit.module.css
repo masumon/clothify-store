@@ -1,0 +1,358 @@
+.wrap {
+  margin-top: 2rem;
+}
+
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  padding: 1.5rem;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56)),
+    rgba(255, 255, 255, 0.36);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  box-shadow:
+    0 18px 45px -28px rgba(15, 23, 42, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  color: #0f172a;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+  isolation: isolate;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 28px 60px -30px rgba(15, 23, 42, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.64);
+}
+
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 9999px;
+  filter: blur(12px);
+  opacity: 0.52;
+  z-index: -2;
+}
+
+.card::before {
+  top: -110px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.32), transparent 68%);
+}
+
+.card::after {
+  bottom: -130px;
+  left: -70px;
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.22), transparent 70%);
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%, rgba(15, 23, 42, 0.04));
+  pointer-events: none;
+  z-index: -1;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.avatar {
+  display: inline-flex;
+  height: 4.25rem;
+  width: 4.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, #0f172a, #2563eb);
+  box-shadow: 0 16px 36px -22px rgba(37, 99, 235, 0.6);
+  color: #f8fafc;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.identity {
+  min-width: 0;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.name {
+  margin: 0.4rem 0 0;
+  font-size: clamp(1.55rem, 2.8vw, 2.2rem);
+  line-height: 1.08;
+  font-weight: 800;
+  color: #020617;
+}
+
+.primaryTitle {
+  margin: 0.7rem 0 0;
+  max-width: 42rem;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.secondaryTitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #475569;
+  font-weight: 600;
+}
+
+.actions {
+  margin-top: 1.35rem;
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.contactButton {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.85rem;
+  border-radius: 20px;
+  padding: 0.92rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.contactButton:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(148, 163, 184, 0.36);
+  box-shadow:
+    0 16px 28px -24px rgba(15, 23, 42, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.contactIcon {
+  display: inline-flex;
+  height: 2.7rem;
+  width: 2.7rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.08), rgba(37, 99, 235, 0.18));
+  color: #0f172a;
+}
+
+.lucideIcon,
+.brandIcon {
+  height: 1.08rem;
+  width: 1.08rem;
+}
+
+.brandIcon {
+  fill: currentColor;
+}
+
+.contactText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.contactLabel {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+
+.contactValue {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.contactArrow {
+  height: 1rem;
+  width: 1rem;
+  flex-shrink: 0;
+  color: #64748b;
+}
+
+.creditLines {
+  margin-top: 1.3rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.26);
+  padding-top: 1rem;
+}
+
+.creditLines p {
+  margin: 0;
+}
+
+.creditMain {
+  font-size: 0.94rem;
+  line-height: 1.7;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.creditBusiness {
+  margin-top: 0.25rem !important;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: #475569;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.slogan {
+  margin: 1.1rem 0 0;
+  text-align: center;
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+:global(html.dark-theme) .card,
+:global(html.abo-premium) .card {
+  background:
+    linear-gradient(160deg, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.5)),
+    rgba(15, 23, 42, 0.42);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 22px 54px -32px rgba(2, 6, 23, 0.86),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+:global(html.dark-theme) .kicker,
+:global(html.abo-premium) .kicker {
+  color: #5eead4;
+}
+
+:global(html.dark-theme) .name,
+:global(html.dark-theme) .primaryTitle,
+:global(html.dark-theme) .contactLabel,
+:global(html.dark-theme) .creditMain,
+:global(html.abo-premium) .name,
+:global(html.abo-premium) .primaryTitle,
+:global(html.abo-premium) .contactLabel,
+:global(html.abo-premium) .creditMain {
+  color: #f8fafc;
+}
+
+:global(html.dark-theme) .secondaryTitle,
+:global(html.dark-theme) .contactValue,
+:global(html.dark-theme) .creditBusiness,
+:global(html.dark-theme) .slogan,
+:global(html.abo-premium) .secondaryTitle,
+:global(html.abo-premium) .contactValue,
+:global(html.abo-premium) .creditBusiness,
+:global(html.abo-premium) .slogan {
+  color: #cbd5e1;
+}
+
+:global(html.dark-theme) .contactButton,
+:global(html.abo-premium) .contactButton {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+:global(html.dark-theme) .contactButton:hover,
+:global(html.abo-premium) .contactButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+:global(html.dark-theme) .contactIcon,
+:global(html.abo-premium) .contactIcon {
+  background: linear-gradient(145deg, rgba(45, 212, 191, 0.14), rgba(59, 130, 246, 0.18));
+  color: #f8fafc;
+}
+
+:global(html.dark-theme) .contactArrow,
+:global(html.abo-premium) .contactArrow {
+  color: #94a3b8;
+}
+
+@media (max-width: 900px) {
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    border-radius: 24px;
+    padding: 1.2rem;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .avatar {
+    height: 3.5rem;
+    width: 3.5rem;
+    border-radius: 1.1rem;
+    font-size: 1rem;
+  }
+
+  .kicker {
+    letter-spacing: 0.14em;
+  }
+
+  .contactButton {
+    padding: 0.85rem 0.9rem;
+    border-radius: 18px;
+  }
+
+  .contactValue {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .slogan {
+    letter-spacing: 0.28em;
+  }
+}

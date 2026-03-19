@@ -10,7 +10,6 @@ import {
   type Language,
   PREFERENCE_EVENT,
   readSitePreferences,
-  type UiMode,
 } from "@/lib/site-preferences";
 
 type Props = {
@@ -40,14 +39,12 @@ export default function Footer({
   phone = "",
 }: Props) {
   const [lang, setLang] = useState<Language>("bn");
-  const [uiMode, setUiMode] = useState<UiMode>("default");
   const [toast, setToast] = useState("");
 
   useEffect(() => {
     const sync = () => {
       const prefs = readSitePreferences();
       setLang(prefs.language);
-      setUiMode(prefs.uiMode);
     };
     sync();
     window.addEventListener(PREFERENCE_EVENT, sync);
@@ -78,8 +75,6 @@ export default function Footer({
     if (method.available || method.href) return;
     setToast(`${method.label} ${dict.common.comingSoon.toLowerCase()}.`);
   };
-
-  const footerCredit = `Designed & Developed by Sumon (Mumain Ahmed) | Powered by ${storeName} © 2026`;
 
   return (
     <footer className="mt-16 border-t border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 text-white">
@@ -220,7 +215,7 @@ export default function Footer({
           </div>
         ) : null}
 
-        <DeveloperCredit storeAddress={address || ""} />
+        <DeveloperCredit />
 
         {toast ? (
           <div className="mt-5 rounded-xl border border-amber-300/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-200">
@@ -229,7 +224,7 @@ export default function Footer({
         ) : null}
 
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-slate-400">
-          {uiMode === "abo" ? footerCredit : `© ${new Date().getFullYear()} ${storeName}. ${dict.footer.rightsReserved}`}
+          © {new Date().getFullYear()} {storeName}. {dict.footer.rightsReserved}
         </div>
       </div>
     </footer>
