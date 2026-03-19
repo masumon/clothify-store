@@ -126,16 +126,17 @@ export default function Header({
   const headerShellClass = isDarkMode
     ? "sticky top-0 z-50 border-b border-slate-700/80 bg-slate-950/88 backdrop-blur-xl"
     : "sticky top-0 z-50 border-b border-white/80 bg-white/90 backdrop-blur-xl";
+  const searchButtonLabel = isBn ? "সার্চ" : "Search";
 
   const iconBtnClass = isDarkMode
     ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 bg-slate-900/80 text-base text-slate-100 transition hover:scale-110 hover:bg-slate-800"
     : "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-base text-slate-700 transition hover:scale-110 hover:bg-slate-100";
 
   const premiumDesktopLinks = [
-    { href: "/", label: "Home" },
-    { href: "/categories", label: "Shop" },
-    { href: "/#new-arrival", label: "New Arrivals" },
-    { href: "/help", label: "Contact" },
+    { href: "/", label: isBn ? "হোম" : "Home" },
+    { href: "/categories", label: isBn ? "শপ" : "Shop" },
+    { href: "/#new-arrival", label: isBn ? "নতুন" : "New Arrivals" },
+    { href: "/help", label: isBn ? "সাপোর্ট" : "Support" },
   ];
 
   const primaryNav = [
@@ -183,17 +184,29 @@ export default function Header({
     return (
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
         <div className="bg-slate-950 px-3 py-1.5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white">
-          Free Shipping in Sylhet on Orders Over <span className="text-amber-300">৳2000</span>
+          {isBn ? (
+            <>
+              সিলেটে <span className="text-amber-300">৳2000</span> এর বেশি অর্ডারে ফ্রি ডেলিভারি
+            </>
+          ) : (
+            <>
+              Free shipping in Sylhet on orders over <span className="text-amber-300">৳2000</span>
+            </>
+          )}
         </div>
 
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-sm">
-              <AppIcon name="shirt" className="h-5 w-5" />
-            </div>
+            <Image
+              src={logoSrc}
+              alt={storeName}
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-full border border-slate-200 object-cover shadow-sm"
+            />
             <div className="min-w-0">
-              <h1 className="truncate text-lg font-black tracking-[0.08em] text-slate-900">ABO</h1>
-              <p className="truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{storeName}</p>
+              <h1 className="truncate text-lg font-black tracking-tight text-slate-900">{storeName}</h1>
+              <p className="truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{slogan}</p>
             </div>
           </Link>
 
@@ -283,7 +296,7 @@ export default function Header({
             />
             <aside className="relative h-full w-[84vw] max-w-[340px] overflow-y-auto border-r border-slate-200 bg-white p-4 shadow-2xl">
               <div className="mb-4 flex items-center justify-between gap-2">
-                <p className="text-sm font-bold uppercase tracking-[0.12em] text-slate-900">ABO Menu</p>
+                <p className="text-sm font-bold uppercase tracking-[0.12em] text-slate-900">{storeName} Menu</p>
                 <button
                   type="button"
                   onClick={() => setMenuOpen(false)}
@@ -304,12 +317,12 @@ export default function Header({
                   className="w-full bg-transparent py-1.5 text-sm text-slate-800 outline-none"
                 />
                 <button type="submit" className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-bold text-white">
-                  Go
+                  {searchButtonLabel}
                 </button>
               </form>
 
               <nav className="space-y-2">
-                {[...premiumDesktopLinks, { href: "/offers", label: "Offers" }, { href: "/profile", label: "Profile" }, { href: "/settings", label: "Settings" }, { href: "/admin", label: "Admin" }].map((item) => (
+                {[...premiumDesktopLinks, { href: "/offers", label: isBn ? "অফার" : "Offers" }, { href: "/profile", label: isBn ? "প্রোফাইল" : "Profile" }, { href: "/settings", label: isBn ? "সেটিংস" : "Settings" }, { href: "/admin", label: "Admin" }].map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -714,7 +727,7 @@ export default function Header({
               type="submit"
               className="rounded-full bg-gradient-to-r from-teal-700 to-cyan-700 px-3 py-1.5 text-xs font-bold text-white"
             >
-              Go
+              {searchButtonLabel}
             </button>
           </form>
 

@@ -24,22 +24,22 @@ export default function AdminUiModeSwitch() {
   };
 
   return (
-    <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-2 py-1.5 shadow-sm">
+    <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50/90 px-2 py-1.5 shadow-[0_10px_24px_-24px_rgba(2,6,23,0.8)]">
       <span className="hidden text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 sm:block">
         UI Mode
       </span>
-      <div className="inline-flex rounded-xl bg-slate-100 p-1">
+      <div className="inline-flex rounded-xl bg-white p-1">
         <button
           type="button"
           onClick={() => setMode("default")}
           className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition ${
             uiMode === "default"
-              ? "bg-white text-slate-900 shadow-sm"
+              ? "bg-slate-900 text-white shadow-sm"
               : "text-slate-600 hover:text-slate-900"
           }`}
           title="Current / Default Existing UI"
         >
-          Current UI
+          Default
         </button>
         <button
           type="button"
@@ -51,7 +51,7 @@ export default function AdminUiModeSwitch() {
           }`}
           title="ABO Premium Upgraded UI"
         >
-          ABO Premium
+          Premium
         </button>
       </div>
     </div>

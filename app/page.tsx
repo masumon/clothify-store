@@ -41,6 +41,9 @@ export default async function Home({ searchParams }: HomePageProps) {
           activeCategory={activeCategory}
           activeSearch={activeSearch}
           whatsappNumber={settings?.whatsapp_number || "8801811314262"}
+          storeName={settings?.store_name || "Clothify"}
+          slogan={settings?.slogan || "Find Your Fit"}
+          logoUrl={settings?.logo_url || ""}
         />
       </section>
 

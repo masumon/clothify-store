@@ -72,10 +72,10 @@ export default function AdminObservabilityPanel({
   snapshot,
 }: ObservabilityPanelProps) {
   return (
-    <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_16px_40px_-28px_rgba(2,6,23,0.35)]">
+    <section className="mb-8 rounded-[28px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_18px_38px_-30px_rgba(2,6,23,0.45)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Production Monitoring</h3>
+          <h3 className="text-lg font-black tracking-tight text-slate-900">Production Monitoring</h3>
           <p className="mt-1 text-sm text-slate-600">
             API latency, error capture, webhook delivery health, and runtime storage mode.
           </p>
@@ -96,14 +96,14 @@ export default function AdminObservabilityPanel({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">API Requests</p>
           <p className="mt-2 text-2xl font-extrabold text-slate-900">
             {snapshot.routeSummary.requestCount}
           </p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-[22px] border border-cyan-200/70 bg-cyan-50/70 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Avg Latency</p>
           <p className="mt-2 text-2xl font-extrabold text-cyan-700">
             {snapshot.routeSummary.avgLatencyMs}ms
@@ -112,7 +112,7 @@ export default function AdminObservabilityPanel({
             P95: {snapshot.routeSummary.p95LatencyMs}ms
           </p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-[22px] border border-rose-200/70 bg-rose-50/70 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">API Errors</p>
           <p className="mt-2 text-2xl font-extrabold text-rose-700">
             {snapshot.routeSummary.errorCount}
@@ -121,7 +121,7 @@ export default function AdminObservabilityPanel({
             Throttled: {snapshot.routeSummary.throttledCount}
           </p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-[22px] border border-emerald-200/70 bg-emerald-50/70 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Webhook Health</p>
           <p className="mt-2 text-2xl font-extrabold text-emerald-700">
             {snapshot.webhookSummary.successCount}/{snapshot.webhookSummary.total}
@@ -133,7 +133,7 @@ export default function AdminObservabilityPanel({
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+        <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
           <div className="flex items-center justify-between gap-3">
             <h4 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
               Slowest / Busiest API Routes
@@ -178,7 +178,7 @@ export default function AdminObservabilityPanel({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+        <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
           <h4 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
             Recent API Failures
           </h4>
@@ -207,7 +207,7 @@ export default function AdminObservabilityPanel({
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+      <div className="mt-5 rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h4 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
             WhatsApp Webhook Delivery Log
@@ -221,10 +221,7 @@ export default function AdminObservabilityPanel({
             <p className="text-sm text-slate-500">No webhook attempts recorded yet.</p>
           ) : (
             snapshot.webhookSummary.recent.map((item) => (
-              <div
-                key={`${item.eventType}-${item.at}`}
-                className="rounded-2xl border border-slate-200 bg-white p-4"
-              >
+              <div key={`${item.eventType}-${item.at}`} className="rounded-[22px] border border-slate-200 bg-white p-4">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold text-slate-900">{item.title}</p>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${statusTone(item.status)}`}>

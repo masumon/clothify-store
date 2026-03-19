@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { addToCart } from "@/lib/cart";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { formatPrice, getSavedCurrency, type Currency } from "@/lib/currency";
+import AppIcon from "@/components/AppIcon";
 import QuickViewModal from "@/components/QuickViewModal";
 
 type ProductCardProps = {
@@ -152,9 +153,10 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
             <button
               type="button"
               onClick={() => setQuickViewOpen(true)}
-              className="rounded-full bg-white/95 px-5 py-2.5 text-sm font-bold text-slate-900 shadow-lg backdrop-blur transition hover:bg-white hover:shadow-xl"
+              className="inline-flex items-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-sm font-bold text-slate-900 shadow-lg backdrop-blur transition hover:bg-white hover:shadow-xl"
             >
-              👁 Quick View
+              <AppIcon name="search" className="h-4 w-4" />
+              Quick View
             </button>
           </div>
 
@@ -162,7 +164,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
           <div className="absolute left-3 top-3 flex flex-col gap-1.5">
             {product.is_featured ? (
               <div className="rounded-full bg-slate-900/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur">
-                ⭐ Featured
+                Featured
               </div>
             ) : null}
             {product.campaign_badge ? (
@@ -201,7 +203,7 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
                 : "border-slate-200 bg-white/90 text-slate-400 hover:border-rose-300 hover:text-rose-500"
             }`}
           >
-            <span className="text-sm leading-none">{wishlisted ? "❤️" : "🤍"}</span>
+            <AppIcon name="heart" className="h-4.5 w-4.5" fill={wishlisted ? "currentColor" : "none"} />
           </button>
         </div>
 
@@ -234,10 +236,10 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
             }`}
           >
             {isOutOfStock
-              ? "❌ Out of stock"
+              ? "Out of stock"
               : isLowStock
-                ? `⚠️ Only ${product.stock_quantity} left`
-                : "✓ In stock"}
+                ? `Only ${product.stock_quantity} left`
+                : "In stock"}
           </p>
 
           {/* Action row */}
@@ -257,8 +259,8 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
               }
               className="rounded-full border border-slate-200 bg-gradient-to-r from-white to-slate-100 px-2 py-2.5 text-center text-[11px] font-semibold text-slate-700 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:from-teal-50 hover:to-cyan-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:text-sm"
             >
-              <span className="inline-flex items-center gap-1">
-                <span>🛒</span>
+              <span className="inline-flex items-center gap-1.5">
+                <AppIcon name="cart" className="h-4 w-4" />
                 <span>Cart</span>
               </span>
             </button>
@@ -268,8 +270,8 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
               rel="noreferrer"
               className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-2 py-2.5 text-center text-[11px] font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-700 sm:px-3 sm:text-sm"
             >
-              <span className="inline-flex items-center gap-1">
-                <span>💬</span>
+              <span className="inline-flex items-center gap-1.5">
+                <AppIcon name="whatsapp" className="h-4 w-4" />
                 <span>WhatsApp</span>
               </span>
             </a>
@@ -277,9 +279,10 @@ export default function ProductCard({ product, whatsappNumber = "8801811314262" 
 
           <Link
             href={`/product/${product.id}`}
-            className="mt-2 block text-center text-xs font-semibold text-slate-500 underline-offset-2 hover:underline"
+            className="mt-2 inline-flex w-full items-center justify-center gap-1 text-center text-xs font-semibold text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline"
           >
-            View Details →
+            View Details
+            <AppIcon name="chevronRight" className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>

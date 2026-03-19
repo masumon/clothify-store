@@ -389,12 +389,12 @@ export default function ProductUploadForm() {
       <aside className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
         <h3 className="text-lg font-bold text-slate-900">Setup Checklist</h3>
         <ul className="space-y-2 text-sm text-slate-700">
-          <li>{checklist.name ? "✅" : "⬜"} Product name is clear</li>
-          <li>{checklist.price ? "✅" : "⬜"} Price is valid</li>
-          <li>{checklist.category ? "✅" : "⬜"} Category selected</li>
-          <li>{checklist.sizes ? "✅" : "⬜"} Size added</li>
-          <li>{checklist.image ? "✅" : "⬜"} Image uploaded</li>
-          <li>{checklist.stock ? "✅" : "⬜"} Stock is valid</li>
+          <li>{checklist.name ? "Ready" : "Pending"} - Product name is clear</li>
+          <li>{checklist.price ? "Ready" : "Pending"} - Price is valid</li>
+          <li>{checklist.category ? "Ready" : "Pending"} - Category selected</li>
+          <li>{checklist.sizes ? "Ready" : "Pending"} - Size added</li>
+          <li>{checklist.image ? "Ready" : "Pending"} - Image uploaded</li>
+          <li>{checklist.stock ? "Ready" : "Pending"} - Stock is valid</li>
         </ul>
 
         <div className="rounded-xl border border-slate-200 bg-white p-3">

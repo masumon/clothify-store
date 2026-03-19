@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AppIcon from "@/components/AppIcon";
 import AdminTopbar from "@/components/AdminTopbar";
 import AdminStats from "@/components/AdminStats";
 import AdminObservabilityPanel from "@/components/AdminObservabilityPanel";
@@ -64,16 +65,9 @@ async function getDashboardData(rangeDays: number) {
     const supabase = getSupabaseAdminClient();
 
     const { data: products } = await supabase.from("products").select("id,is_published");
-    let ordersResponse = await supabase
-      .from("orders")
-      .select("id,customer_name,address,status,total_amount,created_at");
-    if (
-      ordersResponse.error &&
-      ordersResponse.error.message.toLowerCase().includes("created_at")
-    ) {
-      ordersResponse = await supabase
-        .from("orders")
-        .select("id,customer_name,address,status,total_amount");
+    let ordersResponse = await supabase.from("orders").select("id,customer_name,address,status,total_amount,created_at");
+    if (ordersResponse.error && ordersResponse.error.message.toLowerCase().includes("created_at")) {
+      ordersResponse = await supabase.from("orders").select("id,customer_name,address,status,total_amount");
     }
     if (ordersResponse.error) {
       throw new Error(ordersResponse.error.message);
@@ -98,18 +92,10 @@ async function getDashboardData(rangeDays: number) {
       return Number.isFinite(ts) && ts >= previousStart && ts < currentStart;
     });
 
-    const currentReturned = currentPeriodOrders.filter(
-      (order) => order.status === "Returned"
-    ).length;
-    const previousReturned = previousPeriodOrders.filter(
-      (order) => order.status === "Returned"
-    ).length;
-    const currentCancelled = currentPeriodOrders.filter(
-      (order) => order.status === "Cancelled"
-    ).length;
-    const previousCancelled = previousPeriodOrders.filter(
-      (order) => order.status === "Cancelled"
-    ).length;
+    const currentReturned = currentPeriodOrders.filter((order) => order.status === "Returned").length;
+    const previousReturned = previousPeriodOrders.filter((order) => order.status === "Returned").length;
+    const currentCancelled = currentPeriodOrders.filter((order) => order.status === "Cancelled").length;
+    const previousCancelled = previousPeriodOrders.filter((order) => order.status === "Cancelled").length;
 
     const salesByDay = new Map<string, number>();
     for (let i = 6; i >= 0; i -= 1) {
@@ -136,13 +122,9 @@ async function getDashboardData(rangeDays: number) {
         0
       ) || 0;
     const totalCancelled =
-      (orders as Pick<Order, "status">[] | null)?.filter(
-        (order) => order.status === "Cancelled"
-      ).length || 0;
+      (orders as Pick<Order, "status">[] | null)?.filter((order) => order.status === "Cancelled").length || 0;
     const totalReturned =
-      (orders as Pick<Order, "status">[] | null)?.filter(
-        (order) => order.status === "Returned"
-      ).length || 0;
+      (orders as Pick<Order, "status">[] | null)?.filter((order) => order.status === "Returned").length || 0;
     const totalDeliveredToday =
       (orders as Array<Pick<Order, "status" | "created_at">> | null)?.filter((order) => {
         if (order.status !== "Delivered" || !order.created_at) return false;
@@ -156,13 +138,9 @@ async function getDashboardData(rangeDays: number) {
       }).length || 0;
 
     const totalDraft =
-      (products as Array<{ is_published?: boolean }> | null)?.filter(
-        (product) => product.is_published === false
-      ).length || 0;
+      (products as Array<{ is_published?: boolean }> | null)?.filter((product) => product.is_published === false).length || 0;
     const totalPending =
-      (orders as Pick<Order, "status">[] | null)?.filter(
-        (order) => order.status === "Pending"
-      ).length || 0;
+      (orders as Pick<Order, "status">[] | null)?.filter((order) => order.status === "Pending").length || 0;
 
     return {
       totalProducts,
@@ -177,10 +155,8 @@ async function getDashboardData(rangeDays: number) {
       previousReturned,
       currentCancelled,
       previousCancelled,
-      periodSales:
-        currentPeriodOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0,
-      previousPeriodSales:
-        previousPeriodOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0,
+      periodSales: currentPeriodOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0,
+      previousPeriodSales: previousPeriodOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0,
       dailySales,
       recentTransactions: allOrders
         .slice()
@@ -212,6 +188,8 @@ async function getDashboardData(rangeDays: number) {
 type AdminHomePageProps = {
   searchParams?: Promise<{ range?: string | string[] | undefined }>;
 };
+
+const metricShell = "rounded-[24px] border bg-white/95 p-5 shadow-[0_18px_38px_-30px_rgba(2,6,23,0.45)]";
 
 export default async function AdminHomePage({ searchParams }: AdminHomePageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
@@ -250,14 +228,20 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
     <section>
       <AdminTopbar />
 
-      <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-        Admin Dashboard
-      </h1>
-      <p className="mt-2 text-slate-600">
-        Manage your store operations with a cleaner workflow and faster setup.
-      </p>
+      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-slate-500 shadow-sm">
+            <AppIcon name="dashboard" className="h-4 w-4" />
+            Admin Dashboard
+          </div>
+          <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">Store performance at a glance</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+            Orders, traffic, inventory, and storefront health are aligned into one cleaner responsive workspace.
+          </p>
+        </div>
+      </div>
 
-      <div className="mb-6 mt-4 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2">
         {rangeOptions.map((item) => {
           const isActive = item.key === activeRange.key;
           return (
@@ -283,48 +267,42 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
         totalRevenue={totalRevenue}
       />
 
-      <div className="mb-8 grid gap-4 md:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className={`${metricShell} border-cyan-200/70`}>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Live Users</p>
           <p className="mt-1 text-2xl font-extrabold text-cyan-700">{traffic.liveUsers}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Visits ({activeRange.label})
-          </p>
+        <div className={`${metricShell} border-slate-200`}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Visits ({activeRange.label})</p>
           <p className="mt-1 text-2xl font-extrabold text-slate-900">{traffic.visitsInRange}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Sales ({activeRange.label})
-          </p>
+        <div className={`${metricShell} border-teal-200/70`}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Sales ({activeRange.label})</p>
           <p className="mt-1 text-2xl font-extrabold text-teal-700">৳{periodSales}</p>
-          <p className="mt-1 text-xs font-semibold text-slate-500">
-            Trend: {formatTrendLabel(salesChange)}
-          </p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">Trend: {formatTrendLabel(salesChange)}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className={`${metricShell} border-amber-200/70`}>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Draft Products</p>
           <p className="mt-1 text-2xl font-extrabold text-amber-700">{totalDraft}</p>
         </div>
       </div>
 
       <div className="mb-8 grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-rose-200/70`}>
           <h3 className="text-base font-bold text-slate-900">Return Trend</h3>
           <p className="mt-2 text-2xl font-extrabold text-rose-700">{currentReturned}</p>
           <p className="mt-1 text-xs font-semibold text-slate-500">
             {formatTrendLabel(returnedChange)} vs previous {activeRange.label.toLowerCase()}
           </p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-slate-200`}>
           <h3 className="text-base font-bold text-slate-900">Cancel Trend</h3>
           <p className="mt-2 text-2xl font-extrabold text-slate-700">{currentCancelled}</p>
           <p className="mt-1 text-xs font-semibold text-slate-500">
             {formatTrendLabel(cancelledChange)} vs previous {activeRange.label.toLowerCase()}
           </p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-emerald-200/70`}>
           <h3 className="text-base font-bold text-slate-900">All Time Sales</h3>
           <p className="mt-2 text-2xl font-extrabold text-emerald-700">৳{totalRevenue}</p>
           <p className="mt-1 text-xs font-semibold text-slate-500">Lifetime revenue snapshot</p>
@@ -332,7 +310,7 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
       </div>
 
       <div className="mb-8 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-slate-200`}>
           <h3 className="text-lg font-bold text-slate-900">Traffic Mini Chart (7D)</h3>
           <div className="mt-4 flex items-end gap-2">
             {traffic.dailyVisits.map((item) => {
@@ -343,16 +321,14 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
                     className={`w-full rounded-t-md bg-cyan-500/80 ${getBarHeightClass(ratio)}`}
                     title={`${item.date}: ${item.count}`}
                   />
-                  <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">
-                    {item.date.slice(5)}
-                  </p>
+                  <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">{item.date.slice(5)}</p>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-slate-200`}>
           <h3 className="text-lg font-bold text-slate-900">Sales Mini Chart (7D)</h3>
           <div className="mt-4 flex items-end gap-2">
             {dailySales.map((item) => {
@@ -363,9 +339,7 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
                     className={`w-full rounded-t-md bg-emerald-500/80 ${getBarHeightClass(ratio)}`}
                     title={`${item.date}: ${item.amount}`}
                   />
-                  <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">
-                    {item.date.slice(5)}
-                  </p>
+                  <p className="mt-1 truncate text-[10px] font-semibold text-slate-500">{item.date.slice(5)}</p>
                 </div>
               );
             })}
@@ -374,38 +348,44 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
       </div>
 
       <div className="mb-8 grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-slate-200`}>
           <h3 className="text-lg font-bold text-slate-900">Top Traffic Sources</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
             {traffic.topSources.length === 0 ? <li>No source data yet.</li> : null}
             {traffic.topSources.map((source) => (
-              <li key={source.name}>{source.name} - {source.count}</li>
+              <li key={source.name}>
+                {source.name} - {source.count}
+              </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-slate-200`}>
           <h3 className="text-lg font-bold text-slate-900">Top Visitor Regions</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
             {traffic.topCountries.length === 0 ? <li>No geo data yet.</li> : null}
             {traffic.topCountries.map((item) => (
-              <li key={item.name}>{item.name} - {item.count}</li>
+              <li key={item.name}>
+                {item.name} - {item.count}
+              </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={`${metricShell} border-slate-200`}>
           <h3 className="text-lg font-bold text-slate-900">Top Visited Pages</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
             {traffic.topPages.length === 0 ? <li>No page data yet.</li> : null}
             {traffic.topPages.map((item) => (
-              <li key={item.name}>{item.name} - {item.count}</li>
+              <li key={item.name}>
+                {item.name} - {item.count}
+              </li>
             ))}
           </ul>
         </div>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+      <div className={`${metricShell} mb-8 border-slate-200`}>
         <h3 className="text-lg font-bold text-slate-900">Traffic Trend (Last 7 Days)</h3>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {traffic.dailyVisits.length === 0 ? (
@@ -421,19 +401,19 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
         </div>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+      <div className={`${metricShell} mb-8 border-slate-200`}>
         <h3 className="text-lg font-bold text-slate-900">Notifications</h3>
         <ul className="mt-3 space-y-2 text-sm text-slate-700">
-          <li>{totalPending > 0 ? `🔔 ${totalPending} pending orders require action.` : "✅ No pending orders right now."}</li>
-          <li>{totalDeliveredToday > 0 ? `🚚 ${totalDeliveredToday} deliveries completed today.` : "ℹ️ No delivery completed today yet."}</li>
-          <li>{totalReturned > 0 ? `↩️ ${totalReturned} orders marked as returned.` : "✅ No returned orders."}</li>
-          <li>{totalCancelled > 0 ? `⚠️ ${totalCancelled} orders cancelled.` : "✅ No cancelled orders."}</li>
+          <li>{totalPending > 0 ? `${totalPending} pending orders require action.` : "No pending orders right now."}</li>
+          <li>{totalDeliveredToday > 0 ? `${totalDeliveredToday} deliveries completed today.` : "No delivery completed today yet."}</li>
+          <li>{totalReturned > 0 ? `${totalReturned} orders marked as returned.` : "No returned orders."}</li>
+          <li>{totalCancelled > 0 ? `${totalCancelled} orders cancelled.` : "No cancelled orders."}</li>
         </ul>
       </div>
 
       <AdminObservabilityPanel snapshot={{ ...observability, healthSnapshot }} />
 
-      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_-28px_rgba(2,6,23,0.4)]">
+      <div className="mb-8 rounded-[24px] border border-slate-200 bg-white/95 p-5 shadow-[0_18px_38px_-30px_rgba(2,6,23,0.45)]">
         <div className="mb-4 flex items-center justify-between gap-2">
           <h3 className="text-lg font-bold text-slate-900">Recent Transactions</h3>
           <Link
@@ -502,14 +482,14 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
         </div>
       </div>
 
-      <div id="customers" className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+      <div id="customers" className={`${metricShell} mb-8 border-slate-200`}>
         <h3 className="text-lg font-bold text-slate-900">Customers</h3>
         <p className="mt-2 text-sm text-slate-600">
           Use order table and profile/address records to monitor high-value and repeat customers.
         </p>
       </div>
 
-      <div id="analytics" className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+      <div id="analytics" className={`${metricShell} mb-8 border-slate-200`}>
         <h3 className="text-lg font-bold text-slate-900">Analytics</h3>
         <p className="mt-2 text-sm text-slate-600">
           Live visitors, traffic sources, drop-off insights, and conversion actions are available above.
@@ -519,31 +499,40 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         <Link
           href="/admin/orders"
-          className="rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)] transition hover:-translate-y-0.5"
+          className="rounded-[24px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)] transition hover:-translate-y-0.5"
         >
-          <h2 className="text-xl font-bold">📦 Orders</h2>
+          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+            <AppIcon name="package" className="h-5 w-5" />
+          </div>
+          <h2 className="mt-4 text-xl font-bold text-slate-900">Orders</h2>
           <p className="mt-2 text-sm text-slate-600">View all customer orders</p>
         </Link>
 
         <Link
           href="/admin/products"
-          className="rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)] transition hover:-translate-y-0.5"
+          className="rounded-[24px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)] transition hover:-translate-y-0.5"
         >
-          <h2 className="text-xl font-bold">👕 Products</h2>
+          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+            <AppIcon name="shirt" className="h-5 w-5" />
+          </div>
+          <h2 className="mt-4 text-xl font-bold text-slate-900">Products</h2>
           <p className="mt-2 text-sm text-slate-600">Upload and manage product catalog</p>
         </Link>
 
         <Link
           href="/admin/settings"
-          className="rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)] transition hover:-translate-y-0.5"
+          className="rounded-[24px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)] transition hover:-translate-y-0.5"
         >
-          <h2 className="text-xl font-bold">⚙️ Settings</h2>
+          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+            <AppIcon name="settings" className="h-5 w-5" />
+          </div>
+          <h2 className="mt-4 text-xl font-bold text-slate-900">Settings</h2>
           <p className="mt-2 text-sm text-slate-600">Update store information</p>
         </Link>
       </div>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
-        <div id="pos" className="rounded-2xl border border-slate-700 bg-slate-900/80 p-5 shadow-[0_14px_30px_-24px_rgba(0,0,0,0.9)]">
+        <div id="pos" className="rounded-[24px] border border-slate-800 bg-slate-950/90 p-5 shadow-[0_18px_34px_-26px_rgba(0,0,0,0.9)]">
           <h3 className="text-lg font-bold text-white">POS Quick Checkout</h3>
           <p className="mt-2 text-sm text-slate-300">Barcode scan করে দ্রুত product search ও checkout শুরু করুন।</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
@@ -552,16 +541,11 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
               placeholder="Scan barcode or type SKU"
               className="rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-sm text-slate-100 outline-none focus:border-emerald-400"
             />
-            <Link
-              href="/admin/orders"
-              className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white"
-            >
+            <Link href="/admin/orders" className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white">
               Open POS Desk
             </Link>
           </div>
-          <p className="mt-2 text-xs text-slate-400">
-            Enter SKU then open POS Desk to process order দ্রুতভাবে।
-          </p>
+          <p className="mt-2 text-xs text-slate-400">Enter SKU then open POS Desk to process order দ্রুতভাবে।</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
               <p className="text-xs font-semibold text-slate-400">Cart Items</p>
@@ -578,7 +562,7 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
+        <div className="rounded-[24px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
           <h3 className="text-lg font-bold text-slate-900">Recommended Feature Placement</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
             <li>Home: hero offer, top categories, trust badges, best sellers.</li>
@@ -588,7 +572,7 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
+        <div className="rounded-[24px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
           <h3 className="text-lg font-bold text-slate-900">Store Setup Priority</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
             <li>1) Set store name, logo, bKash QR in Settings.</li>
@@ -599,7 +583,7 @@ export default async function AdminHomePage({ searchParams }: AdminHomePageProps
         </div>
       </div>
 
-      <div id="ai" className="mt-6 rounded-2xl border border-slate-700 bg-slate-900/80 p-5">
+      <div id="ai" className="mt-6 rounded-[24px] border border-slate-800 bg-slate-950/90 p-5 shadow-[0_18px_34px_-26px_rgba(0,0,0,0.9)]">
         <h3 className="text-lg font-bold text-white">SUMONIX AI Zone</h3>
         <p className="mt-2 text-sm text-slate-300">
           SUMONIX AI থেকে orders, stock, sales, draft/publish actions এবং insights নিয়ে natural language-এ কাজ করতে পারবেন।

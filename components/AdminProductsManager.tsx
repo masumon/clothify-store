@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import AppIcon from "@/components/AppIcon";
 import EditProductForm from "@/components/EditProductForm";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import type { Product } from "@/types";
@@ -30,13 +31,10 @@ export default function AdminProductsManager({ products }: Props) {
     });
   }, [products, search, category]);
 
-  const allVisibleSelected =
-    filtered.length > 0 && filtered.every((item) => selectedIds.includes(item.id));
+  const allVisibleSelected = filtered.length > 0 && filtered.every((item) => selectedIds.includes(item.id));
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
   const toggleSelectAllVisible = () => {
@@ -145,22 +143,27 @@ export default function AdminProductsManager({ products }: Props) {
 
   return (
     <div>
-      <div className="mb-5 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
-        <div className="grid gap-3 md:grid-cols-[1fr_240px]">
-          <input
-            type="text"
-            placeholder="🔍 Search product by name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
-          />
+      <div className="mb-5 rounded-[24px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_16px_34px_-28px_rgba(2,6,23,0.45)]">
+        <div className="grid gap-3 lg:grid-cols-[1fr_240px]">
+          <label className="relative block">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+              <AppIcon name="search" className="h-4.5 w-4.5" />
+            </span>
+            <input
+              type="text"
+              placeholder="Search product by name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-2xl border border-slate-300 py-3 pl-11 pr-4 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            />
+          </label>
 
           <select
             aria-label="Filter by category"
             title="Filter by category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           >
             {categories.map((item) => (
               <option key={item} value={item}>
@@ -174,36 +177,40 @@ export default function AdminProductsManager({ products }: Props) {
           <button
             type="button"
             onClick={toggleSelectAllVisible}
-            className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
           >
-            {allVisibleSelected ? "❎ Unselect Visible" : "✅ Select Visible"}
+            <AppIcon name={allVisibleSelected ? "close" : "packageOpen"} className="h-4 w-4" />
+            {allVisibleSelected ? "Unselect Visible" : "Select Visible"}
           </button>
 
           <button
             type="button"
             disabled={busy}
             onClick={() => runBulkPublishState(true)}
-            className="rounded-full bg-teal-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-teal-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
           >
-            🚀 Bulk Publish
+            <AppIcon name="external" className="h-4 w-4" />
+            Bulk Publish
           </button>
 
           <button
             type="button"
             disabled={busy}
             onClick={() => runBulkPublishState(false)}
-            className="rounded-full bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
           >
-            📝 Bulk Draft
+            <AppIcon name="settings" className="h-4 w-4" />
+            Bulk Draft
           </button>
 
           <button
             type="button"
             disabled={busy}
             onClick={runBulkDelete}
-            className="rounded-full bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
           >
-            🗑️ Bulk Delete
+            <AppIcon name="close" className="h-4 w-4" />
+            Bulk Delete
           </button>
 
           <p className="ml-0 w-full text-xs font-semibold text-slate-500 sm:ml-auto sm:w-auto">
@@ -212,9 +219,9 @@ export default function AdminProductsManager({ products }: Props) {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {filtered.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-6">
+          <div className="rounded-[24px] border border-slate-200 bg-white p-6">
             <p className="text-slate-600">No products match your filters.</p>
           </div>
         ) : (
@@ -224,9 +231,9 @@ export default function AdminProductsManager({ products }: Props) {
             return (
               <div
                 key={product.id}
-                className="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]"
+                className="rounded-[24px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_16px_34px_-28px_rgba(2,6,23,0.45)]"
               >
-                <div className="mb-2 flex items-center justify-between">
+                <div className="mb-3 flex items-center justify-between gap-2">
                   <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600">
                     <input
                       type="checkbox"
@@ -237,9 +244,7 @@ export default function AdminProductsManager({ products }: Props) {
                   </label>
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-bold ${
-                      isPublished
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-amber-100 text-amber-700"
+                      isPublished ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
                     }`}
                   >
                     {isPublished ? "Published" : "Draft"}
@@ -247,21 +252,19 @@ export default function AdminProductsManager({ products }: Props) {
                 </div>
 
                 <Image
-                  src={product.image_url}
+                  src={product.image_url || "/hero-modern-fashion.svg"}
                   alt={product.name}
                   width={400}
                   height={256}
-                  className="h-64 w-full rounded-xl object-cover"
+                  className="h-64 w-full rounded-[20px] object-cover"
                 />
 
-                <h3 className="mt-3 font-bold text-slate-900">{product.name}</h3>
+                <h3 className="mt-4 font-bold text-slate-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-slate-500">{product.category}</p>
                 <p className="mt-1 font-semibold text-teal-700">৳{product.price}</p>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-2">
                   {product.is_featured ? (
-                    <span className="rounded-full bg-slate-900 px-2 py-1 text-[11px] font-bold text-white">
-                      Featured
-                    </span>
+                    <span className="rounded-full bg-slate-900 px-2 py-1 text-[11px] font-bold text-white">Featured</span>
                   ) : null}
                   {product.campaign_badge ? (
                     <span className="rounded-full bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700">
@@ -278,19 +281,18 @@ export default function AdminProductsManager({ products }: Props) {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-sm text-slate-600">
-                  Sizes: {product.sizes?.length ? product.sizes.join(", ") : "N/A"}
-                </p>
+                <p className="mt-2 text-sm text-slate-600">Sizes: {product.sizes?.length ? product.sizes.join(", ") : "N/A"}</p>
 
                 <button
                   type="button"
                   disabled={busy}
                   onClick={() => togglePublish(product.id, !isPublished)}
-                  className={`mt-3 w-full rounded-xl px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60 ${
+                  className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
                     isPublished ? "bg-amber-600 hover:bg-amber-700" : "bg-teal-700 hover:bg-teal-800"
                   }`}
                 >
-                  {isPublished ? "📝 Move to Draft" : "🚀 Publish Product"}
+                  <AppIcon name={isPublished ? "settings" : "external"} className="h-4 w-4" />
+                  {isPublished ? "Move to Draft" : "Publish Product"}
                 </button>
 
                 <EditProductForm product={product} />

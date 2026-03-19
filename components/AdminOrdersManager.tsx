@@ -127,9 +127,7 @@ export default function AdminOrdersManager({
     );
 
     for (const order of filteredOrders) {
-      const key = kanbanStatuses.includes(order.status as (typeof kanbanStatuses)[number])
-        ? order.status
-        : "Pending";
+      const key = kanbanStatuses.includes(order.status as (typeof kanbanStatuses)[number]) ? order.status : "Pending";
       nextBoard[key].push(order);
     }
 
@@ -137,17 +135,11 @@ export default function AdminOrdersManager({
   }, [filteredOrders]);
 
   const exportPdf = async () => {
-    const [{ default: jsPDF }, autoTableModule] = await Promise.all([
-      import("jspdf"),
-      import("jspdf-autotable"),
-    ]);
+    const [{ default: jsPDF }, autoTableModule] = await Promise.all([import("jspdf"), import("jspdf-autotable")]);
     const autoTable = autoTableModule.default;
     const doc = new jsPDF({ orientation: "landscape" });
     const generatedAt = new Date().toLocaleString();
-    const totalAmount = filteredOrders.reduce(
-      (sum, order) => sum + Number(order.total_amount || 0),
-      0
-    );
+    const totalAmount = filteredOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
     const deliveredCount = filteredOrders.filter((order) => order.status === "Delivered").length;
     const pendingCount = filteredOrders.filter((order) => order.status === "Pending").length;
     const returnedCount = filteredOrders.filter((order) => order.status === "Returned").length;
@@ -171,7 +163,7 @@ export default function AdminOrdersManager({
     doc.setFontSize(18);
     doc.text(`${storeName} Orders Report`, logoUrl ? 38 : 14, 15);
     doc.setFontSize(10);
-    doc.text(`Professional admin export`, logoUrl ? 38 : 14, 22);
+    doc.text("Professional admin export", logoUrl ? 38 : 14, 22);
 
     doc.setTextColor(31, 41, 55);
     doc.setFontSize(10);
@@ -243,14 +235,14 @@ export default function AdminOrdersManager({
 
   return (
     <div>
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
+      <div className="mb-6 rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_180px_180px_180px_180px_auto]">
           <input
             type="text"
-            placeholder="Search by customer, phone, address, TRX"
+            placeholder="Search by customer, phone, address, or TRX"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           />
 
           <select
@@ -258,7 +250,7 @@ export default function AdminOrdersManager({
             title="Filter by status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           >
             <option value="All">All Status</option>
             {kanbanStatuses.map((status) => (
@@ -273,7 +265,7 @@ export default function AdminOrdersManager({
             title="Filter by courier"
             value={courierFilter}
             onChange={(e) => setCourierFilter(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           >
             {courierOptions.map((courier) => (
               <option key={courier} value={courier}>
@@ -287,7 +279,7 @@ export default function AdminOrdersManager({
             title="Filter by payment method"
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           >
             {paymentOptions.map((payment) => (
               <option key={payment} value={payment}>
@@ -302,21 +294,21 @@ export default function AdminOrdersManager({
             aria-label="Filter by order date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           />
 
           <button
             type="button"
             onClick={exportPdf}
-            className="rounded-xl bg-rose-600 px-5 py-3 font-semibold text-white transition hover:bg-rose-700 sm:col-span-2 xl:col-span-1"
+            className="rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white transition hover:bg-rose-700 sm:col-span-2 xl:col-span-1"
           >
             Export PDF
           </button>
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
-        <div className="flex items-center justify-between gap-3">
+      <div className="mb-6 rounded-[24px] border border-slate-200 bg-white/95 p-5 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-bold text-slate-900">Courier-wise Report</h2>
           <p className="text-sm font-medium text-slate-500">Filtered by current search and filters</p>
         </div>
@@ -326,7 +318,7 @@ export default function AdminOrdersManager({
             <p className="text-sm text-slate-500">No courier data for current filters.</p>
           ) : (
             courierReport.map((item) => (
-              <div key={item.courier} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div key={item.courier} className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
                 <p className="text-sm font-bold text-slate-900">{item.courier}</p>
                 <p className="mt-2 text-xs text-slate-500">Orders</p>
                 <p className="text-xl font-extrabold text-slate-900">{item.orders}</p>
@@ -338,7 +330,7 @@ export default function AdminOrdersManager({
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
+      <div className="mb-6 rounded-[24px] border border-slate-200 bg-white/95 p-5 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
         <h2 className="text-lg font-bold text-slate-900">Courier Performance Trend Chart</h2>
         <div className="mt-4 flex items-end gap-3 overflow-x-auto">
           {courierReport.length === 0 ? (
@@ -363,36 +355,34 @@ export default function AdminOrdersManager({
         </div>
       </div>
 
-      <div className="mb-8 overflow-x-auto">
+      <div className="mb-8 overflow-x-auto rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
         <div className="flex min-w-max gap-4">
           {kanbanStatuses.map((status) => (
-            <div key={status} className="w-72 rounded-2xl border border-slate-200 bg-white p-3">
+            <div key={status} className="w-72 rounded-[22px] border border-slate-200 bg-slate-50 p-3">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900">{status}</h3>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-700">
                   {board[status].length}
                 </span>
               </div>
 
               <div className="space-y-2">
                 {board[status].slice(0, 8).map((order) => (
-                  <div key={order.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <div key={order.id} className="rounded-[18px] border border-slate-200 bg-white p-3">
                     <p className="text-sm font-bold text-slate-900">{order.customer_name}</p>
                     <p className="mt-1 text-xs text-slate-600">৳{order.total_amount}</p>
                     <p className="mt-1 text-xs text-slate-500">{parseCourier(order.delivery_method)}</p>
                     <p className="mt-1 line-clamp-2 text-xs text-slate-500">{order.delivery_method}</p>
                   </div>
                 ))}
-                {board[status].length === 0 ? (
-                  <p className="text-xs text-slate-400">No orders</p>
-                ) : null}
+                {board[status].length === 0 ? <p className="text-xs text-slate-400">No orders</p> : null}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/95 shadow-[0_10px_28px_-22px_rgba(2,6,23,0.6)]">
+      <div className="overflow-x-auto rounded-[24px] border border-slate-200/80 bg-white/95 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
         <table className="min-w-[1080px]">
           <thead className="bg-slate-50/90">
             <tr>

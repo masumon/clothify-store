@@ -1,6 +1,7 @@
+import Link from "next/link";
+import AppIcon from "@/components/AppIcon";
 import AdminTopbar from "@/components/AdminTopbar";
 import AdminOrdersManager from "@/components/AdminOrdersManager";
-import Link from "next/link";
 import { getStoreSettings } from "@/lib/data";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 import { Order } from "@/types";
@@ -23,10 +24,7 @@ async function getOrders() {
   try {
     const supabase = getSupabaseAdminClient();
 
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .order("id", { ascending: false });
+    const { data, error } = await supabase.from("orders").select("*").order("id", { ascending: false });
 
     if (error) {
       console.error(error.message);
@@ -60,10 +58,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
     return time >= periodStart && time <= now;
   });
 
-  const totalSales = filteredOrders.reduce(
-    (sum, item) => sum + Number(item.total_amount || 0),
-    0
-  );
+  const totalSales = filteredOrders.reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
   const pendingCount = filteredOrders.filter((item) => item.status === "Pending").length;
   const deliveredCount = filteredOrders.filter((item) => item.status === "Delivered").length;
   const returnedCount = filteredOrders.filter((item) => item.status === "Returned").length;
@@ -74,8 +69,14 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
       <AdminTopbar />
 
       <div className="mb-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">📦 Orders Command Center</h1>
-        <p className="mt-2 text-slate-600">Track, filter, and process customer orders with courier and payment visibility.</p>
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-slate-500 shadow-sm">
+          <AppIcon name="package" className="h-4 w-4" />
+          Orders
+        </div>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">Orders command center</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+          Track, filter, and process customer orders with courier, payment, and status visibility in one responsive flow.
+        </p>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -97,39 +98,35 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
         })}
       </div>
 
-      <div className="mb-6 grid gap-4 md:grid-cols-5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
-            💰 Sales ({activeRange.label})
-          </p>
+      <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Sales ({activeRange.label})</p>
           <p className="mt-1 text-2xl font-extrabold text-teal-700">৳{totalSales}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">⏳ Pending</p>
+        <div className="rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Pending</p>
           <p className="mt-1 text-2xl font-extrabold text-amber-600">{pendingCount}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
-            ✅ Delivered ({activeRange.label})
-          </p>
+        <div className="rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Delivered ({activeRange.label})</p>
           <p className="mt-1 text-2xl font-extrabold text-emerald-700">{deliveredCount}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">↩️ Returned</p>
+        <div className="rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Returned</p>
           <p className="mt-1 text-2xl font-extrabold text-rose-600">{returnedCount}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">🚫 Cancelled</p>
+        <div className="rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Cancelled</p>
           <p className="mt-1 text-2xl font-extrabold text-slate-700">{cancelledCount}</p>
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-lg font-bold text-slate-900">🔔 Notifications</h2>
+      <div className="mb-6 rounded-[24px] border border-slate-200 bg-white/95 p-4 shadow-[0_14px_32px_-26px_rgba(2,6,23,0.48)]">
+        <h2 className="text-lg font-bold text-slate-900">Notifications</h2>
         <ul className="mt-2 space-y-1 text-sm text-slate-700">
-          <li>{pendingCount > 0 ? `🔔 ${pendingCount} orders are waiting for action in ${activeRange.label.toLowerCase()}.` : "✅ No pending orders."}</li>
-          <li>{cancelledCount > 0 ? `⚠️ ${cancelledCount} orders are cancelled in ${activeRange.label.toLowerCase()}.` : "✅ No cancelled orders."}</li>
-          <li>{returnedCount > 0 ? `↩️ ${returnedCount} orders were returned in ${activeRange.label.toLowerCase()}.` : "✅ No returned orders."}</li>
+          <li>{pendingCount > 0 ? `${pendingCount} orders are waiting for action in ${activeRange.label.toLowerCase()}.` : "No pending orders."}</li>
+          <li>{cancelledCount > 0 ? `${cancelledCount} orders are cancelled in ${activeRange.label.toLowerCase()}.` : "No cancelled orders."}</li>
+          <li>{returnedCount > 0 ? `${returnedCount} orders were returned in ${activeRange.label.toLowerCase()}.` : "No returned orders."}</li>
         </ul>
       </div>
 

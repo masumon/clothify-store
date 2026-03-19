@@ -79,6 +79,8 @@ export default function Footer({
     setToast(`${method.label} ${dict.common.comingSoon.toLowerCase()}.`);
   };
 
+  const footerCredit = `Designed & Developed by Sumon (Mumain Ahmed) | Powered by ${storeName} © 2026`;
+
   return (
     <footer className="mt-16 border-t border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 text-white">
       <div className="mx-auto max-w-6xl px-4 py-12">
@@ -227,9 +229,7 @@ export default function Footer({
         ) : null}
 
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-slate-400">
-          {uiMode === "abo"
-            ? "Designed & Developed by Sumon (Mumain Ahmed) | Powered by ABO Enterprise © 2026"
-            : `© ${new Date().getFullYear()} ${storeName}. ${dict.footer.rightsReserved}`}
+          {uiMode === "abo" ? footerCredit : `© ${new Date().getFullYear()} ${storeName}. ${dict.footer.rightsReserved}`}
         </div>
       </div>
     </footer>

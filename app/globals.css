@@ -10,6 +10,12 @@
   --line: rgba(148, 163, 184, 0.45);
   --brand: #0f766e;
   --brand-strong: #115e59;
+  --admin-shell-bg:
+    radial-gradient(980px 540px at 0% -8%, rgba(20, 184, 166, 0.1), transparent 56%),
+    radial-gradient(840px 480px at 100% -4%, rgba(14, 165, 233, 0.08), transparent 50%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 45%, #eef6f4 100%);
+  --admin-sidebar-bg: linear-gradient(180deg, #02111f 0%, #0f172a 52%, #111827 100%);
+  --admin-sidebar-border: rgba(51, 65, 85, 0.7);
   color-scheme: light;
 }
 
@@ -21,6 +27,12 @@ html.dark-theme {
   --line: rgba(71, 85, 105, 0.9);
   --brand: #14b8a6;
   --brand-strong: #0d9488;
+  --admin-shell-bg:
+    radial-gradient(920px 500px at 0% -6%, rgba(20, 184, 166, 0.12), transparent 56%),
+    radial-gradient(860px 460px at 100% -4%, rgba(30, 64, 175, 0.16), transparent 52%),
+    linear-gradient(180deg, #08111f 0%, #0f172a 58%, #111827 100%);
+  --admin-sidebar-bg: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  --admin-sidebar-border: rgba(51, 65, 85, 0.82);
   color-scheme: dark;
 }
 
@@ -29,17 +41,17 @@ body {
   font-family: var(--font-ui), var(--font-bn), "Segoe UI", sans-serif;
   background-color: var(--surface);
   background:
-    radial-gradient(1000px 500px at 0% -10%, rgba(16, 185, 129, 0.2), transparent 55%),
-    radial-gradient(850px 400px at 100% 0%, rgba(14, 165, 233, 0.18), transparent 50%),
-    linear-gradient(180deg, #f8fbff 0%, #f7fafc 45%, #f4f8f6 100%);
+    radial-gradient(980px 520px at 0% -10%, rgba(15, 118, 110, 0.11), transparent 56%),
+    radial-gradient(900px 460px at 100% -4%, rgba(56, 189, 248, 0.09), transparent 50%),
+    linear-gradient(180deg, #fcfdff 0%, #f8fafc 42%, #f4f8f7 100%);
   min-height: 100vh;
 }
 
 html.dark-theme body {
   background:
-    radial-gradient(1000px 500px at 0% -10%, rgba(20, 184, 166, 0.2), transparent 55%),
-    radial-gradient(850px 400px at 100% 0%, rgba(30, 64, 175, 0.18), transparent 50%),
-    linear-gradient(180deg, #0b1220 0%, #0f172a 55%, #111827 100%);
+    radial-gradient(980px 520px at 0% -10%, rgba(20, 184, 166, 0.14), transparent 56%),
+    radial-gradient(860px 430px at 100% -2%, rgba(30, 64, 175, 0.18), transparent 50%),
+    linear-gradient(180deg, #091120 0%, #0f172a 56%, #111827 100%);
 }
 
 html.dark-theme .surface-card {
@@ -176,33 +188,12 @@ html.dark-theme option {
 }
 
 .admin-shell {
-  background:
-    radial-gradient(900px 460px at 0% -10%, rgba(16, 185, 129, 0.14), transparent 55%),
-    radial-gradient(700px 380px at 100% 0%, rgba(251, 146, 60, 0.12), transparent 50%),
-    linear-gradient(180deg, #111214 0%, #121212 45%, #0b0d10 100%);
+  background: var(--admin-shell-bg);
 }
 
-.admin-shell .bg-white,
-.admin-shell .bg-white\/90,
-.admin-shell .bg-white\/95,
-.admin-shell .bg-slate-50 {
-  background-color: rgba(17, 24, 39, 0.88) !important;
-}
-
-/* Semi-transparent white backgrounds (bg-white/10, bg-white/15, etc.) in admin are left untouched
-   as they may be used on dark backgrounds for frosted glass effects */
-
-.admin-shell .text-slate-900,
-.admin-shell .text-slate-800,
-.admin-shell .text-slate-700,
-.admin-shell .text-slate-600,
-.admin-shell .text-slate-500 {
-  color: #e5e7eb !important;
-}
-
-.admin-shell .border-slate-200,
-.admin-shell .border-slate-300 {
-  border-color: rgba(71, 85, 105, 0.8) !important;
+.admin-sidebar {
+  background: var(--admin-sidebar-bg);
+  border-color: var(--admin-sidebar-border);
 }
 
 ::selection {
@@ -428,6 +419,15 @@ html.abo-premium .admin-shell {
 
 html.abo-premium .admin-sidebar {
   background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+}
+
+html.abo-premium .btn-primary {
+  background-color: #0f172a;
+}
+
+html.abo-premium .btn-primary:hover {
+  background-color: #fbbf24;
+  color: #0f172a;
 }
 
 html.abo-premium .hero-marquee-mask::before {

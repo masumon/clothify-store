@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import AppIcon from "@/components/AppIcon";
 
 type Props = {
   initialData: {
@@ -110,125 +111,116 @@ export default function StoreSettingsForm({ initialData }: Props) {
     }
   };
 
+  const fieldClassName =
+    "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">🏪 Store Name</label>
-        <input
-          type="text"
-          title="Store Name"
-          value={storeName}
-          onChange={(e) => setStoreName(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-[28px] border border-slate-200 bg-white/95 p-6 shadow-[0_18px_36px_-30px_rgba(2,6,23,0.45)]">
+      <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="space-y-5">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <AppIcon name="store" className="h-4 w-4 text-slate-500" />
+                Store Name
+              </label>
+              <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} className={fieldClassName} />
+            </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">✨ Slogan</label>
-        <input
-          type="text"
-          title="Slogan"
-          value={slogan}
-          onChange={(e) => setSlogan(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-        />
-      </div>
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <AppIcon name="offers" className="h-4 w-4 text-slate-500" />
+                Slogan
+              </label>
+              <input type="text" value={slogan} onChange={(e) => setSlogan(e.target.value)} className={fieldClassName} />
+            </div>
+          </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">📍 Address</label>
-        <textarea
-          title="Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="min-h-[100px] w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-        />
-      </div>
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <AppIcon name="mapPin" className="h-4 w-4 text-slate-500" />
+              Address
+            </label>
+            <textarea value={address} onChange={(e) => setAddress(e.target.value)} className={`${fieldClassName} min-h-[110px]`} />
+          </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">☎️ Contact Phone</label>
-          <input
-            type="text"
-            title="Contact Phone"
-            value={contactPhone}
-            onChange={(e) => setContactPhone(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-          />
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <AppIcon name="support" className="h-4 w-4 text-slate-500" />
+                Contact Phone
+              </label>
+              <input type="text" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className={fieldClassName} />
+            </div>
+
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <AppIcon name="whatsapp" className="h-4 w-4 text-slate-500" />
+                WhatsApp Number
+              </label>
+              <input type="text" value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} className={fieldClassName} />
+            </div>
+
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <AppIcon name="payment" className="h-4 w-4 text-slate-500" />
+                bKash Number
+              </label>
+              <input type="text" value={bkashNumber} onChange={(e) => setBkashNumber(e.target.value)} className={fieldClassName} />
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">💬 WhatsApp Number</label>
-          <input
-            type="text"
-            title="WhatsApp Number"
-            value={whatsappNumber}
-            onChange={(e) => setWhatsappNumber(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-          />
-        </div>
+        <div className="space-y-4">
+          <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <AppIcon name="store" className="h-4 w-4 text-slate-500" />
+              Logo Upload
+            </label>
+            <input
+              type="file"
+              title="Logo Upload"
+              aria-label="Logo Upload"
+              accept="image/*"
+              onChange={(e) => uploadFile(e, "store-assets", "logos", setLogoUrl, setUploadingLogo)}
+              className="w-full text-sm"
+            />
+            <p className="mt-2 text-xs text-slate-500">{uploadingLogo ? "Uploading logo..." : "Upload store logo"}</p>
 
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">💳 bKash Number</label>
-          <input
-            type="text"
-            title="bKash Number"
-            value={bkashNumber}
-            onChange={(e) => setBkashNumber(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-          />
-        </div>
-      </div>
+            {logoUrl ? (
+              <Image src={logoUrl} alt="Logo" width={96} height={96} className="mt-4 h-24 w-24 rounded-2xl border object-cover" />
+            ) : null}
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 p-4">
-          <label className="mb-2 block text-sm font-semibold text-slate-700">🖼️ Logo Upload</label>
-          <input
-            type="file"
-            title="Logo Upload"
-            aria-label="Logo Upload"
-            accept="image/*"
-            onChange={(e) =>
-              uploadFile(e, "store-assets", "logos", setLogoUrl, setUploadingLogo)
-            }
-            className="w-full text-sm"
-          />
-          <p className="mt-2 text-xs text-slate-500">
-            {uploadingLogo ? "Uploading logo..." : "Upload store logo"}
-          </p>
+          <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <AppIcon name="payment" className="h-4 w-4 text-slate-500" />
+              bKash QR Upload
+            </label>
+            <input
+              type="file"
+              title="bKash QR Upload"
+              aria-label="bKash QR Upload"
+              accept="image/*"
+              onChange={(e) => uploadFile(e, "store-assets", "bkash", setBkashQrUrl, setUploadingQr)}
+              className="w-full text-sm"
+            />
+            <p className="mt-2 text-xs text-slate-500">{uploadingQr ? "Uploading QR..." : "Upload bKash QR image"}</p>
 
-          {logoUrl ? (
-            <Image src={logoUrl} alt="Logo" width={96} height={96} className="mt-4 h-24 w-24 rounded-xl border object-cover" />
-          ) : null}
-        </div>
-
-        <div className="rounded-xl border border-slate-200 p-4">
-          <label className="mb-2 block text-sm font-semibold text-slate-700">📲 bKash QR Upload</label>
-          <input
-            type="file"
-            title="bKash QR Upload"
-            aria-label="bKash QR Upload"
-            accept="image/*"
-            onChange={(e) =>
-              uploadFile(e, "store-assets", "bkash", setBkashQrUrl, setUploadingQr)
-            }
-            className="w-full text-sm"
-          />
-          <p className="mt-2 text-xs text-slate-500">
-            {uploadingQr ? "Uploading QR..." : "Upload bKash QR image"}
-          </p>
-
-          {bkashQrUrl ? (
-            <Image src={bkashQrUrl} alt="QR" width={128} height={128} className="mt-4 h-32 w-32 rounded-xl border object-cover" />
-          ) : null}
+            {bkashQrUrl ? (
+              <Image src={bkashQrUrl} alt="QR" width={128} height={128} className="mt-4 h-32 w-32 rounded-2xl border object-cover" />
+            ) : null}
+          </div>
         </div>
       </div>
 
       <button
         type="submit"
         disabled={saving}
-        className="w-full rounded-lg bg-emerald-700 px-5 py-3 font-medium text-white transition hover:bg-emerald-800 disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 font-medium text-white transition hover:bg-emerald-800 disabled:opacity-60"
       >
-        {saving ? "Saving..." : "✅ Save Settings"}
+        <AppIcon name="settings" className="h-4.5 w-4.5" />
+        {saving ? "Saving..." : "Save Settings"}
       </button>
     </form>
   );

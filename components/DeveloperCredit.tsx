@@ -53,7 +53,7 @@ function PhoneIcon() {
 export default function DeveloperCredit({
   name = "Mumain Ahmed",
   role = "AI Solutions Architect & Full Stack Developer",
-  business = "ABO ENTERPRISE",
+  business = "Clothify Experience Partner",
   email1 = "abo.enterprise@gmail.com",
   email2 = "m.a.sumon92@gmail.com",
   whatsapp = "+8801825007977",
@@ -109,8 +109,8 @@ export default function DeveloperCredit({
         {/* Developer card */}
         <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur">
           <Image
-            src="/abo-logo.png"
-            alt="ABO Enterprise"
+            src="/icons/icon-192.png"
+            alt={business}
             width={44}
             height={44}
             className="h-11 w-11 shrink-0 rounded-full border border-white/25 object-cover"
@@ -171,7 +171,7 @@ export default function DeveloperCredit({
                 onClick={() => setShowMap(true)}
                 className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300 transition hover:bg-white/5"
               >
-                🗺️ Mini Map
+                Mini Map
               </button>
             )}
           </div>
