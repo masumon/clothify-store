@@ -71,10 +71,22 @@
   gap: 0.85rem;
   border: 0;
   background: transparent;
-  padding: 0;
+  padding: 0.18rem 0.2rem;
   color: inherit;
   text-align: left;
   cursor: pointer;
+  border-radius: 18px;
+  transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.summaryButton:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.summaryButton:focus-visible,
+.iconButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.24);
 }
 
 .header {
@@ -129,6 +141,10 @@
   line-height: 1.45;
   color: #1e293b;
   font-weight: 600;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .secondaryTitle {
@@ -199,6 +215,14 @@
 
 .panelInner {
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.panelOpen .panelInner {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .lucideIcon,
@@ -297,6 +321,11 @@
 :global(html.abo-premium) .iconButton:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.18);
+}
+
+:global(html.dark-theme) .summaryButton:hover,
+:global(html.abo-premium) .summaryButton:hover {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 @media (max-width: 640px) {
