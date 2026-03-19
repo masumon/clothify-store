@@ -29,8 +29,20 @@ function getMemoryState() {
 }
 
 function getUpstashRedis() {
-  const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  const normalizeEnvValue = (value?: string) => {
+    const trimmed = value?.trim();
+    if (!trimmed) return "";
+    if (
+      (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'"))
+    ) {
+      return trimmed.slice(1, -1).trim();
+    }
+    return trimmed;
+  };
+
+  const url = normalizeEnvValue(process.env.UPSTASH_REDIS_REST_URL);
+  const token = normalizeEnvValue(process.env.UPSTASH_REDIS_REST_TOKEN);
   if (!url || !token) {
     return null;
   }

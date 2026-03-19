@@ -71,6 +71,9 @@ export default function DeveloperCredit({
       const url = new URL(locationText);
       const { hostname } = url;
       return (
+        hostname === "www.google.com" ||
+        hostname === "google.com" ||
+        hostname === "www.google.com.bd" ||
         hostname === "maps.google.com" ||
         hostname === "maps.app.goo.gl" ||
         hostname === "goo.gl"
@@ -85,16 +88,30 @@ export default function DeveloperCredit({
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}`;
 
   function buildMapsEmbedUrl(location: string, isGoogleLink: boolean): string {
+    const fallbackQuery = address.trim() || location;
+
     if (!isGoogleLink) {
-      return `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`;
+      return `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed&hl=bn&z=15`;
     }
-    // Short links (maps.app.goo.gl) cannot be converted to embed URLs by domain replacement.
-    // Pass the short URL as a search query so Maps shows the nearest result.
-    if (location.includes("maps.app.goo.gl")) {
-      return `https://maps.google.com/maps?q=${encodeURIComponent(location)}&output=embed&hl=bn&z=15`;
+
+    try {
+      const url = new URL(location);
+      const host = url.hostname.toLowerCase();
+
+      if (host === "maps.app.goo.gl" || host === "goo.gl") {
+        return `https://www.google.com/maps?q=${encodeURIComponent(fallbackQuery)}&output=embed&hl=bn&z=15`;
+      }
+
+      const q =
+        url.searchParams.get("q") ||
+        url.searchParams.get("query") ||
+        url.searchParams.get("destination") ||
+        fallbackQuery;
+
+      return `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed&hl=bn&z=15`;
+    } catch {
+      return `https://www.google.com/maps?q=${encodeURIComponent(fallbackQuery)}&output=embed&hl=bn&z=15`;
     }
-    // Full Google Maps share links: swap host to the embed endpoint.
-    return location.replace("maps.app.goo.gl", "www.google.com/maps/embed");
   }
 
   const mapsEmbedUrl = buildMapsEmbedUrl(locationText, isGoogleMapsLink);
@@ -184,6 +201,7 @@ export default function DeveloperCredit({
                 width="100%"
                 height="140"
                 loading="lazy"
+                allowFullScreen
                 referrerPolicy="no-referrer-when-downgrade"
                 className="block"
               />

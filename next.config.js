@@ -18,6 +18,7 @@ if (process.env.NODE_ENV !== "test" && missingServerEnv.length > 0) {
 const remotePatterns = [];
 const connectSrc = new Set(["'self'"]);
 const imgSrc = new Set(["'self'", "data:", "blob:"]);
+const frameSrc = new Set(["'self'"]);
 
 function addUrlHost(value, targetSet, protocols = ["https:"]) {
   if (!value) return;
@@ -50,6 +51,9 @@ if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
 addUrlHost(process.env.NEXT_PUBLIC_SITE_URL, connectSrc);
 addUrlHost(process.env.SENTRY_DSN, connectSrc);
 addUrlHost(process.env.NEXT_PUBLIC_SENTRY_DSN, connectSrc);
+frameSrc.add("https://www.google.com");
+frameSrc.add("https://maps.google.com");
+frameSrc.add("https://www.google.com.bd");
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -58,6 +62,7 @@ const contentSecurityPolicy = [
   "font-src 'self' data:",
   `img-src ${Array.from(imgSrc).join(" ")}`,
   `connect-src ${Array.from(connectSrc).join(" ")}`,
+  `frame-src ${Array.from(frameSrc).join(" ")}`,
   "frame-ancestors 'self'",
   "object-src 'none'",
   "base-uri 'self'",
